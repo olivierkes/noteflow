@@ -14,11 +14,21 @@ class cloudView(QListWidget):
         self.setMovement(self.Static)
         self.words = []
         
+        self._maxWords = 0
+        
     def setWords(self, words):
         self.words = words
         self.clear()
         if not words:
             return
+        
+        # If there's a limit of number of words
+        if self._maxWords > 0:
+            val = sorted(words.values())[-self._maxWords]
+            words2 = words.copy()
+            for w in words2:
+                if words2[w] < val:
+                    words.pop(w)
         
         minCount, maxCount = min(words.values()), max(words.values())
         if minCount == maxCount:
