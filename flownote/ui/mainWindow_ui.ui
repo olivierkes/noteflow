@@ -16,93 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
-     <layout class="QHBoxLayout" name="topLayout">
-      <item>
-       <widget class="QToolButton" name="toolButton_3">
-        <property name="text">
-         <string>Open</string>
-        </property>
-        <property name="icon">
-         <iconset theme="folder-open">
-          <normaloff/>
-         </iconset>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButton_4">
-        <property name="text">
-         <string>New</string>
-        </property>
-        <property name="icon">
-         <iconset theme="folder-new">
-          <normaloff/>
-         </iconset>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButton_5">
-        <property name="text">
-         <string>Recent</string>
-        </property>
-        <property name="icon">
-         <iconset theme="document-open-recent">
-          <normaloff/>
-         </iconset>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButton_6">
-        <property name="text">
-         <string>Close</string>
-        </property>
-        <property name="icon">
-         <iconset theme="window-close">
-          <normaloff/>
-         </iconset>
-        </property>
-        <property name="toolButtonStyle">
-         <enum>Qt::ToolButtonTextUnderIcon</enum>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
+     <widget class="QTabBar" name="tab" native="true"/>
     </item>
     <item>
      <widget class="QSplitter" name="splitter">
@@ -111,6 +25,82 @@
       </property>
       <widget class="QWidget" name="filter" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <layout class="QHBoxLayout" name="topLayout">
+          <item>
+           <widget class="QToolButton" name="toolButton_3">
+            <property name="text">
+             <string>Open</string>
+            </property>
+            <property name="icon">
+             <iconset theme="folder-open">
+              <normaloff/>
+             </iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="btnNewNotebook">
+            <property name="text">
+             <string>New</string>
+            </property>
+            <property name="icon">
+             <iconset theme="folder-new">
+              <normaloff/>
+             </iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="toolButton_5">
+            <property name="text">
+             <string>Recent</string>
+            </property>
+            <property name="icon">
+             <iconset theme="document-open-recent">
+              <normaloff/>
+             </iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="toolButton_6">
+            <property name="text">
+             <string>Close</string>
+            </property>
+            <property name="icon">
+             <iconset theme="window-close">
+              <normaloff/>
+             </iconset>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextUnderIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item>
          <widget class="QGroupBox" name="grpNotebooks">
           <property name="title">
@@ -159,6 +149,28 @@
          </widget>
         </item>
         <item>
+         <widget class="QCalendarWidget" name="calendar">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="horizontalHeaderFormat">
+           <enum>QCalendarWidget::ShortDayNames</enum>
+          </property>
+          <property name="verticalHeaderFormat">
+           <enum>QCalendarWidget::NoVerticalHeader</enum>
+          </property>
+          <property name="navigationBarVisible">
+           <bool>true</bool>
+          </property>
+          <property name="dateEditEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QGroupBox" name="groupBox">
           <property name="title">
            <string>Filters</string>
@@ -185,28 +197,6 @@
               </sizepolicy>
              </property>
              <property name="clearButtonEnabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCalendarWidget" name="calendar">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="horizontalHeaderFormat">
-              <enum>QCalendarWidget::ShortDayNames</enum>
-             </property>
-             <property name="verticalHeaderFormat">
-              <enum>QCalendarWidget::NoVerticalHeader</enum>
-             </property>
-             <property name="navigationBarVisible">
-              <bool>true</bool>
-             </property>
-             <property name="dateEditEnabled">
               <bool>true</bool>
              </property>
             </widget>
@@ -467,6 +457,9 @@
       </widget>
       <widget class="QWidget" name="editor" native="true">
        <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QTextEdit" name="text"/>
         </item>
@@ -484,6 +477,9 @@
           </item>
           <item>
            <widget class="QDateEdit" name="dateNoteDate">
+            <property name="currentSection">
+             <enum>QDateTimeEdit::YearSection</enum>
+            </property>
             <property name="displayFormat">
              <string>yyyy-MM-dd</string>
             </property>
@@ -517,6 +513,12 @@
    <class>cloudView</class>
    <extends>QListWidget</extends>
    <header>flownote.ui.views.cloudView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QTabBar</class>
+   <extends>QWidget</extends>
+   <header location="global">PyQt5.QtWidgets</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

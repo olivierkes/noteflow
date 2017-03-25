@@ -56,3 +56,46 @@ def lineEditSS_2():
 def transparentSS():
     return """background: transparent;
               border:none;"""
+              
+def tabBarSS():
+    return """
+        QTabWidget::pane{{
+            margin-top: -1px;
+            border: 1px solid #999;
+        }}
+        QTabWidget::tab-bar{{
+            left:50px;
+        }}
+        QTabBar{{
+            background: transparent;
+            border-radius: 0;
+            border: 0px;
+        }}
+        QTabBar::tab{{
+            margin: 5px 0 0px 0;
+            padding: 2px 9px;
+            border: 1px solid #999;
+            border-bottom: 0px;
+        }}
+        QTabBar::tab::first{{
+            font-weight: bold;
+        }}
+        QTabBar::tab:selected{{
+            border: 1px solid black;
+            background: white;
+            border-bottom: 0px;
+            margin-top: 0px;
+            color: black;
+        }}
+        QTabBar::tab:!selected:hover{{
+            background:#ddd;
+        }}
+        """.format()
+        
+def textEditorSS():
+    return """
+        QTextEdit {{
+            border: 1px solid #999;
+            border-top: 0px;
+        }}
+    """.format()

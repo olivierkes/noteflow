@@ -39,6 +39,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.txtFilter.setStyleSheet(S.lineEditSS_2())
         self.txtNoteName.setStyleSheet(S.lineEditSS_2())
+        #self.tab.setStyleSheet(S.tabBarSS())
+        #self.text.setStyleSheet(S.textEditorSS())
         
         self.tblList.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.tblList.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
@@ -53,10 +55,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.txtFilter.textChanged.connect(self.filterNotes)
         self.lstNotebooks.itemSelectionChanged.connect(self.filterNotes)
+        self.tab.currentChanged.connect(self.filterNotes)
         self.lstTags.itemSelectionChanged.connect(self.filterNotes)
         self.lstWords.itemSelectionChanged.connect(self.filterNotes)
         self.tblList.itemSelectionChanged.connect(self.openNote)
         self.calendar.selectionChanged.connect(self.filterNotes)
+        
         
         self.tblList.hideColumn(2)
         self.tblList.setStyleSheet(S.tableSS())
@@ -64,10 +68,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Hiding 
         
-#        self.btnToggleNotebooks.setChecked(False)
-#        self.btnToggleCalendar.setChecked(False)
+        self.btnToggleNotebooks.setChecked(False)
+        self.btnToggleCalendar.setChecked(False)
 #        self.btnToggleFilter.setChecked(False)
-        self.btnToggleTags.setChecked(False)
+        #self.btnToggleTags.setChecked(False)
         self.btnToggleWords.setChecked(False)
         
         # NOTEBOOKS
@@ -95,8 +99,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for i in range(100):
             n = Note(
                 date="{}-{}-{}".format(
-                    random.randint(2017, 2017),
-                    random.randint(3, 3),
+                    random.randint(2016, 2017),
+                    random.randint(1, 12),
                     random.randint(1, 30)
                     ),
                 text="#"+lorem.text()
@@ -121,9 +125,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         notes = []
         
         # Notebooks
-        sel = [i.text() for i in self.lstNotebooks.selectedItems()]
-        nb = [nb for nb in self.notebooks if nb.name in sel or not sel]
+        nb = self.notebooks
+        ## Method with QListWidget
+        #sel = [i.text() for i in self.lstNotebooks.selectedItems()]
+        #nb = [nb for nb in self.notebooks if nb.name in sel or not sel]
 
+        ## Method wit tabbar
+        if self.tab.isVisible() and self.tab.currentIndex() > 0:  
+            # means more than one notebook, and "All Notebooks" is not selected
+            nb = [nb for nb in self.notebooks if nb.name == self.tab.tabText(self.tab.currentIndex())]
+        
         notes = []
         [notes.extend(nb2.notes) for nb2 in nb]
         
@@ -148,10 +159,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #            notes = [n for n in notes if len([s for s in sel if s in n.text.lower()])]
         
         # Calendar
-        if self.calendar.isVisible():
-            d = self.calendar.selectedDate()
-            t = "{}-{}-{}".format(d.year(), d.month(), d.day())
-            notes = [n for n in notes if n.date == t]
+        #if self.calendar.isVisible():
+            #d = self.calendar.selectedDate()
+            #t = "{}-{}-{}".format(d.year(), d.month(), d.day())
+            #notes = [n for n in notes if n.date == t]
         
         
         self.notes = notes
@@ -183,6 +194,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         sh.setHeight(h)
         self.lstNotebooks.setMaximumSize(sh)
         
+        # TabBar
+        self.tab.setDocumentMode(True)
+        while self.tab.count():         # Remove all tabs
+            self.tab.removeTab(0)
+        if len(self.notebooks) > 1:
+            self.tab.addTab("All")
+            self.tab.show()
+            for nb in self.notebooks:
+                self.tab.addTab(nb.name)
+        else:
+            self.tab.hide()
+        
+        
     def setupTblNotes(self):
         self.tblList.clearContents()
         
@@ -202,7 +226,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #==============================================================================
 
     def updateFiltersUI(self):
-        #self.updateCalendar(self.notes)
+        self.updateCalendar(self.notes)
         self.updateTblNotes()
         
         notes = self.notes
