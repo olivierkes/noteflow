@@ -1,0 +1,10 @@
+*.pyc
+*.lprof
+.directory
+*.nja
+icons/Numix
+.idea
+dist
+build
+data
+tests
