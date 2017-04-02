@@ -8,13 +8,16 @@ from PyQt5.QtCore import *
 
 EXT = ".txt"
 
-class Notebook:
+class Notebook(QObject):
     """A collection of notes.
 
     On the computer, a notebook is a folder containing text files.
     """
     
+    noteChanged = pyqtSignal(int)  # param str is the note UID
+    
     def __init__(self, name=None, path=None, create=False):
+        QObject.__init__(self)
         self.notes = []
         
         if create:
@@ -35,6 +38,7 @@ class Notebook:
         
     def addNote(self, n):
         self.notes.append(n)
+        n.noteChanged.connect(self.noteChanged)
         
     def sortNotes(self):
         "Internally sort notes by dates."

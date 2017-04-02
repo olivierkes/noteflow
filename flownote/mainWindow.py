@@ -40,6 +40,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.txtFilter.setStyleSheet(S.lineEditSS_2())
         self.txtNoteTitle.setStyleSheet(S.lineEditSS_2())
+        self.txtDate.setStyleSheet("background:transparent;")
         #self.tab.setStyleSheet(S.tabBarSS())
         #self.text.setStyleSheet(S.textEditorSS())
         
@@ -49,10 +50,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.btnToggleNotebooks.toggled.connect(self.grpNotebooks.setVisible)
         self.btnToggleFilter.toggled.connect(self.txtFilter.setVisible)
-        self.btnToggleCalendar.toggled.connect(self.calendar.setVisible)
+        self.btnToggleCalendar.toggled.connect(self.wdgCalendar.setVisible)
         self.btnToggleTags.toggled.connect(self.lstTags.setVisible)
         #self.btnToggleTags.toggled.connect(self.lineTags.setVisible)
         self.btnToggleWords.toggled.connect(self.lstWords.setVisible)
+        self.dateA = None
+        self.dateB = None
         
         self.txtFilter.textChanged.connect(self.filterNotes)
         self.lstNotebooks.itemSelectionChanged.connect(self.filterNotes)
@@ -61,7 +64,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lstTags.itemSelectionChanged.connect(self.filterNotes)
         self.lstWords.itemSelectionChanged.connect(self.filterNotes)
         self.tblList.itemSelectionChanged.connect(self.openNote)
-        self.calendar.selectionChanged.connect(self.filterNotes)
+        self.calendar.selectionChanged.connect(self.calendarChanged)
+        self.btnDateClear.clicked.connect(self.calendarCleared)
+        self.wdgDateInfos.hide()
         self.scroll.noteSelected.connect(self.tblSelectRow)
         #self.scroll.noteActivated.connect(lambda i:self.tblSelectRow(i, False))
         self.scroll.noteActivated.connect(self.tblChangeRow)
@@ -74,7 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Hiding 
         
         self.btnToggleNotebooks.setChecked(False)
-        self.btnToggleCalendar.setChecked(False)
+        self.btnToggleCalendar.setChecked(True)
 #        self.btnToggleFilter.setChecked(False)
         #self.btnToggleTags.setChecked(False)
         self.btnToggleWords.setChecked(False)
@@ -85,8 +90,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Bullshit notebooks
         #self.notebooks.append(self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook"))
-        #path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/Loren Ipsum/"
-        #self.openNotebook(path)
+        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/Loren Ipsum/"
+        self.openNotebook(path)
         #self.notebooks.append(self.bullshitNoteBook("My serious Notebook", "serious"))
         #self.notebooks.append(self.bullshitNoteBook("An other one", "AnOtHer"))
         
@@ -130,6 +135,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         n = Notebook(path=path)
         self.notebooks.append(n)
         
+        # Signals
+        n.noteChanged.connect(self.updateSingleTblNote)
+        
         self.setupFilters()    
     
     def closeCurrentNotebook(self):
@@ -163,7 +171,65 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 )
             nb.addNote(n)
         return nb
-    
+
+#==============================================================================
+#   SETTING UP FILTERS
+#==============================================================================
+
+    def setupFilters(self):
+        self.updateNotebooks()
+        self.setupTblNotes()
+        self.updateCalendar()
+        
+        notes = self.allNotes()
+        self.lstWords.setWords(F.countDicts([n.words() for n in notes]))
+        self.lstTags.setWords(F.countDicts([n.tags() for n in notes]))
+        
+        self.filterNotes()
+        
+    def updateNotebooks(self):
+        self.lstNotebooks.clear()
+        for nb in self.notebooks:
+            self.lstNotebooks.addItem(nb.name)
+        sh = self.lstNotebooks.maximumSize()
+        h = self.lstNotebooks.sizeHintForRow(0) * self.lstNotebooks.count() + \
+            2 * self.lstNotebooks.frameWidth()
+        sh.setHeight(h)
+        self.lstNotebooks.setMaximumSize(sh)
+        
+        # TabBar
+        self.tab.setDocumentMode(True)
+        while self.tab.count():         # Remove all tabs
+            self.tab.removeTab(0)
+        if len(self.notebooks) > 1:
+            self.tab.addTab("All")
+            self.tab.show()
+            for nb in self.notebooks:
+                self.tab.addTab(nb.name)
+        else:
+            self.tab.hide()
+        
+    def setupTblNotes(self):
+        self.tblList.clearContents()
+        
+        notes = self.allNotes()
+        self.tblList.setRowCount(len(notes))
+        y = 0
+        for n in notes:
+            i = QTableWidgetItem(n.date)
+            i.setData(Qt.UserRole, n.UID)
+            self.tblList.setItem(y, 0, i)
+            self.tblList.setItem(y, 1, QTableWidgetItem(n.title))
+            #self.tblList.setItem(y, 2, QTableWidgetItem(str(n.wordCount())))
+            y += 1
+            
+    def updateSingleTblNote(self, UID):
+        date = F.findRowByUserData(self.tblList, UID)
+        title = self.tblList.item(date.row(), 1)
+        note = F.findNoteByUID(self.notebooks, UID)
+        date.setText(note.date)
+        title.setText(note.title)
+          
 #==============================================================================
 #   FILTERING  
 #==============================================================================
@@ -214,12 +280,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # OR
 #            notes = [n for n in notes if len([s for s in sel if s in n.text.lower()])]
         
-        # Calendar
-        #if self.calendar.isVisible():
-            #d = self.calendar.selectedDate()
-            #t = "{}-{}-{}".format(d.year(), d.month(), d.day())
-            #notes = [n for n in notes if n.date == t]
-        
+        #Calendar
+        if self.dateA and self.dateB:
+            notes = [n for n in notes if self.dateA <= F.strToDate(n.date) <= self.dateB]
+        elif self.dateA:
+            notes = [n for n in notes if self.dateA == F.strToDate(n.date)]
         
         self.notes = notes
         self.message("{}/{} notes displayed.".format(
@@ -227,58 +292,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             len(self.allNotes())))
         self.updateFiltersUI()
         
-#==============================================================================
-#   SETTING UP FILTERS
-#==============================================================================
-
-    def setupFilters(self):
-        self.updateNotebooks()
-        self.setupTblNotes()
-        self.updateCalendar()
-        
-        notes = self.allNotes()
-        self.lstWords.setWords(F.countDicts([n.words() for n in notes]))
-        self.lstTags.setWords(F.countDicts([n.tags() for n in notes]))
-        
+    def calendarChanged(self):
+        ctrl = qApp.keyboardModifiers() & Qt.ControlModifier or \
+            qApp.keyboardModifiers() & Qt.ShiftModifier
+        if not ctrl:
+            self.dateA = self.calendar.selectedDate()
+            self.dateB = None
+            self.txtDate.setText("Selected date: {}".format(
+                self.dateA.toString(Qt.ISODate)))
+        else:
+            self.dateB = self.calendar.selectedDate()
+            if self.dateA is None:
+                self.dateA = QDate.currentDate()
+            if self.dateB < self.dateA:
+                self.dateA, self.dateB = self.dateB, self.dateA
+            self.txtDate.setText("Date range: {} - {}".format(
+                self.dateA.toString(Qt.ISODate),
+                self.dateB.toString(Qt.ISODate)))
+        self.wdgDateInfos.show()
         self.filterNotes()
         
-    def updateNotebooks(self):
-        self.lstNotebooks.clear()
-        for nb in self.notebooks:
-            self.lstNotebooks.addItem(nb.name)
-        sh = self.lstNotebooks.maximumSize()
-        h = self.lstNotebooks.sizeHintForRow(0) * self.lstNotebooks.count() + \
-            2 * self.lstNotebooks.frameWidth()
-        sh.setHeight(h)
-        self.lstNotebooks.setMaximumSize(sh)
+    def calendarCleared(self):
+        self.wdgDateInfos.hide()
+        self.dateA = None
+        self.dateB = None
+        self.filterNotes()
         
-        # TabBar
-        self.tab.setDocumentMode(True)
-        while self.tab.count():         # Remove all tabs
-            self.tab.removeTab(0)
-        if len(self.notebooks) > 1:
-            self.tab.addTab("All")
-            self.tab.show()
-            for nb in self.notebooks:
-                self.tab.addTab(nb.name)
-        else:
-            self.tab.hide()
-        
-        
-    def setupTblNotes(self):
-        self.tblList.clearContents()
-        
-        notes = self.allNotes()
-        self.tblList.setRowCount(len(notes))
-        y = 0
-        for n in notes:
-            i = QTableWidgetItem(n.date)
-            i.setData(Qt.UserRole, n.UID)
-            self.tblList.setItem(y, 0, i)
-            self.tblList.setItem(y, 1, QTableWidgetItem(n.text))
-            #self.tblList.setItem(y, 2, QTableWidgetItem(str(n.wordCount())))
-            y += 1
-          
 #==============================================================================
 #   UPDATINGS FILTERS UI
 #==============================================================================
@@ -308,16 +347,57 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.calendar.setDateTextFormat(QDate(), QTextCharFormat())
         
         if notes is None:
-            notes = self.allNotes()
+            ##notes = self.allNotes()
+            dates = []
+            [dates.extend([n.date for n in nb.notes]) for nb in self.notebooks]
+            dates = list(dates)
         
+        else:
+            dates = list([n.date for n in notes])
+    
+        # Note
         cf = QTextCharFormat()
         cf.setFontWeight(QFont.Bold)
         cf.setBackground(QColor("#11000000"))
         
-        for n in notes:
-            y, m, d = n.date.split("-")
-            d = QDate(int(y), int(m), int(d))
-            self.calendar.setDateTextFormat(d, cf)
+        # Date Ranged
+        cf2 = QTextCharFormat()
+        cf2.setBackground(QColor("#FFFF00"))
+        
+        # Both
+        cf3 = QTextCharFormat()
+        cf3.setFontWeight(QFont.Bold)
+        cf3.setBackground(QColor("#77999900"))
+        
+        # Note out of range
+        cf4 = QTextCharFormat()
+        cf4.setFontWeight(QFont.Bold)
+        
+        # Selected date range
+        if self.dateA:
+            self.calendar.setDateTextFormat(self.dateA, cf2)
+        if self.dateB:
+            d = self.dateA
+            while d <= self.dateB:
+                self.calendar.setDateTextFormat(d, cf2)
+                d = d.addDays(1)
+        
+        # Notes
+        for d in dates:
+            d = F.strToDate(d)
+            if not d:
+                continue
+            # Not in range
+            if self.dateA and self.dateB and self.dateA <= d <= self.dateB:
+                self.calendar.setDateTextFormat(d, cf3)
+            elif self.dateA and self.dateA == d:
+                self.calendar.setDateTextFormat(d, cf3)
+            # Out of range
+            elif self.dateA:
+                self.calendar.setDateTextFormat(d, cf4)
+            else:
+                self.calendar.setDateTextFormat(d, cf)
+            
     
     def openNote(self):
         item = self.tblList.currentItem()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Sun Apr  2 22:44:40 2017
+# Created: Mon Apr  3 00:23:25 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -72,7 +72,13 @@ class Ui_MainWindow(object):
         self.lstNotebooks.addItem(item)
         self.horizontalLayout_2.addWidget(self.lstNotebooks)
         self.verticalLayout_2.addWidget(self.grpNotebooks)
-        self.calendar = QtWidgets.QCalendarWidget(self.filter)
+        self.wdgCalendar = QtWidgets.QWidget(self.filter)
+        self.wdgCalendar.setObjectName("wdgCalendar")
+        self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.wdgCalendar)
+        self.verticalLayout_7.setSpacing(0)
+        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.calendar = QtWidgets.QCalendarWidget(self.wdgCalendar)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -83,7 +89,27 @@ class Ui_MainWindow(object):
         self.calendar.setNavigationBarVisible(True)
         self.calendar.setDateEditEnabled(True)
         self.calendar.setObjectName("calendar")
-        self.verticalLayout_2.addWidget(self.calendar)
+        self.verticalLayout_7.addWidget(self.calendar)
+        self.wdgDateInfos = QtWidgets.QWidget(self.wdgCalendar)
+        self.wdgDateInfos.setObjectName("wdgDateInfos")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.wdgDateInfos)
+        self.horizontalLayout_4.setSpacing(0)
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.txtDate = QtWidgets.QLineEdit(self.wdgDateInfos)
+        self.txtDate.setFrame(False)
+        self.txtDate.setReadOnly(True)
+        self.txtDate.setObjectName("txtDate")
+        self.horizontalLayout_4.addWidget(self.txtDate)
+        self.btnDateClear = QtWidgets.QPushButton(self.wdgDateInfos)
+        self.btnDateClear.setText("")
+        icon = QtGui.QIcon.fromTheme("edit-clear")
+        self.btnDateClear.setIcon(icon)
+        self.btnDateClear.setFlat(True)
+        self.btnDateClear.setObjectName("btnDateClear")
+        self.horizontalLayout_4.addWidget(self.btnDateClear)
+        self.verticalLayout_7.addWidget(self.wdgDateInfos)
+        self.verticalLayout_2.addWidget(self.wdgCalendar)
         self.groupBox = QtWidgets.QGroupBox(self.filter)
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.groupBox)
@@ -98,23 +124,6 @@ class Ui_MainWindow(object):
         self.txtFilter.setClearButtonEnabled(True)
         self.txtFilter.setObjectName("txtFilter")
         self.verticalLayout_4.addWidget(self.txtFilter)
-        self.gridLayout = QtWidgets.QGridLayout()
-        self.gridLayout.setObjectName("gridLayout")
-        self.label = QtWidgets.QLabel(self.groupBox)
-        self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-        self.dateEdit = QtWidgets.QDateEdit(self.groupBox)
-        self.dateEdit.setCalendarPopup(True)
-        self.dateEdit.setObjectName("dateEdit")
-        self.gridLayout.addWidget(self.dateEdit, 0, 1, 1, 1)
-        self.label_2 = QtWidgets.QLabel(self.groupBox)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout.addWidget(self.label_2, 0, 2, 1, 1)
-        self.dateEdit_2 = QtWidgets.QDateEdit(self.groupBox)
-        self.dateEdit_2.setCalendarPopup(True)
-        self.dateEdit_2.setObjectName("dateEdit_2")
-        self.gridLayout.addWidget(self.dateEdit_2, 0, 3, 1, 1)
-        self.verticalLayout_4.addLayout(self.gridLayout)
         self.lstTags = cloudView(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -307,8 +316,6 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "One"))
         self.lstNotebooks.setSortingEnabled(__sortingEnabled)
         self.groupBox.setTitle(_translate("MainWindow", "Filters"))
-        self.label.setText(_translate("MainWindow", "From:"))
-        self.label_2.setText(_translate("MainWindow", "To:"))
         self.grpNotes.setTitle(_translate("MainWindow", "Notes"))
         self.tblList.setSortingEnabled(True)
         item = self.tblList.horizontalHeaderItem(0)
@@ -338,7 +345,7 @@ class Ui_MainWindow(object):
         self.actSaveAll.setText(_translate("MainWindow", "Save All Notebooks"))
         self.actSaveAll.setShortcut(_translate("MainWindow", "Ctrl+S"))
 
-from flownote.ui.views.noteEdit import noteEdit
 from PyQt5.QtWidgets import QTabBar
-from flownote.ui.views.scrollView import scrollView
 from flownote.ui.views.cloudView import cloudView
+from flownote.ui.views.noteEdit import noteEdit
+from flownote.ui.views.scrollView import scrollView

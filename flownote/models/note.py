@@ -6,12 +6,15 @@ import re
 import flownote.functions as F
 from PyQt5.QtCore import *
 
-class Note:
+class Note(QObject):
     
-    #tagsChanged = pyqtSignal()
-    #wordsChanged = pyqtSignal()
+    tagsChanged = pyqtSignal()
+    wordsChanged = pyqtSignal()
+    metaChanged = pyqtSignal()  # Emited when date or title changes
+    noteChanged = pyqtSignal(int)  # When anything changes. Param is UID
     
     def __init__(self, date=None, text="", title="", fromText=""):
+        QObject.__init__(self)
         if not fromText:
             # We are creating a new note
             self.date = date
@@ -58,17 +61,20 @@ class Note:
     
     def setDate(self, date):
         self.date = date.toString(Qt.ISODate)
+        self.metaChanged.emit()
+        self.noteChanged.emit(self.UID)
     
     def setText(self, text):
         self.text = text
         t = self.generateTags()
         if t != self._tags:
             self._tags = t
-            #self.tagsChanged.emit()
+            self.tagsChanged.emit()
     
     def setTitle(self, title):
         self.title = title
-        #FIXME: send signal to update views
+        self.metaChanged.emit()
+        self.noteChanged.emit(self.UID)
            
 #==============================================================================
 #   LOAD / SAVE

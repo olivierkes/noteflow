@@ -49,6 +49,13 @@ def findRowByUserData(table, data):
     if matches:
         return table.item(matches[0].row(), matches[0].column())
     
+def findNoteByUID(notebooks, UID):
+    for nb in notebooks:
+        for n in nb.notes:
+            if n.UID == UID:
+                return n
+    return False
+    
 def slugify(name):
     """
     A basic slug function, that escapes all spaces to "_" and all non letters/digits to "-".
