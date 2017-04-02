@@ -69,3 +69,6 @@ def slugify(name):
 def loadTextFile(path):
     with open(path, "r", encoding="utf8") as f:
         return f.read()
+    
+def strToDate(date):
+    return QDate(*[int(i) for i in date.split("-")])

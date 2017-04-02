@@ -13,6 +13,7 @@ from flownote.ui import style as S
 
 from flownote.models.notebook import Notebook
 from flownote.models.note import Note
+from flownote.ui.dialogs.folderDialog import folderDialog
 import flownote.functions as F
 
 
@@ -38,7 +39,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setStyleSheet(S.mainWindowSS())
         
         self.txtFilter.setStyleSheet(S.lineEditSS_2())
-        self.txtNoteName.setStyleSheet(S.lineEditSS_2())
+        self.txtNoteTitle.setStyleSheet(S.lineEditSS_2())
         #self.tab.setStyleSheet(S.tabBarSS())
         #self.text.setStyleSheet(S.textEditorSS())
         
@@ -61,13 +62,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lstWords.itemSelectionChanged.connect(self.filterNotes)
         self.tblList.itemSelectionChanged.connect(self.openNote)
         self.calendar.selectionChanged.connect(self.filterNotes)
-        self.btnSave.clicked.connect(self.save)
         self.scroll.noteSelected.connect(self.tblSelectRow)
         #self.scroll.noteActivated.connect(lambda i:self.tblSelectRow(i, False))
         self.scroll.noteActivated.connect(self.tblChangeRow)
         self.tblList.hideColumn(2)
         self.tblList.setStyleSheet(S.tableSS())
-        
+        self.actOpen.triggered.connect(self.openNotebookDialog)
+        self.actCloseCurrent.triggered.connect(self.closeCurrentNotebook)
+        self.actSaveAll.triggered.connect(self.save)
         
         # Hiding 
         
@@ -82,22 +84,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.notebooks = []
         
         # Bullshit notebooks
-        self.notebooks.append(self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook"))
-        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/Loren Ipsum/"
-        self.notebooks.append(Notebook(path=path))
+        #self.notebooks.append(self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook"))
+        #path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/Loren Ipsum/"
+        #self.openNotebook(path)
         #self.notebooks.append(self.bullshitNoteBook("My serious Notebook", "serious"))
         #self.notebooks.append(self.bullshitNoteBook("An other one", "AnOtHer"))
         
-        self.setupFilters()
-        self.filterNotes()
+        #self.setupFilters()
+        #self.filterNotes()
         
     def message(self, message, t=2000):        
         self.statusBar().showMessage(message, t)
         
     def updateUI(self):
         # Tab bar 
-        activeJournal = self.tab.isVisible() and self.tab.currentIndex() == 0
-        self.btnNewNotebook.setEnabled(not activeJournal)
+        activeNotebook = self.tab.isVisible() and self.tab.currentIndex() == 0
+        self.btnNewNotebook.setEnabled(not activeNotebook)
+        self.actCloseCurrent.setEnabled(not activeNotebook)
         
 #==============================================================================
 #   OPEN / SAVE
@@ -106,7 +109,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def save(self):
         for nb in self.notebooks:
             nb.save()
+            
+        # Updating filter when saving. Not the best. Should be on the fly.
+        # FIXME
+        self.setupFilters()
+            
+    def openNotebookDialog(self):
+        #QFileDialog.getExistingDirectory(options=QFileDialog.DontUseNativeDialog)
+        d = folderDialog()
+        r = d.exec()
+        if r:
+            self.openNotebook(d.result)
+            
+    def openNotebook(self, path):
+        # We check that the notebook is not open
+        for n in self.notebooks:
+            if os.path.abspath(path) == os.path.abspath(n.path):
+                return
+        
+        n = Notebook(path=path)
+        self.notebooks.append(n)
+        
+        self.setupFilters()    
     
+    def closeCurrentNotebook(self):
+        if len(self.notebooks) == 1:
+            self.notebooks = []
+            
+        else:
+            nb = [nb for nb in self.notebooks if nb.name == self.tab.tabText(self.tab.currentIndex())]
+            if nb: 
+                nb = nb[0]
+                self.notebooks.remove(nb)
+            
+        self.setupFilters()
+        
 #==============================GTK================================================
 #   BULLSHIT (delete me)      
 #==============================================================================
@@ -203,6 +240,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lstWords.setWords(F.countDicts([n.words() for n in notes]))
         self.lstTags.setWords(F.countDicts([n.tags() for n in notes]))
         
+        self.filterNotes()
+        
     def updateNotebooks(self):
         self.lstNotebooks.clear()
         for nb in self.notebooks:
@@ -247,8 +286,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def updateFiltersUI(self):
         self.updateCalendar(self.notes)
         self.updateTblNotes()
-        self.editor.setCurrentIndex(1)
-        self.scroll.setNotes(self.notes)
+        #self.editor.setCurrentIndex(1)
+        #self.scroll.setNotes(self.notes)
         
         notes = self.notes
         self.lstWords.setVisibleWords(F.countDicts([n.words() for n in notes]))
@@ -284,8 +323,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item = self.tblList.currentItem()
         UID = self.tblList.item(item.row(), 0).data(Qt.UserRole)
         note = [n for n in self.notes if n.UID == UID][0]
-        self.text.setText(note.text)
+        self.text.setNote(note)
         self.editor.setCurrentIndex(0)
+        
+        # Date
+        self.noteDate.dateChanged.disconnect()
+        self.noteDate.setDate(F.strToDate(note.date))
+        self.noteDate.dateChanged.connect(note.setDate)
+        
+        # Title
+        self.txtNoteTitle.disconnect()
+        self.txtNoteTitle.setText(note.title)
+        self.txtNoteTitle.textChanged.connect(note.setTitle)
         
     def tblSelectRow(self, UID, blockSignal=True):
         item = F.findRowByUserData(self.tblList, UID)

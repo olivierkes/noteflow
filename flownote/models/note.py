@@ -4,8 +4,12 @@
 import re
 
 import flownote.functions as F
+from PyQt5.QtCore import *
 
 class Note:
+    
+    #tagsChanged = pyqtSignal()
+    #wordsChanged = pyqtSignal()
     
     def __init__(self, date=None, text="", title="", fromText=""):
         if not fromText:
@@ -26,19 +30,19 @@ class Note:
     def tags(self):
         "Returns all tags within the note."
         if not self._tags:
-            self.generateTags()
+            self._tags = self.generateTags()
             
         return self._tags
         
     def generateTags(self):
         tags = re.compile('[\w#]+').findall(self.text)
         tags = [t.lower() for t in tags if t[0] == "#"]
-        self._tags = F.countWords(tags)
+        return F.countWords(tags)
         
     def words(self):
         "Returns all words within the note."
         if not self._words:
-            self.generateWords()
+            self._words = self.generateWords()
             
         return self._words
         
@@ -50,7 +54,21 @@ class Note:
         words = re.compile('[\w#]+').findall(self.text)
         words = [w.lower() for w in words if w[0] != "#"]
         
-        self._words = F.countWords(words)
+        return F.countWords(words)
+    
+    def setDate(self, date):
+        self.date = date.toString(Qt.ISODate)
+    
+    def setText(self, text):
+        self.text = text
+        t = self.generateTags()
+        if t != self._tags:
+            self._tags = t
+            #self.tagsChanged.emit()
+    
+    def setTitle(self, title):
+        self.title = title
+        #FIXME: send signal to update views
            
 #==============================================================================
 #   LOAD / SAVE

@@ -103,6 +103,7 @@ class Notebook:
             
             else:
                 # The content of the file changed, or the file is new. We write.
+                print("Writing:", path)
                 with open(filename, "w", encoding='utf8') as f:
                     f.write(content[path])
                 

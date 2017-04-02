@@ -69,23 +69,7 @@
              <string>Next</string>
             </property>
             <property name="icon">
-             <iconset theme="go-next"/>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnSave">
-            <property name="text">
-             <string>Save</string>
-            </property>
-            <property name="icon">
-             <iconset theme="document-save">
+             <iconset theme="go-next">
               <normaloff/>
              </iconset>
             </property>
@@ -474,23 +458,23 @@
       </widget>
       <widget class="QStackedWidget" name="editor">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
-       <widget class="QWidget" name="editorPage1" native="true">
+       <widget class="QWidget" name="editorPage1">
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
           <number>0</number>
          </property>
          <item>
-          <widget class="QTextEdit" name="text"/>
+          <widget class="noteEdit" name="text"/>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QLineEdit" name="txtNoteName"/>
+            <widget class="QLineEdit" name="txtNoteTitle"/>
            </item>
            <item>
-            <widget class="QDateEdit" name="dateNoteDate">
+            <widget class="QDateEdit" name="noteDate">
              <property name="currentSection">
               <enum>QDateTimeEdit::YearSection</enum>
              </property>
@@ -518,7 +502,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>581</width>
+              <width>441</width>
               <height>683</height>
              </rect>
             </property>
@@ -545,13 +529,14 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="action_New_Journal"/>
+    <addaction name="actNewNotebook"/>
     <addaction name="separator"/>
-    <addaction name="actionOpen_Journal"/>
-    <addaction name="action_Recent_Journals"/>
+    <addaction name="actOpen"/>
+    <addaction name="actRecent"/>
     <addaction name="separator"/>
-    <addaction name="actionClose_current_journal"/>
-    <addaction name="actionQuit"/>
+    <addaction name="actSaveAll"/>
+    <addaction name="actCloseCurrent"/>
+    <addaction name="actQuit"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
@@ -563,9 +548,9 @@
    <addaction name="menu_Edit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionOpen_Journal">
+  <action name="actOpen">
    <property name="text">
-    <string>&amp;Open Journal</string>
+    <string>&amp;Open Notebook</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -576,7 +561,7 @@
     <string>&amp;Preferences</string>
    </property>
   </action>
-  <action name="actionQuit">
+  <action name="actQuit">
    <property name="text">
     <string>&amp;Quit</string>
    </property>
@@ -584,22 +569,33 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionClose_current_journal">
+  <action name="actCloseCurrent">
    <property name="text">
-    <string>&amp;Close current journal</string>
+    <string>&amp;Close current notebook</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="action_New_Journal">
+  <action name="actNewNotebook">
    <property name="text">
-    <string>&amp;New Journal</string>
+    <string>&amp;New Notebook</string>
    </property>
   </action>
-  <action name="action_Recent_Journals">
+  <action name="actRecent">
    <property name="text">
-    <string>&amp;Recent Journals</string>
+    <string>&amp;Recent Notebook</string>
+   </property>
+  </action>
+  <action name="actSaveAll">
+   <property name="icon">
+    <iconset theme="document-save"/>
+   </property>
+   <property name="text">
+    <string>Save All Notebooks</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>
@@ -620,6 +616,11 @@
    <extends>QScrollArea</extends>
    <header>flownote.ui.views.scrollView.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>noteEdit</class>
+   <extends>QTextEdit</extends>
+   <header>flownote.ui.views.noteEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
