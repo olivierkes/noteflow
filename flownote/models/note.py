@@ -5,13 +5,20 @@ import re
 
 import flownote.functions as F
 
-class Note():
+class Note:
     
-    def __init__(self, date=None, text=""):
-        self.date = date
-        self.text = text
-        self.UID = F.uniqueID()
+    def __init__(self, date=None, text="", title="", fromText=""):
+        if not fromText:
+            # We are creating a new note
+            self.date = date
+            self.text = text
+            self.title = title
         
+        if fromText:
+            # Creating from a disk file
+            self.fromText(fromText)
+        
+        self.UID = F.uniqueID()
         self._words = None
         self._tags = None
         self._filename = None
@@ -44,4 +51,23 @@ class Note():
         words = [w.lower() for w in words if w[0] != "#"]
         
         self._words = F.countWords(words)
+           
+#==============================================================================
+#   LOAD / SAVE
+#==============================================================================
+    
+    def toText(self):
+        # Metadata, pandod_title_block style
+        t = "% {title}\n% {author}\n% {date}\n\n{content}".format(
+            title=self.title,
+            author="",
+            date=self.date,
+            content=self.text)
+        return t
+    
+    def fromText(self, text):
+        lines = text.split("\n")
+        self.title = lines[0][2:]
+        self.date = lines[2][2:]
+        self.text = "\n".join(lines[4:])
         

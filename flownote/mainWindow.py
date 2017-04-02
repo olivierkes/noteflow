@@ -82,9 +82,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.notebooks = []
         
         # Bullshit notebooks
-        self.notebooks.append(self.bullshitNoteBook("My Bullshit Notebook"))
-        self.notebooks.append(self.bullshitNoteBook("My serious Notebook"))
-        self.notebooks.append(self.bullshitNoteBook("An other one"))
+        self.notebooks.append(self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook"))
+        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/Loren Ipsum/"
+        self.notebooks.append(Notebook(path=path))
+        #self.notebooks.append(self.bullshitNoteBook("My serious Notebook", "serious"))
+        #self.notebooks.append(self.bullshitNoteBook("An other one", "AnOtHer"))
         
         self.setupFilters()
         self.filterNotes()
@@ -109,14 +111,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #   BULLSHIT (delete me)      
 #==============================================================================
         
-    def bullshitNoteBook(self, name="Bullshit"):
+    def bullshitNoteBook(self, name="Bullshit", path="bullshit"):
         import random, string, lorem
-        nb = Notebook(name)
+        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/{}".format(path)
+        nb = Notebook(name, path, create=True)
         for i in range(100):
             n = Note(
                 date="{}-{:02d}-{:02d}".format(
-                    random.randint(2016, 2017),
-                    random.randint(1, 12),
+                    random.randint(2017, 2017),
+                    random.randint(1, 3),
                     random.randint(1, 30)
                     ),
                 text="#"+lorem.text()

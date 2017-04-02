@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #--!-- coding: utf8 --!--
 
-import os, re, json
+import os, re, json, string
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -48,3 +48,24 @@ def findRowByUserData(table, data):
     matches = table.model().match(table.model().index(0,0), Qt.UserRole, data)
     if matches:
         return table.item(matches[0].row(), matches[0].column())
+    
+def slugify(name):
+    """
+    A basic slug function, that escapes all spaces to "_" and all non letters/digits to "-".
+    @param name: name to slugify (str)
+    @return: str
+    """
+    valid = string.ascii_letters + string.digits
+    newName = ""
+    for c in name:
+        if c in valid:
+            newName += c
+        elif c in string.whitespace:
+            newName += "_"
+        else:
+            newName += "-"
+    return newName
+
+def loadTextFile(path):
+    with open(path, "r", encoding="utf8") as f:
+        return f.read()
