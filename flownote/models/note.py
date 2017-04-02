@@ -14,6 +14,7 @@ class Note():
         
         self._words = None
         self._tags = None
+        self._filename = None
         
     def tags(self):
         "Returns all tags within the note."

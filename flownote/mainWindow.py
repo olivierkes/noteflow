@@ -50,18 +50,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnToggleFilter.toggled.connect(self.txtFilter.setVisible)
         self.btnToggleCalendar.toggled.connect(self.calendar.setVisible)
         self.btnToggleTags.toggled.connect(self.lstTags.setVisible)
-        self.btnToggleTags.toggled.connect(self.lineTags.setVisible)
+        #self.btnToggleTags.toggled.connect(self.lineTags.setVisible)
         self.btnToggleWords.toggled.connect(self.lstWords.setVisible)
         
         self.txtFilter.textChanged.connect(self.filterNotes)
         self.lstNotebooks.itemSelectionChanged.connect(self.filterNotes)
         self.tab.currentChanged.connect(self.filterNotes)
+        self.tab.currentChanged.connect(self.updateUI)
         self.lstTags.itemSelectionChanged.connect(self.filterNotes)
         self.lstWords.itemSelectionChanged.connect(self.filterNotes)
         self.tblList.itemSelectionChanged.connect(self.openNote)
         self.calendar.selectionChanged.connect(self.filterNotes)
-        
-        
+        self.btnSave.clicked.connect(self.save)
+        self.scroll.noteSelected.connect(self.tblSelectRow)
+        #self.scroll.noteActivated.connect(lambda i:self.tblSelectRow(i, False))
+        self.scroll.noteActivated.connect(self.tblChangeRow)
         self.tblList.hideColumn(2)
         self.tblList.setStyleSheet(S.tableSS())
         
@@ -89,6 +92,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def message(self, message, t=2000):        
         self.statusBar().showMessage(message, t)
         
+    def updateUI(self):
+        # Tab bar 
+        activeJournal = self.tab.isVisible() and self.tab.currentIndex() == 0
+        self.btnNewNotebook.setEnabled(not activeJournal)
+        
+#==============================================================================
+#   OPEN / SAVE
+#==============================================================================
+    
+    def save(self):
+        for nb in self.notebooks:
+            nb.save()
+    
 #==============================GTK================================================
 #   BULLSHIT (delete me)      
 #==============================================================================
@@ -98,7 +114,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         nb = Notebook(name)
         for i in range(100):
             n = Note(
-                date="{}-{}-{}".format(
+                date="{}-{:02d}-{:02d}".format(
                     random.randint(2016, 2017),
                     random.randint(1, 12),
                     random.randint(1, 30)
@@ -222,12 +238,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             y += 1
           
 #==============================================================================
-#   UPDATING      
+#   UPDATINGS FILTERS UI
 #==============================================================================
 
     def updateFiltersUI(self):
         self.updateCalendar(self.notes)
         self.updateTblNotes()
+        self.editor.setCurrentIndex(1)
+        self.scroll.setNotes(self.notes)
         
         notes = self.notes
         self.lstWords.setVisibleWords(F.countDicts([n.words() for n in notes]))
@@ -242,7 +260,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tblList.showRow(i)
             else:
                 self.tblList.hideRow(i)
-    
+            
     def updateCalendar(self, notes=None):
         # clear all
         self.calendar.setDateTextFormat(QDate(), QTextCharFormat())
@@ -264,3 +282,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         UID = self.tblList.item(item.row(), 0).data(Qt.UserRole)
         note = [n for n in self.notes if n.UID == UID][0]
         self.text.setText(note.text)
+        self.editor.setCurrentIndex(0)
+        
+    def tblSelectRow(self, UID, blockSignal=True):
+        item = F.findRowByUserData(self.tblList, UID)
+        self.tblList.blockSignals(blockSignal)
+        self.tblList.setCurrentItem(item)
+        self.tblList.blockSignals(False)
+        
+    def tblChangeRow(self, UID):
+        item = F.findRowByUserData(self.tblList, UID)
+        self.tblList.setCurrentItem(item)
+        self.tblList.itemSelectionChanged.emit()
+        
+        
+class MyQTextEdit(QTextEdit):
+    def __init__(self, parent=None):
+        QTextEdit.__init__(self, parent)
+        
+        self.document().contentsChanged.connect(self.sizeChange)
+        self.heightMin = 0
+        self.heightMax = 65000
+        self.sizeChange()
+
+    def resizeEvent(self, e):
+        QTextEdit.resizeEvent(self, e)
+        self.sizeChange()
+
+    def sizeChange(self):
+        docHeight = self.document().size().height()
+        if self.heightMin <= docHeight <= self.heightMax:
+            self.setMinimumHeight(docHeight)

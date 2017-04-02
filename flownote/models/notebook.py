@@ -14,50 +14,59 @@ class Notebook():
         self.name = name
         self.notes = []
         
-#        self._words = None
-#        self._tags = None
-        
-#    def tags(self):
-#        "Returns all tags within the Journal."
-#        if not self._tags:
-#            self.generateTags()
-#            
-#        return self._tags
-#        
-#    def generateTags(self):
-#        "Generate list of tags."
-#        self._tags = F.countDicts([n.tags() for n in self.notes])
-#        
-#    def words(self):
-#        "Returns all words within the note."
-#        if not self._words:
-#            self.generateWords()
-#            
-#        return self._words
-#        
-#    def generateWords(self):
-#        "Generate list of words."
-#        self._words = F.countDicts([n.words() for n in self.notes])
-        
+        self.path = None
         
     def addNote(self, n):
         self.notes.append(n)
-#        self.generateTags()
-#        self.generateWords()
         
     def sortNotes(self):
         "Internally sort notes by dates."
-        self.notes = sorted(self.notes, key=lambda n: n.date)
+        self.notes = self.sorted(self.notes)
+    
+    def sorted(self, notes):
+        return sorted(notes, key=lambda n: n.date)
         
-    def json(self):
-        "Returns a json string."
+    def json(self, notes=None):
+        "Returns a json string for the given notes, or all notes if notes is None."
+        if notes is None:
+            notes = self.notes
 
-        self.sortNotes()
+        notes = self.sorted(notes)
+
         j = []
-        for n in self.notes:
+        for n in notes:
             j.append({
                 "date": n.date,
                 "text": n.text}
             )
-        print(json.dumps(j, sort_keys=True, indent=4))
+        return json.dumps(j, sort_keys=True, indent=4)
+        
+    def save(self):
+        # Order notes
+        self.notes = self.sorted(self.notes)
+        
+        def saveNotes(notes, y):
+            print(self.json(notes))
+            print("{}: {} notes.".format(y, len(notes)))
+        
+        def splitNotes(f):
+            collection = {}
+            for n in self.notes:
+                d = f(n)
+                if d not in collection:
+                    collection[d] = [n for n in self.notes if f(n) == d]
             
+            return collection
+        
+        # Yearly
+        #collection = splitNotes(lambda n:n.date.split("-")[0])
+        
+        # Monthly
+        collection = splitNotes(lambda n:"-".join(n.date.split("-")[:2]))
+        
+        # Daily
+        #collection = splitNotes(lambda n:n.date)
+        
+        for c in collection:
+            saveNotes(collection[c], c)
+         

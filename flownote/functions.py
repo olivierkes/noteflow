@@ -42,3 +42,9 @@ def uniqueID():
     global UID
     UID += 1
     return UID
+
+def findRowByUserData(table, data):
+    "Search in a table userData"
+    matches = table.model().match(table.model().index(0,0), Qt.UserRole, data)
+    if matches:
+        return table.item(matches[0].row(), matches[0].column())
