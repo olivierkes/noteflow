@@ -12,9 +12,14 @@ class cloudView(QListWidget):
         self.setViewMode(self.IconMode)
         self.setResizeMode(self.Adjust)
         self.setMovement(self.Static)
+        
+        sp = self.sizePolicy()
+        sp.setVerticalPolicy(QSizePolicy.Preferred)
+        self.setSizePolicy(sp)
+        
         self.words = []
         
-        self._maxWords = 0
+        self._maxWords = 20
         
         # Setting button
         self.btnSettings = QPushButton(QIcon.fromTheme("applications-system"), "", self)
@@ -30,6 +35,15 @@ class cloudView(QListWidget):
         self.popup.setWindowFlags(Qt.Popup)
         self.btnSettings.clicked.connect(self.popupMenu)
         
+    def sizeHint(self):
+        r = QRect()
+        for i in range(self.count()):
+            item = self.item(i)
+            r = r.united(self.visualItemRect(item))
+        s = r.size()
+        s.setHeight(s.height() + 2 * self.frameWidth())
+        return s
+        
     def popupMenu(self):
         p = self.btnSettings.parent().mapToGlobal(self.btnSettings.geometry().bottomRight())
         r = QRect(p, QSize(150, 30))
@@ -44,6 +58,7 @@ class cloudView(QListWidget):
         QListWidget.resizeEvent(self, event)
         # Adjust the setting button position
         self.btnSettings.move(self.width() - 16, 0)
+        self.updateGeometry()
         
     def setWords(self, words):
         self.words = words.copy()
@@ -53,7 +68,8 @@ class cloudView(QListWidget):
         
         # If there's a limit of number of words
         if self._maxWords > 0:
-            val = sorted(words.values())[-self._maxWords]
+            m = min(self._maxWords, len(words))
+            val = sorted(words.values())[-m]
             words2 = words.copy()
             for w in words2:
                 if words2[w] < val:
@@ -71,6 +87,8 @@ class cloudView(QListWidget):
             f.setPointSizeF(minFont + (words[w] - minCount) / (maxCount - minCount) * (maxFont - minFont))
             i.setFont(f)
             self.addItem(i)
+            
+        self.updateGeometry()
         
     def setVisibleWords(self, words):
                 

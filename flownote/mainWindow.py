@@ -54,6 +54,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnToggleTags.toggled.connect(self.lstTags.setVisible)
         #self.btnToggleTags.toggled.connect(self.lineTags.setVisible)
         self.btnToggleWords.toggled.connect(self.lstWords.setVisible)
+        self.btnToggleList.toggled.connect(self.grpNotes.setVisible)
         self.dateA = None
         self.dateB = None
         
@@ -77,12 +78,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actSaveAll.triggered.connect(self.save)
         
         # Hiding 
-        
         self.btnToggleNotebooks.setChecked(False)
         self.btnToggleCalendar.setChecked(True)
-#        self.btnToggleFilter.setChecked(False)
+        #self.btnToggleFilter.setChecked(False)
         #self.btnToggleTags.setChecked(False)
         self.btnToggleWords.setChecked(False)
+        #self.btnToggeList.setChecked(False)
         
         # NOTEBOOKS
 

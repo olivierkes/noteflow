@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Mon Apr  3 00:23:25 2017
+# Created: Tue Apr  4 07:45:01 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -115,15 +115,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.groupBox)
         self.verticalLayout_4.setContentsMargins(0, 6, 0, 0)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.txtFilter = QtWidgets.QLineEdit(self.groupBox)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.txtFilter.sizePolicy().hasHeightForWidth())
-        self.txtFilter.setSizePolicy(sizePolicy)
-        self.txtFilter.setClearButtonEnabled(True)
-        self.txtFilter.setObjectName("txtFilter")
-        self.verticalLayout_4.addWidget(self.txtFilter)
         self.lstTags = cloudView(self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -146,6 +137,15 @@ class Ui_MainWindow(object):
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.grpNotes)
         self.verticalLayout_3.setContentsMargins(0, 6, 0, 0)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.txtFilter = QtWidgets.QLineEdit(self.grpNotes)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.txtFilter.sizePolicy().hasHeightForWidth())
+        self.txtFilter.setSizePolicy(sizePolicy)
+        self.txtFilter.setClearButtonEnabled(True)
+        self.txtFilter.setObjectName("txtFilter")
+        self.verticalLayout_3.addWidget(self.txtFilter)
         self.tblList = QtWidgets.QTableWidget(self.grpNotes)
         self.tblList.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.tblList.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -345,7 +345,7 @@ class Ui_MainWindow(object):
         self.actSaveAll.setText(_translate("MainWindow", "Save All Notebooks"))
         self.actSaveAll.setShortcut(_translate("MainWindow", "Ctrl+S"))
 
-from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.cloudView import cloudView
-from flownote.ui.views.noteEdit import noteEdit
+from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.scrollView import scrollView
+from flownote.ui.views.noteEdit import noteEdit
