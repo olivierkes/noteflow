@@ -54,7 +54,7 @@ def findNoteByUID(notebooks, UID):
         for n in nb.notes:
             if n.UID == UID:
                 return n
-    return False
+    return None
     
 def slugify(name):
     """

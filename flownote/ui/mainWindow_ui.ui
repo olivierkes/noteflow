@@ -464,6 +464,7 @@
    <addaction name="actRecent"/>
    <addaction name="separator"/>
    <addaction name="actNoteNew"/>
+   <addaction name="actNoteDelete"/>
    <addaction name="actNotePrevious"/>
    <addaction name="actNoteNext"/>
   </widget>
@@ -558,6 +559,9 @@
    <property name="text">
     <string>New Note</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actNotePrevious">
    <property name="icon">
@@ -593,6 +597,9 @@
    </property>
    <property name="text">
     <string>Delete Note</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
   <action name="actFilterPanel">

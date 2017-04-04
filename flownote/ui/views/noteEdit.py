@@ -10,13 +10,24 @@ class noteEdit(QTextEdit):
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
         self.note = None
-        
-        self.document().contentsChanged.connect(self.updateNote)
+        self.textChanged.connect(self.updateNote)
+        self.setEnabled(False)
         
     def setNote(self, note):
-        self.note = note
-        self.setText(note.text)
+        if note is not None:
+            self.note = note
+            self.setText(note.text)
+            self.setEnabled(True)
+        else:
+            self.note = None
+            self.setEnabled(False)
+            self.setText("")
+            
         
     def updateNote(self):
         if self.note:
             self.note.setText(self.toPlainText())
+        else:
+            if self.toPlainText():
+                self.setText("")
+            self.setEnabled(False)

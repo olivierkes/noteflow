@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Tue Apr  4 15:49:32 2017
+# Created: Tue Apr  4 23:25:05 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -298,6 +298,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actRecent)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actNoteNew)
+        self.toolBar.addAction(self.actNoteDelete)
         self.toolBar.addAction(self.actNotePrevious)
         self.toolBar.addAction(self.actNoteNext)
 
@@ -327,11 +328,13 @@ class Ui_MainWindow(object):
         self.actSaveAll.setText(_translate("MainWindow", "Save All Notebooks"))
         self.actSaveAll.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actNoteNew.setText(_translate("MainWindow", "New Note"))
+        self.actNoteNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
         self.actNotePrevious.setText(_translate("MainWindow", "Previous"))
         self.actNotePrevious.setShortcut(_translate("MainWindow", "Ctrl+Left"))
         self.actNoteNext.setText(_translate("MainWindow", "Next"))
         self.actNoteNext.setShortcut(_translate("MainWindow", "Ctrl+Right"))
         self.actNoteDelete.setText(_translate("MainWindow", "Delete Note"))
+        self.actNoteDelete.setShortcut(_translate("MainWindow", "Del"))
         self.actFilterPanel.setText(_translate("MainWindow", "Filter panel"))
         self.actFilterPanel.setShortcut(_translate("MainWindow", "F3"))
         self.actToggleCalendar.setText(_translate("MainWindow", "Calendar"))
@@ -343,7 +346,7 @@ class Ui_MainWindow(object):
         self.actNoteDown.setText(_translate("MainWindow", "Down"))
         self.actNoteDown.setShortcut(_translate("MainWindow", "Ctrl+Down"))
 
-from flownote.ui.views.noteEdit import noteEdit
-from flownote.ui.views.scrollView import scrollView
-from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.cloudView import cloudView
+from PyQt5.QtWidgets import QTabBar
+from flownote.ui.views.scrollView import scrollView
+from flownote.ui.views.noteEdit import noteEdit

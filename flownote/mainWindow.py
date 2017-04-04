@@ -97,7 +97,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.scroll.noteSelected.connect(self.tblSelectRow)
         #self.scroll.noteActivated.connect(lambda i:self.tblSelectRow(i, False))
         self.scroll.noteActivated.connect(self.tblChangeRow)
-        #self.tblList.hideColumn(2)
+        self.tblList.hideColumn(2)
         self.tblList.setStyleSheet(S.tableSS())
         self.actOpenNotebook.triggered.connect(self.openNotebookDialog)
         self.actCloseCurrent.triggered.connect(self.closeCurrentNotebook)
@@ -108,6 +108,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actNoteDown.triggered.connect(self.navigateDown)
         self.actNotePrevious.triggered.connect(self.navigatePrevious)
         self.actNoteNext.triggered.connect(self.navigateNext)
+        self.actNoteNew.triggered.connect(self.newNote)
+        self.actNoteDelete.triggered.connect(self.deleteNote)
+        self.actNoteDelete.setEnabled(False)
         
         # NOTEBOOKS AND NOTES
         self.notebooks = []
@@ -173,7 +176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.openNote(UID)
         
     def openNote(self, UID, noHistory=False):
-        note = [n for n in self.notes if n.UID == UID][0]
+        note = self.noteFromUID(UID)
         if self.text.note == note:
             return
         self.tblSelectRow(UID)
@@ -193,12 +196,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Date
         self.noteDate.dateChanged.disconnect()
         self.noteDate.setDate(F.strToDate(note.date))
+        self.noteDate.setEnabled(True)
         self.noteDate.dateChanged.connect(note.setDate)
         
         # Title
         self.txtNoteTitle.disconnect()
         self.txtNoteTitle.setText(note.title)
+        self.txtNoteTitle.setEnabled(True)
         self.txtNoteTitle.textChanged.connect(note.setTitle)
+        
+        self.text.setFocus()
+        self.actNoteDelete.setEnabled(True)
+        
+    def closeNote(self):
+        self.text.setNote(None)
+        self.txtNoteTitle.setText("")
+        self.txtNoteTitle.setEnabled(False)
+        self.noteDate.setDate(QDate())
+        self.noteDate.setEnabled(False)
+        self.actNoteDelete.setEnabled(False)
         
     def tblSelectRow(self, UID, blockSignal=True):
         item = F.findRowByUserData(self.tblList, UID)
@@ -210,7 +226,33 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item = F.findRowByUserData(self.tblList, UID)
         self.tblList.setCurrentItem(item)
         self.tblList.itemSelectionChanged.emit()
-
+            
+#==============================================================================
+#   SMALL STUFF
+#==============================================================================
+    
+    def currentNotebook(self):
+        nb = [nb for nb in self.notebooks if nb.UID == self.tab.tabData(self.tab.currentIndex())]
+        if nb:
+            return nb[0]
+        
+    def noteFromUID(self, UID):
+        return [n for n in self.allNotes() if n.UID == UID][0]
+        
+    def newNote(self):
+        nb = self.currentNotebook()
+        d = (self.dateA if self.dateA else QDate.currentDate()).toString(Qt.ISODate)
+        n = nb.newNote(date=d)
+        self.openNote(n.UID)
+        
+    def deleteNote(self):
+        if not self.text.note:
+            self.actNoteDelete.setEnabled(False)
+            return
+        else:
+            n = self.text.note
+            n._notebook.removeNote(n)
+        
 #==============================================================================
 #   OPEN / SAVE
 #==============================================================================
@@ -243,6 +285,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         nb.noteChanged.connect(self.updateSingleTblNote)
         nb.noteChanged.connect(self.updateCalendar)
         nb.tagsAndWordsChanged.connect(self.setupTagsAndWords)
+        nb.noteAdded.connect(self.noteAdded)
+        nb.noteRemoved.connect(self.noteRemoved)
         
         self.setupNotebooks()    
     
@@ -251,9 +295,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.notebooks = []
             
         else:
-            nb = [nb for nb in self.notebooks if nb.UID == self.tab.tabData(self.tab.currentIndex())]
-            if nb: 
-                nb = nb[0]
+            nb = self.currentNotebook()
+            if nb:
                 self.notebooks.remove(nb)
             
         self.setupNotebooks()
@@ -285,7 +328,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #==============================================================================
 
     def setupNotebooks(self):
-        
         # TabBar
         self.tab.setDocumentMode(True)
         while self.tab.count():         # Remove all tabs
@@ -316,36 +358,56 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lstWords.setWords(F.countDicts([n.words() for n in notes]))
         self.lstTags.setWords(F.countDicts([n.tags() for n in notes]))
         
+    def addTblItem(self, note, y=None):
+        f = qApp.font()
+        f.setPointSize(f.pointSize() * .8)
+        
+        if y is None:
+            y = self.tblList.rowCount()
+            self.tblList.setRowCount(y+1)
+        
+        i = QTableWidgetItem(note.date)
+        i.setData(Qt.UserRole, note.UID)
+        i.setForeground(Qt.darkGray)
+        i.setFont(f)
+        self.tblList.setItem(y, 0, i)
+        self.tblList.setItem(y, 1, QTableWidgetItem(note.title or note.text[:50]))
+        self.tblList.setItem(y, 2, QTableWidgetItem(str(note.UID)))
+        
     def setupTblNotes(self):
         self.tblList.clearContents()
         
         notes = self.allNotes()
         self.tblList.setRowCount(len(notes))
-        
-        f = qApp.font()
-        f.setPointSize(f.pointSize() * .8)
         y = 0
         self.tblList.setSortingEnabled(False)
         for n in notes:
-            i = QTableWidgetItem(n.date)
-            i.setData(Qt.UserRole, n.UID)
-            i.setForeground(Qt.darkGray)
-            i.setFont(f)
-            self.tblList.setItem(y, 0, i)
-            self.tblList.setItem(y, 1, QTableWidgetItem(n.title))
-            #self.tblList.setItem(y, 2, QTableWidgetItem(str(n.wordCount())))
-            self.tblList.setItem(y, 2, QTableWidgetItem(str(n.UID)))
+            self.addTblItem(n, y)
             y += 1
-            
         self.tblList.setSortingEnabled(True)
         self.tblList.sortItems(0)
+        
+    def noteAdded(self, UID):
+        note = self.noteFromUID(UID)
+        self.tblList.setSortingEnabled(False)
+        self.addTblItem(note)
+        self.tblList.setSortingEnabled(True)
+        self.tblList.sortItems(0)
+        self.updateCalendar()
+        
+    def noteRemoved(self, UID):
+        self.closeNote()
+        self.tblList.blockSignals(True)
+        self.setupTblNotes()
+        self.tblList.blockSignals(False)
+        self.setupFilters()
             
     def updateSingleTblNote(self, UID):
-        date = F.findRowByUserData(self.tblList, UID)
-        title = self.tblList.item(date.row(), 1)
+        dateItem = F.findRowByUserData(self.tblList, UID)
+        titleItem = self.tblList.item(dateItem.row(), 1)
         note = F.findNoteByUID(self.notebooks, UID)
-        date.setText(note.date)
-        title.setText(note.title)
+        dateItem.setText(note.date)
+        titleItem.setText(note.title or note.text[:50])
           
 #==============================================================================
 #   FILTERING  
@@ -362,7 +424,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return self.listNotes(self.notebooks)
     
     def notebookNotes(self):
-        "Return all notes from the selected notebook."
+        "Return all notes from the selected notebook(s)."
         
         if self.tab.isVisible() and self.tab.currentIndex() > 0:  
             # means more than one notebook, and "All Notebooks" is not selected
@@ -452,6 +514,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
     def updateTblNotes(self):
         UIDs = [n.UID for n in self.notes]
+        
         for i in range(self.tblList.rowCount()):
             UID = self.tblList.item(i, 0).data(Qt.UserRole)
             if UID in UIDs:

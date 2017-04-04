@@ -60,12 +60,12 @@ class Note(QObject):
     
     def setDate(self, date):
         d = date.toString(Qt.ISODate)
-        if d != self.date:
+        if self._notebook and d != self.date:
             self.date = d
             self.noteChanged.emit(self.UID)
     
     def setText(self, text):
-        if text != self.text:
+        if self._notebook and text != self.text:
             self.text = text
             self.noteChanged.emit(self.UID)
             t = self.generateTags()
@@ -76,7 +76,7 @@ class Note(QObject):
                 self.tagsAndWordsChanged.emit(self.UID)
     
     def setTitle(self, title):
-        if title != self.title:
+        if self._notebook and title != self.title:
             self.title = title
             self.noteChanged.emit(self.UID)
            
@@ -85,6 +85,11 @@ class Note(QObject):
 #==============================================================================
     
     def toText(self):
+        
+        # If note is empty (except for date, since it must have one), we don't save.
+        if not self.title and not self.text:
+            return ""
+        
         # Metadata, pandod_title_block style
         t = "% {title}\n% {author}\n% {date}\n\n{content}".format(
             title=self.title,

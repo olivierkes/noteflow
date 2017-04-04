@@ -16,6 +16,8 @@ class Notebook(QObject):
     
     noteChanged = pyqtSignal(int)  # param str is the note UID
     tagsAndWordsChanged = pyqtSignal(int)  # param str is the note UID
+    noteAdded = pyqtSignal(int)
+    noteRemoved = pyqtSignal(int)
     
     def __init__(self, name=None, path=None, create=False):
         QObject.__init__(self)
@@ -38,10 +40,24 @@ class Notebook(QObject):
         
         self.UID = F.uniqueID()
         
-    def addNote(self, n):
-        self.notes.append(n)
-        n.noteChanged.connect(self.noteChanged)
-        n.tagsAndWordsChanged.connect(self.tagsAndWordsChanged)
+    def newNote(self, date=None, text="", title=""):
+        n = Note(date=date, text=text, title=title)
+        self.addNote(n)
+        self.noteAdded.emit(n.UID)
+        return n
+        
+    def addNote(self, note):
+        self.notes.append(note)
+        note._notebook = self
+        note.noteChanged.connect(self.noteChanged)
+        note.tagsAndWordsChanged.connect(self.tagsAndWordsChanged)
+        
+    def removeNote(self, note):
+        self.notes.remove(note)
+        note._notebook = None
+        UID = note.UID
+        note = None
+        self.noteRemoved.emit(UID)
         
     def sortNotes(self):
         "Internally sort notes by dates."
@@ -63,6 +79,10 @@ class Notebook(QObject):
                 date=n.date,
                 title="-"+F.slugify(n.title) if n.title else "")
             content = n.toText()
+            
+            if not content:
+                # We don't save empty notes
+                continue
             
             # Make sure no two files have the same path
             n = 2
