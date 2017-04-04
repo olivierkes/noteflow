@@ -116,7 +116,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.historyPos = 0  
         
         # Bullshit notebooks
-        self.notebooks.append(self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook"))
+        self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook")
+        
         path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/Loren Ipsum/"
         self.openNotebook(path)
         #self.notebooks.append(self.bullshitNoteBook("My serious Notebook", "serious"))
@@ -227,17 +228,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
     def openNotebook(self, path):
         # We check that the notebook is not open
-        for n in self.notebooks:
-            if os.path.abspath(path) == os.path.abspath(n.path):
+        for nb in self.notebooks:
+            if os.path.abspath(path) == os.path.abspath(nb.path):
                 self.message("Notebook is already open.")
                 return
         
-        n = Notebook(path=path)
-        self.notebooks.append(n)
+        nb = Notebook(path=path)
+        self.notebooks.append(nb)
         
+        self.setupNotebook(nb)
+        
+    def setupNotebook(self, nb):
         # Signals
-        n.noteChanged.connect(self.updateSingleTblNote)
-        n.noteChanged.connect(self.updateCalendar)
+        nb.noteChanged.connect(self.updateSingleTblNote)
+        nb.noteChanged.connect(self.updateCalendar)
+        nb.tagsAndWordsChanged.connect(self.setupTagsAndWords)
         
         self.setupNotebooks()    
     
@@ -261,7 +266,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         import random, string, lorem
         path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/{}".format(path)
         nb = Notebook(name, path, create=True)
-        for i in range(25):
+        for i in range(2):
             n = Note(
                 date="{}-{:02d}-{:02d}".format(
                     random.randint(2017, 2017),
@@ -272,7 +277,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 title=lorem.sentence()
                 )
             nb.addNote(n)
-        return nb
+        self.notebooks.append(nb)
+        self.setupNotebook(nb)
 
 #==============================================================================
 #   SETTING UP FILTERS
@@ -301,12 +307,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def setupFilters(self):
         self.updateCalendar()
+        self.setupTagsAndWords()
         
+        self.filterNotes()
+        
+    def setupTagsAndWords(self):
         notes = self.notebookNotes()
         self.lstWords.setWords(F.countDicts([n.words() for n in notes]))
         self.lstTags.setWords(F.countDicts([n.tags() for n in notes]))
-        
-        self.filterNotes()
         
     def setupTblNotes(self):
         self.tblList.clearContents()

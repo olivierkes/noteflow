@@ -15,6 +15,7 @@ class Notebook(QObject):
     """
     
     noteChanged = pyqtSignal(int)  # param str is the note UID
+    tagsAndWordsChanged = pyqtSignal(int)  # param str is the note UID
     
     def __init__(self, name=None, path=None, create=False):
         QObject.__init__(self)
@@ -40,6 +41,7 @@ class Notebook(QObject):
     def addNote(self, n):
         self.notes.append(n)
         n.noteChanged.connect(self.noteChanged)
+        n.tagsAndWordsChanged.connect(self.tagsAndWordsChanged)
         
     def sortNotes(self):
         "Internally sort notes by dates."

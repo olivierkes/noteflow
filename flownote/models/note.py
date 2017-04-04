@@ -8,8 +8,7 @@ from PyQt5.QtCore import *
 
 class Note(QObject):
     
-    tagsChanged = pyqtSignal()
-    wordsChanged = pyqtSignal()
+    tagsAndWordsChanged = pyqtSignal(int)
     #metaChanged = pyqtSignal()  # Emited when date or title changes
     noteChanged = pyqtSignal(int)  # When anything changes. Param is UID
     
@@ -34,11 +33,11 @@ class Note(QObject):
         "Returns all tags within the note."
         if not self._tags:
             self._tags = self.generateTags()
-            
+        
         return self._tags
         
     def generateTags(self):
-        tags = re.compile('[\w#]+').findall(self.text)
+        tags = re.compile('#[\w]+').findall(self.text)
         tags = [t.lower() for t in tags if t[0] == "#"]
         return F.countWords(tags)
         
@@ -54,8 +53,8 @@ class Note(QObject):
         
     def generateWords(self):
         "Returns a dict of words with the number of time they appear in the note."
-        words = re.compile('[\w#]+').findall(self.text)
-        words = [w.lower() for w in words if w[0] != "#"]
+        words = re.compile('[\w]+').findall(self.text)
+        words = [w.lower() for w in words]
         
         return F.countWords(words)
     
@@ -70,9 +69,11 @@ class Note(QObject):
             self.text = text
             self.noteChanged.emit(self.UID)
             t = self.generateTags()
-            if t != self._tags:
+            w = self.generateWords()
+            if t != self._tags or w != self._words:
                 self._tags = t
-                self.tagsChanged.emit()
+                self._words = w
+                self.tagsAndWordsChanged.emit(self.UID)
     
     def setTitle(self, title):
         if title != self.title:

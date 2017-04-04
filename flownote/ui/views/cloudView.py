@@ -51,8 +51,9 @@ class cloudView(QListWidget):
         self.popup.popup()
         
     def setMaxWords(self, maxWords):
-        self._maxWords = maxWords
-        self.setWords(self.words)
+        if maxWords != self._maxWords:
+            self._maxWords = maxWords
+            self.setWords(self.words)
         
     def resizeEvent(self, event):
         QListWidget.resizeEvent(self, event)
@@ -78,7 +79,7 @@ class cloudView(QListWidget):
         minCount, maxCount = min(words.values()), max(words.values())
         if minCount == maxCount:
             minCount -= 1
-        minFont, maxFont = 5, 15
+        minFont, maxFont = 6, 13
         
         for w in words:
             i = QListWidgetItem(w)
