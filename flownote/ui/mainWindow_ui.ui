@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>954</width>
+    <width>806</width>
     <height>779</height>
    </rect>
   </property>
@@ -14,122 +14,84 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_5">
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
-     <widget class="QTabBar" name="tab" native="true"/>
+     <widget class="QWidget" name="wdgTab" native="true">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QTabBar" name="tab" native="true"/>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </item>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="handleWidth">
+       <number>6</number>
+      </property>
       <widget class="QWidget" name="filter" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <layout class="QHBoxLayout" name="topLayout">
-          <item>
-           <widget class="QToolButton" name="btnNewNotebook">
-            <property name="text">
-             <string>New Note</string>
-            </property>
-            <property name="icon">
-             <iconset theme="document-new">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnPrevious">
-            <property name="text">
-             <string>Previous</string>
-            </property>
-            <property name="icon">
-             <iconset theme="go-previous">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnNext">
-            <property name="text">
-             <string>Next</string>
-            </property>
-            <property name="icon">
-             <iconset theme="go-next">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextUnderIcon</enum>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="grpNotebooks">
-          <property name="title">
-           <string>Notebooks</string>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>6</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QListWidget" name="lstNotebooks">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::MultiSelection</enum>
-             </property>
-             <item>
-              <property name="text">
-               <string>All</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>One</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>6</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QWidget" name="wdgCalendar" native="true">
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -146,7 +108,7 @@
             <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="QCalendarWidget" name="calendar">
@@ -204,7 +166,9 @@
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset theme="edit-clear"/>
+                 <iconset theme="edit-clear">
+                  <normaloff/>
+                 </iconset>
                 </property>
                 <property name="flat">
                  <bool>true</bool>
@@ -218,22 +182,19 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox">
-          <property name="title">
-           <string>Filters</string>
-          </property>
+         <widget class="QWidget" name="widget" native="true">
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <property name="leftMargin">
             <number>0</number>
            </property>
            <property name="topMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="rightMargin">
             <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>0</number>
+            <number>6</number>
            </property>
            <item>
             <widget class="cloudView" name="lstTags">
@@ -259,16 +220,13 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="grpNotes">
-          <property name="title">
-           <string>Notes</string>
-          </property>
+         <widget class="QWidget" name="grpNotes" native="true">
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="leftMargin">
             <number>0</number>
            </property>
            <property name="topMargin">
-            <number>6</number>
+            <number>0</number>
            </property>
            <property name="rightMargin">
             <number>0</number>
@@ -315,6 +273,9 @@
              <attribute name="horizontalHeaderVisible">
               <bool>false</bool>
              </attribute>
+             <attribute name="horizontalHeaderMinimumSectionSize">
+              <number>1</number>
+             </attribute>
              <attribute name="verticalHeaderVisible">
               <bool>false</bool>
              </attribute>
@@ -323,169 +284,23 @@
              </attribute>
              <column>
               <property name="text">
-               <string>Date</string>
+               <string/>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Name</string>
+               <string/>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>WC</string>
+               <string/>
               </property>
              </column>
             </widget>
            </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QToolButton" name="btnToggleNotebooks">
-            <property name="text">
-             <string>Notebooks</string>
-            </property>
-            <property name="icon">
-             <iconset theme="folder">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnToggleFilter">
-            <property name="text">
-             <string>Filter</string>
-            </property>
-            <property name="icon">
-             <iconset theme="edit-find">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnToggleCalendar">
-            <property name="text">
-             <string>Calendar</string>
-            </property>
-            <property name="icon">
-             <iconset theme="x-office-calendar">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnToggleTags">
-            <property name="text">
-             <string>Tags</string>
-            </property>
-            <property name="icon">
-             <iconset theme="task-past-due">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnToggleWords">
-            <property name="text">
-             <string>Words</string>
-            </property>
-            <property name="icon">
-             <iconset theme="system-search">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="btnToggleList">
-            <property name="text">
-             <string>List</string>
-            </property>
-            <property name="icon">
-             <iconset theme="view-sort-ascending">
-              <normaloff/>
-             </iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-            <property name="autoRaise">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -496,6 +311,18 @@
        <widget class="QWidget" name="editorPage1">
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -525,6 +352,18 @@
        </widget>
        <widget class="QWidget" name="page">
         <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
           <widget class="scrollView" name="scroll">
            <property name="widgetResizable">
@@ -535,8 +374,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>441</width>
-              <height>683</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
            </widget>
@@ -554,7 +393,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>954</width>
+     <width>806</width>
      <height>20</height>
     </rect>
    </property>
@@ -564,7 +403,7 @@
     </property>
     <addaction name="actNewNotebook"/>
     <addaction name="separator"/>
-    <addaction name="actOpen"/>
+    <addaction name="actOpenNotebook"/>
     <addaction name="actRecent"/>
     <addaction name="separator"/>
     <addaction name="actSaveAll"/>
@@ -577,11 +416,63 @@
     </property>
     <addaction name="actionPreferences"/>
    </widget>
+   <widget class="QMenu" name="menuNote">
+    <property name="title">
+     <string>Note</string>
+    </property>
+    <addaction name="actNotePrevious"/>
+    <addaction name="actNoteNext"/>
+    <addaction name="actNoteUp"/>
+    <addaction name="actNoteDown"/>
+    <addaction name="separator"/>
+    <addaction name="actNoteNew"/>
+    <addaction name="actNoteDelete"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actFilterPanel"/>
+    <addaction name="separator"/>
+    <addaction name="actToggleCalendar"/>
+    <addaction name="actToggleTags"/>
+    <addaction name="actToggleWords"/>
+    <addaction name="actToggleList"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menuNote"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actOpen">
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actNewNotebook"/>
+   <addaction name="actCloseCurrent"/>
+   <addaction name="actRecent"/>
+   <addaction name="separator"/>
+   <addaction name="actNoteNew"/>
+   <addaction name="actNotePrevious"/>
+   <addaction name="actNoteNext"/>
+  </widget>
+  <action name="actOpenNotebook">
+   <property name="icon">
+    <iconset theme="folder-open">
+     <normaloff/>
+    </iconset>
+   </property>
    <property name="text">
     <string>&amp;Open Notebook</string>
    </property>
@@ -590,11 +481,21 @@
    </property>
   </action>
   <action name="actionPreferences">
+   <property name="icon">
+    <iconset theme="preferences-system">
+     <normaloff/>
+    </iconset>
+   </property>
    <property name="text">
     <string>&amp;Preferences</string>
    </property>
   </action>
   <action name="actQuit">
+   <property name="icon">
+    <iconset theme="application-exit">
+     <normaloff/>
+    </iconset>
+   </property>
    <property name="text">
     <string>&amp;Quit</string>
    </property>
@@ -603,32 +504,166 @@
    </property>
   </action>
   <action name="actCloseCurrent">
+   <property name="icon">
+    <iconset theme="window-close">
+     <normaloff/>
+    </iconset>
+   </property>
    <property name="text">
-    <string>&amp;Close current notebook</string>
+    <string>&amp;Closes notebook</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
   </action>
   <action name="actNewNotebook">
+   <property name="icon">
+    <iconset theme="folder-new">
+     <normaloff/>
+    </iconset>
+   </property>
    <property name="text">
     <string>&amp;New Notebook</string>
    </property>
   </action>
   <action name="actRecent">
+   <property name="icon">
+    <iconset theme="document-open-recent">
+     <normaloff/>
+    </iconset>
+   </property>
    <property name="text">
     <string>&amp;Recent Notebook</string>
    </property>
   </action>
   <action name="actSaveAll">
    <property name="icon">
-    <iconset theme="document-save"/>
+    <iconset theme="document-save">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Save All Notebooks</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actNoteNew">
+   <property name="icon">
+    <iconset theme="document-new">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>New Note</string>
+   </property>
+  </action>
+  <action name="actNotePrevious">
+   <property name="icon">
+    <iconset theme="go-previous">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Previous</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Left</string>
+   </property>
+  </action>
+  <action name="actNoteNext">
+   <property name="icon">
+    <iconset theme="go-next">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Next</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Right</string>
+   </property>
+  </action>
+  <action name="actNoteDelete">
+   <property name="icon">
+    <iconset theme="edit-delete">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Delete Note</string>
+   </property>
+  </action>
+  <action name="actFilterPanel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Filter panel</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="actToggleCalendar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="x-office-calendar"/>
+   </property>
+   <property name="text">
+    <string>Calendar</string>
+   </property>
+  </action>
+  <action name="actToggleTags">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tags Cloud</string>
+   </property>
+  </action>
+  <action name="actToggleWords">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Words Cloud</string>
+   </property>
+  </action>
+  <action name="actToggleList">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="view-sort-ascending"/>
+   </property>
+   <property name="text">
+    <string>List</string>
+   </property>
+  </action>
+  <action name="actNoteUp">
+   <property name="icon">
+    <iconset theme="go-up"/>
+   </property>
+   <property name="text">
+    <string>Up</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
+   </property>
+  </action>
+  <action name="actNoteDown">
+   <property name="icon">
+    <iconset theme="go-down"/>
+   </property>
+   <property name="text">
+    <string>Down</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
    </property>
   </action>
  </widget>

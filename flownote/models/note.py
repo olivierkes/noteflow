@@ -10,7 +10,7 @@ class Note(QObject):
     
     tagsChanged = pyqtSignal()
     wordsChanged = pyqtSignal()
-    metaChanged = pyqtSignal()  # Emited when date or title changes
+    #metaChanged = pyqtSignal()  # Emited when date or title changes
     noteChanged = pyqtSignal(int)  # When anything changes. Param is UID
     
     def __init__(self, date=None, text="", title="", fromText=""):
@@ -60,21 +60,24 @@ class Note(QObject):
         return F.countWords(words)
     
     def setDate(self, date):
-        self.date = date.toString(Qt.ISODate)
-        self.metaChanged.emit()
-        self.noteChanged.emit(self.UID)
+        d = date.toString(Qt.ISODate)
+        if d != self.date:
+            self.date = d
+            self.noteChanged.emit(self.UID)
     
     def setText(self, text):
-        self.text = text
-        t = self.generateTags()
-        if t != self._tags:
-            self._tags = t
-            self.tagsChanged.emit()
+        if text != self.text:
+            self.text = text
+            self.noteChanged.emit(self.UID)
+            t = self.generateTags()
+            if t != self._tags:
+                self._tags = t
+                self.tagsChanged.emit()
     
     def setTitle(self, title):
-        self.title = title
-        self.metaChanged.emit()
-        self.noteChanged.emit(self.UID)
+        if title != self.title:
+            self.title = title
+            self.noteChanged.emit(self.UID)
            
 #==============================================================================
 #   LOAD / SAVE

@@ -39,7 +39,7 @@ def lineEditSS_2():
     return """QLineEdit{{
         border: none;
         border-bottom: 1px solid {checked};
-        background:{window};
+        background:transparent;
     }}
     QLineEdit:hover{{
         border-bottom: 1px solid {hover};
@@ -95,7 +95,6 @@ def tabBarSS():
 def textEditorSS():
     return """
         QTextEdit {{
-            border: 1px solid #999;
-            border-top: 0px;
+            border: 0px;
         }}
     """.format()

@@ -35,6 +35,7 @@ class Notebook(QObject):
             
             self.load(path)
         
+        self.UID = F.uniqueID()
         
     def addNote(self, n):
         self.notes.append(n)
