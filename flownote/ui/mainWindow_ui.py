@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Tue Apr  4 23:25:05 2017
+# Created: Wed Apr  5 13:42:22 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -266,6 +266,8 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon.fromTheme("go-down")
         self.actNoteDown.setIcon(icon)
         self.actNoteDown.setObjectName("actNoteDown")
+        self.actThemes = QtWidgets.QAction(MainWindow)
+        self.actThemes.setObjectName("actThemes")
         self.menu_File.addAction(self.actNewNotebook)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.actOpenNotebook)
@@ -345,8 +347,9 @@ class Ui_MainWindow(object):
         self.actNoteUp.setShortcut(_translate("MainWindow", "Ctrl+Up"))
         self.actNoteDown.setText(_translate("MainWindow", "Down"))
         self.actNoteDown.setShortcut(_translate("MainWindow", "Ctrl+Down"))
+        self.actThemes.setText(_translate("MainWindow", "Themes"))
 
+from flownote.ui.views.noteEdit import noteEdit
 from flownote.ui.views.cloudView import cloudView
 from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.scrollView import scrollView
-from flownote.ui.views.noteEdit import noteEdit

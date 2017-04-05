@@ -673,6 +673,11 @@
     <string>Ctrl+Down</string>
    </property>
   </action>
+  <action name="actThemes">
+   <property name="text">
+    <string>Themes</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
