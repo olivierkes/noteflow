@@ -74,13 +74,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #l.addWidget(btn)
         #self.statusBar().addWidget(w)
         ##w.setStyleSheet("QToolButton{border: 1px solid;}")
-        self.cmbTheme = QComboBox()
-        self.statusBar().addPermanentWidget(self.cmbTheme)
-        themestr = open(F.appPath('flownote/themes/themes.json'),'r').read()
-        self.themes = json.loads(themestr)
-        self.themes["default"] = self.text.highlighter.defaultTheme
-        self.cmbTheme.addItems(self.themes.keys())
-        self.cmbTheme.currentIndexChanged[str].connect(self.changeTheme)
         
         # Hiding 
         self.actFilterPanel.setChecked(True)
@@ -259,9 +252,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             n = self.text.note
             n._notebook.removeNote(n)
-            
-    def changeTheme(self, theme):
-        self.text.highlighter.setTheme(self.themes[theme])
         
         
 #==============================================================================
