@@ -18,6 +18,7 @@ class cloudView(QListWidget):
         self.setSizePolicy(sp)
         
         self.words = []
+        self._visibleWords = []
         
         self._maxWords = 20
         
@@ -43,8 +44,6 @@ class cloudView(QListWidget):
     def leaveEvent(self, event):
         QListWidget.leaveEvent(self, event)
         self.btnSettings.hide()
-        
-    
         
     def sizeHint(self):
         r = QRect()
@@ -74,6 +73,9 @@ class cloudView(QListWidget):
         
     def setWords(self, words):
         self.words = words.copy()
+        # We store selected items
+        selected = [s.text() for s in self.selectedItems()]
+        self.blockSignals(True)
         self.clear()
         if not words:
             return
@@ -100,10 +102,16 @@ class cloudView(QListWidget):
             i.setFont(f)
             self.addItem(i)
             
+        self.setVisibleWords(self._visibleWords)
+        
+        # Reselect items
+        [self.item(r).setSelected(True) for r in range(self.count()) if self.item(r).text() in selected]
+        
         self.updateGeometry()
+        self.blockSignals(False)
         
     def setVisibleWords(self, words):
-                
+        self._visibleWords = words
         k = 0
         for k in range(self.count()):
             i = self.item(k)

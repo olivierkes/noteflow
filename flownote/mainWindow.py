@@ -541,7 +541,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Text filter
         if self.txtFilter.text():
-            notes = [n for n in notes if self.txtFilter.text().lower() in n.text.lower()]
+            notes = [n for n in notes if self.txtFilter.text().lower() in n.wholeText().lower()]
         
         # Tag filter
         sel = [i.text() for i in self.lstTags.selectedItems()]
@@ -569,6 +569,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.message("{}/{} notes displayed.".format(
             len(notes),
             len(self.allNotes())))
+            
         self.updateFiltersUI()
         
     def calendarChanged(self):
