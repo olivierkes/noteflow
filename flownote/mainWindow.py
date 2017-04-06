@@ -49,11 +49,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tblList.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
         
         # Toggle filters
-        self.actFilterPanel.toggled.connect(self.filter.setVisible)
+        self.actViewFilterPanel.toggled.connect(self.filter.setVisible)
         self.actToggleCalendar.toggled.connect(self.wdgCalendar.setVisible)
         self.actToggleTags.toggled.connect(self.lstTags.setVisible)
         self.actToggleWords.toggled.connect(self.lstWords.setVisible)
         self.actToggleList.toggled.connect(self.grpNotes.setVisible)
+        self.actViewToolbar.toggled.connect(self.toolBar.setVisible)
+        self.toolBar.visibilityChanged.connect(self.actViewToolbar.setChecked)
         
         ## Buttons widget in status bar...
         #w = QWidget()
@@ -79,7 +81,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lblNoteDate.hide()
         
         # Hiding 
-        self.actFilterPanel.setChecked(True)
+        self.actViewFilterPanel.setChecked(True)
+        self.actViewToolbar.setChecked(True)
         self.actToggleCalendar.setChecked(True)
         self.actToggleTags.setChecked(True)
         self.actToggleWords.setChecked(False)
@@ -112,10 +115,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actNoteUp.triggered.connect(self.navigateUp)
         self.actNoteDown.triggered.connect(self.navigateDown)
         self.actNotePrevious.triggered.connect(self.navigatePrevious)
+        self.actNotePrevious.setEnabled(False)
         self.actNoteNext.triggered.connect(self.navigateNext)
+        self.actNoteNext.setEnabled(False)
         self.actNoteNew.triggered.connect(self.newNote)
         self.actNoteDelete.triggered.connect(self.deleteNote)
         self.actNoteDelete.setEnabled(False)
+        
+        self.loadRecents()
         
         # NOTEBOOKS AND NOTES
         self.notebooks = []
@@ -277,8 +284,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return
         
         nb = Notebook(path=path)
-        self.notebooks.append(nb)
-        
+        self.notebooks.append(nb)        
         self.setupNotebook(nb)
         
     def newNotebook(self):
@@ -326,6 +332,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         nb.tagsAndWordsChanged.connect(self.setupTagsAndWords)
         nb.noteAdded.connect(self.noteAdded)
         nb.noteRemoved.connect(self.noteRemoved)
+        self.addToRecentNotebooks(nb)
         
         self.setupNotebooks()    
     
@@ -339,6 +346,56 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.notebooks.remove(nb)
             
         self.setupNotebooks()
+        
+    def addToRecentNotebooks(self, nb):
+        
+        if not nb.name or not nb.path:
+            return
+        
+        recents = self.getRecents()
+        
+        if (nb.name, nb.path) in recents:
+            return
+            
+        recents.append((nb.name, nb.path))
+        
+        val = "\n".join(["{}\n{}".format(name, path) for name, path in recents])
+        s = F.settings()
+        s.setValue("recentNotebooks", val)
+        self.loadRecents()
+        
+    def getRecents(self):
+        s = F.settings()
+        r = s.value("recentNotebooks", "")
+        recents = []
+        if r:
+            r = r.split("\n")
+            while r:
+                path = r.pop()
+                name = r.pop()
+                recents.append((name, path))
+        return recents
+        
+    def loadRecents(self):
+        recents = self.getRecents()
+        
+        if recents:        
+            m = QMenu()
+            for name, path in recents:
+                a = m.addAction(name)
+                a.setStatusTip(path)
+                a.setData(path)
+                a.triggered.connect(self.openRecentNotebook)
+            
+            self.actRecent.setMenu(m)
+            self.actRecent.setEnabled(True)
+        else:
+            self.actRecent.setMenu(QMenu())
+            self.actRecent.setEnabled(False)
+        
+    def openRecentNotebook(self):
+        path = self.sender().data()
+        self.openNotebook(path)
         
 #==============================GTK================================================
 #   BULLSHIT (delete me)      

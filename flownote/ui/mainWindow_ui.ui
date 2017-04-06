@@ -411,7 +411,8 @@
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actFilterPanel"/>
+    <addaction name="actViewToolbar"/>
+    <addaction name="actViewFilterPanel"/>
     <addaction name="separator"/>
     <addaction name="actToggleCalendar"/>
     <addaction name="actToggleTags"/>
@@ -439,8 +440,9 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actNewNotebook"/>
+   <addaction name="actOpenNotebook"/>
+   <addaction name="actSaveAll"/>
    <addaction name="actCloseCurrent"/>
-   <addaction name="actRecent"/>
    <addaction name="separator"/>
    <addaction name="actNoteNew"/>
    <addaction name="actNoteDelete"/>
@@ -453,7 +455,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>&amp;Open Notebook</string>
+    <string>&amp;Open</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -477,7 +479,7 @@
     <string>&amp;Quit</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Q</string>
+    <string>Alt+F4</string>
    </property>
   </action>
   <action name="actCloseCurrent">
@@ -486,7 +488,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>&amp;Closes notebook</string>
+    <string>&amp;Close notebook</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
@@ -510,7 +512,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>&amp;Recent Notebook</string>
+    <string>&amp;Recent</string>
    </property>
   </action>
   <action name="actSaveAll">
@@ -519,7 +521,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Save All Notebooks</string>
+    <string>Save All</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -573,7 +575,7 @@
     <string>Del</string>
    </property>
   </action>
-  <action name="actFilterPanel">
+  <action name="actViewFilterPanel">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -651,6 +653,14 @@
   <action name="actThemes">
    <property name="text">
     <string>Themes</string>
+   </property>
+  </action>
+  <action name="actViewToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Toolbar</string>
    </property>
   </action>
  </widget>

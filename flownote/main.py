@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QApplication, qApp
 
 _version = "0.1.0"
 
-from flownote.functions import appPath
+import flownote.functions as F
 
 
 def run():
@@ -27,7 +27,7 @@ def run():
     #app.setStyle("fusion")
 #
 #    # Load style from QSettings
-    settings = QSettings(app.organizationName(), app.applicationName())
+    settings = F.settings()
 #    if settings.contains("applicationStyle"):
 #        style = settings.value("applicationStyle")
 #        app.setStyle(style)
@@ -37,11 +37,11 @@ def run():
 
     appTranslator = QTranslator()
     # By default: locale
-    translation = appPath(os.path.join("i18n", "flownote_{}.qm".format(locale)))
+    translation = F.appPath(os.path.join("i18n", "flownote_{}.qm".format(locale)))
 
     # Load translation from settings
     if settings.contains("applicationTranslation"):
-        translation = appPath(os.path.join("i18n", settings.value("applicationTranslation")))
+        translation = F.appPath(os.path.join("i18n", settings.value("applicationTranslation")))
         print("Found translation in settings:", translation)
 
     if appTranslator.load(translation):
@@ -52,7 +52,7 @@ def run():
         print(app.tr("Warning: failed to load translator for locale {}...").format(locale))
 
 #    print(QIcon.themeSearchPaths())
-    QIcon.setThemeSearchPaths(QIcon.themeSearchPaths() + [appPath("icons")])
+    QIcon.setThemeSearchPaths(QIcon.themeSearchPaths() + [F.appPath("icons")])
     QIcon.setThemeName("Mint-X")
     # qApp.setWindowIcon(QIcon.fromTheme("im-aim"))
 
