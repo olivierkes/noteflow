@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'flownote/ui/dialogs/folderDialog_ui.ui'
+# Form implementation generated from reading ui file 'flownote/ui/widgets/folderDialog_ui.ui'
 #
-# Created: Sun Apr  2 15:48:36 2017
-#      by: PyQt5 UI code generator 5.2.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 

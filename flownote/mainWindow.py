@@ -91,6 +91,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tab.currentChanged.connect(self.setupFilters)
         #self.tab.currentChanged.connect(self.filterNotes)
         self.tab.currentChanged.connect(self.updateUI)
+        self.tab.tabBarDoubleClicked.connect(self.changeNotebookName)
         self.lstTags.itemSelectionChanged.connect(self.filterNotes)
         self.lstWords.itemSelectionChanged.connect(self.filterNotes)
         self.tblList.itemSelectionChanged.connect(self.listNoteActivated)
@@ -253,7 +254,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             n = self.text.note
             n._notebook.removeNote(n)
         
-        
 #==============================================================================
 #   OPEN / SAVE
 #==============================================================================
@@ -282,12 +282,42 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupNotebook(nb)
         
     def newNotebook(self):
-        name, ok = QInputDialog.getText(self, "Enter Notebook name", "You can always change the name later")
+        # First, we get a name
+        name = self.getNotebookName()
         if not name:
             name = "A Notebook With No Name"
-        nb = Notebook(name=name, create=True)
+
+        # Then we get a path
+        path = QFileDialog.getExistingDirectory(self, "Select an empty directory")
+        if not path:
+            # Was cancelled...
+            QMessageBox.critical(self, "Notebook creation failed",
+                                 "You didn't select a valid folder.\nI cannot create a notebook without a folder.")
+            return
+        
+        if len(os.listdir(path)):
+            # The directory is not empty
+            QMessageBox.critical(self, "Notebook creation failed",
+                                 "The folder you selected is not empty.\nPlease try again.")
+            return
+        
+        nb = Notebook(name=name, path=path, create=True)
         self.notebooks.append(nb)
         self.setupNotebook(nb)
+        
+    def getNotebookName(self, name=""):
+        name, ok = QInputDialog.getText(self, "Enter Notebook name", "You can always change the name later", text=name)
+        return name
+            
+    def changeNotebookName(self, index):
+        if index == 0:
+            # The "All" tabl            
+            return
+        nb = [nb for nb in self.notebooks if nb.UID == self.tab.tabData(index)][0]
+        name = self.getNotebookName(nb.name)
+        if name:
+            nb.name = name
+            self.tab.setTabText(index, name)
         
     def setupNotebook(self, nb):
         # Signals
@@ -346,8 +376,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #self.tab.show()
             self.wdgTab.show()
             for nb in self.notebooks:
-                self.tab.addTab(nb.name)
-                self.tab.setTabData(self.tab.count()-1, nb.UID)
+                i = self.tab.addTab(nb.name)
+                self.tab.setTabData(i, nb.UID)
         else:
             #self.tab.hide()
             self.wdgTab.hide()

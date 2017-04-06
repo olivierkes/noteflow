@@ -26,6 +26,7 @@ class Notebook(QObject):
         
         if create:
             assert(name)
+            assert(path)
             self.name = name
             self.path = path
             self._content = {}
@@ -116,11 +117,6 @@ class Notebook(QObject):
 
     def save(self):
         print("Saving in: {}".format(self.path))
-        
-        if self.path is None:
-            print("No path... Not saving!")
-            #FIXME
-            return
         
         content = self.notesToDisk()
         oldContent = self._content
