@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import os
-from flownote.ui.dialogs.folderDialog_ui import Ui_folderDialog
+from flownote.ui.widgets.folderDialog_ui import Ui_folderDialog
 import flownote.functions as F
 
 class folderDialog(QDialog, Ui_folderDialog):

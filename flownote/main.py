@@ -24,7 +24,7 @@ def run():
         #icon.addFile(appPath("icons/flownote/icon-{}px.png".format(i)))
     #qApp.setWindowIcon(icon)
 
-    app.setStyle("fusion")
+    #app.setStyle("fusion")
 #
 #    # Load style from QSettings
     settings = QSettings(app.organizationName(), app.applicationName())

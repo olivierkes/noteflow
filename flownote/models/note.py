@@ -64,6 +64,19 @@ class Note(QObject):
             self.date = d
             self.noteChanged.emit(self.UID)
     
+    def setWholeText(self, text):
+        if self._notebook:
+            title, text = self.splitWholeText(text)
+            if text != self.text:
+                self.setText(text)
+            if title != self.title:
+                self.setTitle(title)
+    
+    def wholeText(self):
+        return "{}\n{}".format(
+            self.title,
+            self.text)
+                
     def setText(self, text):
         if self._notebook and text != self.text:
             self.text = text
@@ -74,6 +87,12 @@ class Note(QObject):
                 self._tags = t
                 self._words = w
                 self.tagsAndWordsChanged.emit(self.UID)
+                
+    def splitWholeText(self, text):
+        txt = text.split("\n")
+        title = txt[0]
+        text = "\n".join(txt[1:]) if len(txt) > 1 else ""
+        return title, text
     
     def setTitle(self, title):
         if self._notebook and title != self.title:

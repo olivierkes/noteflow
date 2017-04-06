@@ -167,8 +167,7 @@
                 </property>
                 <property name="icon">
                  <iconset theme="edit-clear">
-                  <normaloff/>
-                 </iconset>
+                  <normaloff>.</normaloff>.</iconset>
                 </property>
                 <property name="flat">
                  <bool>true</bool>
@@ -328,26 +327,6 @@
          <item>
           <widget class="noteEdit" name="text"/>
          </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QLineEdit" name="txtNoteTitle"/>
-           </item>
-           <item>
-            <widget class="QDateEdit" name="noteDate">
-             <property name="currentSection">
-              <enum>QDateTimeEdit::YearSection</enum>
-             </property>
-             <property name="displayFormat">
-              <string>yyyy-MM-dd</string>
-             </property>
-             <property name="calendarPopup">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page">
@@ -394,7 +373,7 @@
      <x>0</x>
      <y>0</y>
      <width>806</width>
-     <height>20</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -471,8 +450,7 @@
   <action name="actOpenNotebook">
    <property name="icon">
     <iconset theme="folder-open">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Open Notebook</string>
@@ -484,8 +462,7 @@
   <action name="actionPreferences">
    <property name="icon">
     <iconset theme="preferences-system">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Preferences</string>
@@ -494,8 +471,7 @@
   <action name="actQuit">
    <property name="icon">
     <iconset theme="application-exit">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -507,8 +483,7 @@
   <action name="actCloseCurrent">
    <property name="icon">
     <iconset theme="window-close">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Closes notebook</string>
@@ -520,8 +495,7 @@
   <action name="actNewNotebook">
    <property name="icon">
     <iconset theme="folder-new">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;New Notebook</string>
@@ -530,8 +504,7 @@
   <action name="actRecent">
    <property name="icon">
     <iconset theme="document-open-recent">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Recent Notebook</string>
@@ -540,8 +513,7 @@
   <action name="actSaveAll">
    <property name="icon">
     <iconset theme="document-save">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save All Notebooks</string>
@@ -553,8 +525,7 @@
   <action name="actNoteNew">
    <property name="icon">
     <iconset theme="document-new">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>New Note</string>
@@ -566,8 +537,7 @@
   <action name="actNotePrevious">
    <property name="icon">
     <iconset theme="go-previous">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Previous</string>
@@ -579,8 +549,7 @@
   <action name="actNoteNext">
    <property name="icon">
     <iconset theme="go-next">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Next</string>
@@ -592,8 +561,7 @@
   <action name="actNoteDelete">
    <property name="icon">
     <iconset theme="edit-delete">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Delete Note</string>
@@ -618,7 +586,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="x-office-calendar"/>
+    <iconset theme="x-office-calendar">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Calendar</string>
@@ -645,7 +614,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="view-sort-ascending"/>
+    <iconset theme="view-sort-ascending">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>List</string>
@@ -653,7 +623,8 @@
   </action>
   <action name="actNoteUp">
    <property name="icon">
-    <iconset theme="go-up"/>
+    <iconset theme="go-up">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Up</string>
@@ -664,7 +635,8 @@
   </action>
   <action name="actNoteDown">
    <property name="icon">
-    <iconset theme="go-down"/>
+    <iconset theme="go-down">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Down</string>

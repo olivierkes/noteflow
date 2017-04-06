@@ -13,7 +13,8 @@ from flownote.ui import style as S
 
 from flownote.models.notebook import Notebook
 from flownote.models.note import Note
-from flownote.ui.dialogs.folderDialog import folderDialog
+from flownote.ui.widgets.folderDialog import folderDialog
+from flownote.ui.widgets.labelDate import LabelDate
 import flownote.functions as F
 
 
@@ -38,7 +39,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setStyleSheet(S.mainWindowSS())
         
         self.txtFilter.setStyleSheet(S.lineEditSS_2())
-        self.txtNoteTitle.setStyleSheet(S.lineEditSS_2())
         self.txtDate.setStyleSheet("background:transparent;")
         #self.tab.setStyleSheet(S.tabBarSS())
         self.text.setStyleSheet(S.textEditorSS())
@@ -74,6 +74,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #l.addWidget(btn)
         #self.statusBar().addWidget(w)
         ##w.setStyleSheet("QToolButton{border: 1px solid;}")
+        self.lblNoteDate = LabelDate()
+        self.statusBar().addPermanentWidget(self.lblNoteDate)
+        self.lblNoteDate.hide()
         
         # Hiding 
         self.actFilterPanel.setChecked(True)
@@ -194,26 +197,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.editor.setCurrentIndex(0)
         
         # Date
-        self.noteDate.dateChanged.disconnect()
-        self.noteDate.setDate(F.strToDate(note.date))
-        self.noteDate.setEnabled(True)
-        self.noteDate.dateChanged.connect(note.setDate)
-        
-        # Title
-        self.txtNoteTitle.disconnect()
-        self.txtNoteTitle.setText(note.title)
-        self.txtNoteTitle.setEnabled(True)
-        self.txtNoteTitle.textChanged.connect(note.setTitle)
+        try:
+            self.lblNoteDate.dateChanged.disconnect()
+        except:
+            pass
+        self.lblNoteDate.setDate(F.strToDate(note.date))
+        self.lblNoteDate.show()
+        self.lblNoteDate.dateChanged.connect(note.setDate)
         
         self.text.setFocus()
         self.actNoteDelete.setEnabled(True)
         
     def closeNote(self):
         self.text.setNote(None)
-        self.txtNoteTitle.setText("")
-        self.txtNoteTitle.setEnabled(False)
-        self.noteDate.setDate(QDate())
-        self.noteDate.setEnabled(False)
+        self.lblNoteDate.setDate(QDate())
+        self.lblNoteDate.hide()
         self.actNoteDelete.setEnabled(False)
         
     def tblSelectRow(self, UID, blockSignal=True):

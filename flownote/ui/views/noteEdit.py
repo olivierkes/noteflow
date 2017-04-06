@@ -16,12 +16,11 @@ class noteEdit(QTextEdit):
         
         if highlighting:
             self.highlighter = MarkdownHighlighter(self)
-            #self.setHighlighter(self.highlighter)
         
     def setNote(self, note):
         if note is not None:
             self.note = note
-            self.setText(note.text)
+            self.setText(note.wholeText())
             self.setEnabled(True)
         else:
             self.note = None
@@ -31,7 +30,7 @@ class noteEdit(QTextEdit):
         
     def updateNote(self):
         if self.note:
-            self.note.setText(self.toPlainText())
+            self.note.setWholeText(self.toPlainText())
         else:
             if self.toPlainText():
                 self.setText("")

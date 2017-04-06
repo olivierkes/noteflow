@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Wed Apr  5 13:42:22 2017
-#      by: PyQt5 UI code generator 5.2.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -16,14 +15,14 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.centralwidget)
-        self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.wdgTab = QtWidgets.QWidget(self.centralwidget)
         self.wdgTab.setObjectName("wdgTab")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.wdgTab)
-        self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.tab = QTabBar(self.wdgTab)
         self.tab.setObjectName("tab")
@@ -38,14 +37,14 @@ class Ui_MainWindow(object):
         self.filter = QtWidgets.QWidget(self.splitter)
         self.filter.setObjectName("filter")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.filter)
-        self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setContentsMargins(6, 0, 0, 0)
+        self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.wdgCalendar = QtWidgets.QWidget(self.filter)
         self.wdgCalendar.setObjectName("wdgCalendar")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.wdgCalendar)
-        self.verticalLayout_7.setSpacing(0)
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 6)
+        self.verticalLayout_7.setSpacing(0)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.calendar = QtWidgets.QCalendarWidget(self.wdgCalendar)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
@@ -62,8 +61,8 @@ class Ui_MainWindow(object):
         self.wdgDateInfos = QtWidgets.QWidget(self.wdgCalendar)
         self.wdgDateInfos.setObjectName("wdgDateInfos")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.wdgDateInfos)
-        self.horizontalLayout_4.setSpacing(0)
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_4.setSpacing(0)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.txtDate = QtWidgets.QLineEdit(self.wdgDateInfos)
         self.txtDate.setFrame(False)
@@ -142,23 +141,12 @@ class Ui_MainWindow(object):
         self.editorPage1 = QtWidgets.QWidget()
         self.editorPage1.setObjectName("editorPage1")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.editorPage1)
-        self.verticalLayout.setSpacing(0)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.text = noteEdit(self.editorPage1)
         self.text.setObjectName("text")
         self.verticalLayout.addWidget(self.text)
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.txtNoteTitle = QtWidgets.QLineEdit(self.editorPage1)
-        self.txtNoteTitle.setObjectName("txtNoteTitle")
-        self.horizontalLayout_3.addWidget(self.txtNoteTitle)
-        self.noteDate = QtWidgets.QDateEdit(self.editorPage1)
-        self.noteDate.setCurrentSection(QtWidgets.QDateTimeEdit.YearSection)
-        self.noteDate.setCalendarPopup(True)
-        self.noteDate.setObjectName("noteDate")
-        self.horizontalLayout_3.addWidget(self.noteDate)
-        self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.editor.addWidget(self.editorPage1)
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
@@ -177,7 +165,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 806, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 806, 27))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -312,7 +300,6 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.tblList.setSortingEnabled(True)
-        self.noteDate.setDisplayFormat(_translate("MainWindow", "yyyy-MM-dd"))
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menu_Edit.setTitle(_translate("MainWindow", "&Edit"))
         self.menuNote.setTitle(_translate("MainWindow", "Note"))
@@ -349,7 +336,7 @@ class Ui_MainWindow(object):
         self.actNoteDown.setShortcut(_translate("MainWindow", "Ctrl+Down"))
         self.actThemes.setText(_translate("MainWindow", "Themes"))
 
-from flownote.ui.views.noteEdit import noteEdit
-from flownote.ui.views.cloudView import cloudView
 from PyQt5.QtWidgets import QTabBar
+from flownote.ui.views.cloudView import cloudView
+from flownote.ui.views.noteEdit import noteEdit
 from flownote.ui.views.scrollView import scrollView
