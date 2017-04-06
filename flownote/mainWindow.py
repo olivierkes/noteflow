@@ -142,7 +142,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # CUSTOM TAGS
         self.tags = TagCollector()
-        self.tags.addTag("TODO", background="#FF0", border="#00F")
+        self.tags.addTag("TODO", color="#00F", background="#FF0", border="#00F")
+        self.tags.addTag("ut", color="#F00")
+        
         self.lstTags.setCustomTags(self.tags)
         self.tblList.setCustomTags(self.tags)
         
@@ -356,7 +358,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setupNotebook(self, nb):
         # Signals
         nb.noteChanged.connect(self.updateSingleTblNote)
-        nb.noteChanged.connect(self.updateCalendar)
+        nb.dateChanged.connect(self.updateCalendar)
         nb.tagsAndWordsChanged.connect(self.setupTagsAndWords)
         nb.noteAdded.connect(self.noteAdded)
         nb.noteRemoved.connect(self.noteRemoved)
@@ -650,7 +652,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if not qd: continue
             cf = QTextCharFormat()
             #cf.setFontWeight(QFont.Bold)
-            cf.setBackground(QColor("#11000000"))
+            cf.setBackground(QColor("#22000000"))
                 
             # In current filter
             if d in filterDates:

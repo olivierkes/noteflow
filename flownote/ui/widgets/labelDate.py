@@ -26,7 +26,6 @@ class LabelDate(QLabel):
     def mouseReleaseEvent(self, event):
         QLabel.mouseReleaseEvent(self, event)
         if self.date:
-            print(event.button())
             self.calendar.setSelectedDate(self.date)
             
             self.calendar.show()

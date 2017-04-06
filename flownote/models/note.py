@@ -10,7 +10,8 @@ class Note(QObject):
     
     tagsAndWordsChanged = pyqtSignal(int)
     #metaChanged = pyqtSignal()  # Emited when date or title changes
-    noteChanged = pyqtSignal(int)  # When anything changes. Param is UID
+    dateChanged = pyqtSignal(int)  # When the date changes. Param is UID
+    noteChanged = pyqtSignal(int)  # When anything else changes. Param is UID
     
     def __init__(self, date=None, text="", title="", fromText=""):
         QObject.__init__(self)
@@ -62,7 +63,7 @@ class Note(QObject):
         d = date.toString(Qt.ISODate)
         if self._notebook and d != self.date:
             self.date = d
-            self.noteChanged.emit(self.UID)
+            self.dateChanged.emit(self.UID)
     
     def setWholeText(self, text):
         if self._notebook:

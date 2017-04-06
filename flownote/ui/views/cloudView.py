@@ -121,6 +121,7 @@ class cloudView(QListWidget):
         for w in words:
             i = QListWidgetItem(w)
             i.setData(Qt.UserRole, words[w])
+            i.setData(Qt.UserRole+1, True)  # Enabled
             f = i.font()
             f.setPointSizeF(minFont + (words[w] - minCount) / (maxCount - minCount) * (maxFont - minFont))
             i.setFont(f)    
@@ -140,9 +141,11 @@ class cloudView(QListWidget):
         for k in range(self.count()):
             i = self.item(k)
             if i.text().lower() in words or not words:
-                i.setForeground(QBrush())
+                i.setForeground(QBrush())                
+                i.setData(Qt.UserRole+1, True)
             else:
-                i.setForeground(Qt.gray)
+                i.setForeground(Qt.gray)                
+                i.setData(Qt.UserRole+1, False)
     
     def filterRows(self, text):
         text = text.lower()
@@ -216,6 +219,14 @@ class customDelegate(QStyledItemDelegate):
         if cw and item.text().lower() in cw.toListLower():
             tag = cw.find(item.text())
             
+            enabled = index.data(Qt.UserRole+1)
+            color = tag.color if tag.color else QColor("#000")
+            color.setAlpha(255 if enabled else 64)
+            background = tag.background if tag.background else QColor()            
+            background.setAlpha(255 if enabled else 64)
+            border = tag.border if tag.border else QColor()                        
+            border.setAlpha(255 if enabled else 64)
+            
             # Selection
             cg = QPalette.ColorGroup(QPalette.Normal if option.state & QStyle.State_Enabled else QPalette.Disabled)
             if cg == QPalette.Normal and not option.state & QStyle.State_Active:
@@ -226,20 +237,20 @@ class customDelegate(QStyledItemDelegate):
                 painter.setBrush(option.palette.brush(cg, QPalette.Highlight))
                 painter.setPen(Qt.NoPen)
                 painter.drawRect(option.rect)
-                painter.restore()     
+                painter.restore()
                 
             option.rect = option.rect.adjusted(self.margin, self.margin, -self.margin, -self.margin)
             
             if tag.background:
                 painter.save()
-                painter.setBrush(QBrush(tag.background))
-                painter.setPen(QPen(tag.border, 2) if tag.border else Qt.transparent)
+                painter.setBrush(QBrush(background))
+                painter.setPen(QPen(border, 2) if border else Qt.transparent)
                 painter.drawRoundedRect(option.rect, 8, 8)
                 painter.restore()
             
             painter.save()  
             painter.setFont(option.font)
-            painter.setPen(tag.color if tag.color else QColor())
+            painter.setPen(color)
             painter.drawText(option.rect, Qt.AlignVCenter | Qt.AlignHCenter, tag.text)
             painter.restore()
             

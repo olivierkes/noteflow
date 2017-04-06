@@ -15,8 +15,9 @@ class Notebook(QObject):
     On the computer, a notebook is a folder containing text files.
     """
     
-    noteChanged = pyqtSignal(int)  # param str is the note UID
-    tagsAndWordsChanged = pyqtSignal(int)  # param str is the note UID
+    noteChanged = pyqtSignal(int)  # param int is the note UID
+    dateChanged = pyqtSignal(int)  # param int is the note UID
+    tagsAndWordsChanged = pyqtSignal(int)  # param int is the note UID
     noteAdded = pyqtSignal(int)
     noteRemoved = pyqtSignal(int)
     
@@ -53,6 +54,7 @@ class Notebook(QObject):
         self.notes.append(note)
         note._notebook = self
         note.noteChanged.connect(self.noteChanged)
+        note.dateChanged.connect(self.dateChanged)
         note.tagsAndWordsChanged.connect(self.tagsAndWordsChanged)
         
     def removeNote(self, note):
