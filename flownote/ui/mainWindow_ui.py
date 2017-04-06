@@ -114,7 +114,7 @@ class Ui_MainWindow(object):
         self.txtFilter.setClearButtonEnabled(True)
         self.txtFilter.setObjectName("txtFilter")
         self.verticalLayout_3.addWidget(self.txtFilter)
-        self.tblList = QtWidgets.QTableWidget(self.grpNotes)
+        self.tblList = tableView(self.grpNotes)
         self.tblList.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.tblList.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tblList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -369,3 +369,4 @@ from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.cloudView import cloudView
 from flownote.ui.views.noteEdit import noteEdit
 from flownote.ui.views.scrollView import scrollView
+from flownote.ui.views.tableView import tableView

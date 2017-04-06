@@ -19,7 +19,9 @@ class cloudView(QListWidget):
         
         self.words = []
         self._visibleWords = []
-        
+        self.customWords = None
+        self._customWordsOnly = False
+        self._customWordsAlways = False
         self._maxWords = 20
         
         # Setting button
@@ -36,6 +38,27 @@ class cloudView(QListWidget):
         self.popup = cloudViewPopup(cloud=self, word="words")
         self.popup.setWindowFlags(Qt.Popup)
         self.btnSettings.clicked.connect(self.popupMenu)
+        
+        self.delegate = customDelegate(self)
+        self.setItemDelegate(self.delegate)
+        
+    def setCustomTags(self, tags):
+        self.customWords = tags
+        self.customWords.tagsChanged.connect(self.customTagsChanged)
+        
+    def customTagsChanged(self):
+        print("FIXME")
+        #FIXME
+        
+    def setCustomWordsOnly(self, val):
+        if val != self._customWordsOnly:
+            self._customWordsOnly = val
+            self.setWords(self.words)
+        
+    def setCustomWordsAlways(self, val):
+        if val != self._customWordsAlways:
+            self._customWordsAlways = val
+            self.setWords(self.words)
         
     def enterEvent(self, event):
         QListWidget.enterEvent(self, event)
@@ -94,12 +117,13 @@ class cloudView(QListWidget):
             minCount -= 1
         minFont, maxFont = 6, 13
         
+        # Add words to list
         for w in words:
             i = QListWidgetItem(w)
             i.setData(Qt.UserRole, words[w])
             f = i.font()
             f.setPointSizeF(minFont + (words[w] - minCount) / (maxCount - minCount) * (maxFont - minFont))
-            i.setFont(f)
+            i.setFont(f)    
             self.addItem(i)
             
         self.setVisibleWords(self._visibleWords)
@@ -115,7 +139,7 @@ class cloudView(QListWidget):
         k = 0
         for k in range(self.count()):
             i = self.item(k)
-            if i.text() in words or not words:
+            if i.text().lower() in words or not words:
                 i.setForeground(QBrush())
             else:
                 i.setForeground(Qt.gray)
@@ -139,10 +163,12 @@ class cloudViewPopup(QWidget, Ui_CloudViewPopup):
         self.word = word
         self.lblNbWordsDesc.setText("Number of {} to show:".format(self.word))
         self.chkCustomOnly.setText("Display custom {} only".format(self.word))
-        self.chkCustomFirst.setText("Display custom {} first".format(self.word))
+        self.chkCustomAlways.setText("Display custom {} always".format(self.word))
         
         self.sldNWords.valueChanged.connect(self.cloud.setMaxWords)
         self.txtFilter.textChanged.connect(self.cloud.filterRows)
+        self.chkCustomOnly.toggled.connect(self.cloud.setCustomWordsOnly)
+        self.chkCustomAlways.toggled.connect(self.cloud.setCustomWordsAlways)
         
     def popup(self):
         n = len(self.cloud.words)
@@ -152,5 +178,72 @@ class cloudViewPopup(QWidget, Ui_CloudViewPopup):
         else:
             self.sldNWords.setValue(self.cloud._maxWords)
         
+        self.chkCustomOnly.setChecked(self.cloud._customWordsOnly)
+        self.chkCustomAlways.setChecked(self.cloud._customWordsAlways)
+        self.chkCustomOnly.setVisible(self.cloud.customWords is not None)
+        self.chkCustomAlways.setVisible(self.cloud.customWords is not None)
+        
         self.show()
+        
+class customDelegate(QStyledItemDelegate):
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self)
+        self.parent = parent
+        self.margin = 2
+        self.padding = 1
+        
+    def sizeHint(self, option, index):
+        self.initStyleOption(option, index)
+        item = self.parent.item(index.row())
+        cw = self.parent.customWords
+        tag = None;
+        if cw and item.text().lower() in cw.toListLower():
+            tag = cw.find(item.text())
+            option.text = tag.text
+            
+        s = qApp.style().sizeFromContents(QStyle.CT_ItemViewItem, option, QSize())
+        
+        if tag:
+            s = s + QSize(2*self.margin + 2*self.padding, 2*self.margin + 2*self.padding)
+        return s
+        
+        
+    def paint(self, painter, option, index):
+#        return QStyledItemDelegate.paint(self, painter, option, index)
+        self.initStyleOption(option, index)
+        item = self.parent.item(index.row())
+        cw = self.parent.customWords
+        if cw and item.text().lower() in cw.toListLower():
+            tag = cw.find(item.text())
+            
+            # Selection
+            cg = QPalette.ColorGroup(QPalette.Normal if option.state & QStyle.State_Enabled else QPalette.Disabled)
+            if cg == QPalette.Normal and not option.state & QStyle.State_Active:
+                cg = QPalette.Inactive
+    
+            if option.state & QStyle.State_Selected:
+                painter.save()
+                painter.setBrush(option.palette.brush(cg, QPalette.Highlight))
+                painter.setPen(Qt.NoPen)
+                painter.drawRect(option.rect)
+                painter.restore()     
+                
+            option.rect = option.rect.adjusted(self.margin, self.margin, -self.margin, -self.margin)
+            
+            if tag.background:
+                painter.save()
+                painter.setBrush(QBrush(tag.background))
+                painter.setPen(QPen(tag.border, 2) if tag.border else Qt.transparent)
+                painter.drawRoundedRect(option.rect, 8, 8)
+                painter.restore()
+            
+            painter.save()  
+            painter.setFont(option.font)
+            painter.setPen(tag.color if tag.color else QColor())
+            painter.drawText(option.rect, Qt.AlignVCenter | Qt.AlignHCenter, tag.text)
+            painter.restore()
+            
+        else:
+            QStyledItemDelegate.paint(self, painter, option, index)
+        
         

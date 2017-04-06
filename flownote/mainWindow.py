@@ -13,6 +13,8 @@ from flownote.ui import style as S
 
 from flownote.models.notebook import Notebook
 from flownote.models.note import Note
+from flownote.models.tag import TagCollector
+
 from flownote.ui.widgets.folderDialog import folderDialog
 from flownote.ui.widgets.labelDate import LabelDate
 import flownote.functions as F
@@ -130,19 +132,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # PREVIEW
         settings = self.web.settings()
 #        settings.setFontFamily(QtWebKit.QWebSettings.StandardFont, 'Times New Roman')
-        settings.setFontSize(settings.DefaultFontSize, 12)
+        settings.setFontSize(settings.DefaultFontSize, 13)
         
         # NOTEBOOKS AND NOTES
         self.notebooks = []
         self.notes = []  # filtered notes
         self.history = []  # history of openned notes
         self.historyPos = 0  
-        self._notesInTable = [] # Cache
+        
+        # CUSTOM TAGS
+        self.tags = TagCollector()
+        self.tags.addTag("TODO", background="#FF0", border="#00F")
+        self.lstTags.setCustomTags(self.tags)
+        self.tblList.setCustomTags(self.tags)
         
         # Bullshit notebooks
-        self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook")
-        
-        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/Loren Ipsum/"
+        #self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook")
+        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/my bullshit notebook/"
         self.openNotebook(path)
         #self.notebooks.append(self.bullshitNoteBook("My serious Notebook", "serious"))
         #self.notebooks.append(self.bullshitNoteBook("An other one", "AnOtHer"))
@@ -259,6 +265,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #==============================================================================
     
     def currentNotebook(self):
+        if len(self.notebooks) == 1:
+            return self.notebooks[0]
+            
         nb = [nb for nb in self.notebooks if nb.UID == self.tab.tabData(self.tab.currentIndex())]
         if nb:
             return nb[0]
@@ -473,45 +482,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lstWords.setWords(F.countDicts([n.words() for n in notes]))
         self.lstTags.setWords(F.countDicts([n.tags() for n in notes]))
         
-    def addTblItem(self, note, y=None):
-        f = qApp.font()
-        f.setPointSize(f.pointSize() * .8)
-        
-        if y is None:
-            y = self.tblList.rowCount()
-            self.tblList.setRowCount(y+1)
-        
-        i = QTableWidgetItem(note.date)
-        i.setData(Qt.UserRole, note.UID)
-        i.setForeground(Qt.darkGray)
-        i.setFont(f)
-        self.tblList.setItem(y, 0, i)
-        self.tblList.setItem(y, 1, QTableWidgetItem(note.title or note.text[:50]))
-        self.tblList.setItem(y, 2, QTableWidgetItem(str(note.UID)))
-        
     def setupTblNotes(self):
         notes = self.allNotes()
-        if notes == self._notesInTable:
-            # Notes haven't changed
-            return
-                    
-        self.tblList.clearContents()    
-        self.tblList.setRowCount(len(notes))
-        y = 0
-        self.tblList.setSortingEnabled(False)
-        for n in notes:
-            self.addTblItem(n, y)
-            y += 1
-        self.tblList.setSortingEnabled(True)
-        self.tblList.sortItems(0)
-        self._notesInTable = notes
+        self.tblList.setupNotes(notes)
         
     def noteAdded(self, UID):
         note = self.noteFromUID(UID)
-        self.tblList.setSortingEnabled(False)
-        self.addTblItem(note)
-        self.tblList.setSortingEnabled(True)
-        self.tblList.sortItems(0)
+        self.tblList.addNote(note)
         self.updateCalendar()
         
     def noteRemoved(self, UID):
@@ -566,9 +543,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         sel = [i.text() for i in self.lstTags.selectedItems()]
         if sel:
             # AND
-#            notes = [n for n in notes if len([s for s in sel if s in n.text.lower()]) == len(sel)]
+#            notes = [n for n in notes if len([s for s in sel if s.lower() in n.text.lower()]) == len(sel)]
             # OR
-            notes = [n for n in notes if len([s for s in sel if s in n.text.lower()])]
+            notes = [n for n in notes if len([s for s in sel if s.lower() in n.text.lower()])]
             
         # Word filter
         sel = [i.text() for i in self.lstWords.selectedItems()]

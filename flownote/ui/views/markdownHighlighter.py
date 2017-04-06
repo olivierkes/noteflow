@@ -44,7 +44,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'Link': re.compile('(?<!\!)\[(?P<name>.*?)\]:?[ \t]*\(?[^)]+\)?'),
         'Image': re.compile('!\[.*?\]\(.+?\)'),
         'Html': re.compile('<.+?>'),
-        'Hashtag': re.compile('(?<!^)(?P<tag>#[^\s]+)'),                          
+        'Hashtag': re.compile('(?<!^)(?P<tag>#[\w]+)'),                          
     }
     
     MARKDOWN_LINE_KEYS_REGEX = {
