@@ -109,7 +109,7 @@ class Note(QObject):
         if not self.title and not self.text:
             return ""
         
-        # Metadata, pandod_title_block style
+        # Metadata, pandoc_title_block style
         t = "% {title}\n% {author}\n% {date}\n\n{content}".format(
             title=self.title,
             author="",

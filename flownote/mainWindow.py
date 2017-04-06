@@ -16,7 +16,7 @@ from flownote.models.note import Note
 from flownote.ui.widgets.folderDialog import folderDialog
 from flownote.ui.widgets.labelDate import LabelDate
 import flownote.functions as F
-
+import flownote.markdownFunctions as MD
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -121,8 +121,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actNoteNew.triggered.connect(self.newNote)
         self.actNoteDelete.triggered.connect(self.deleteNote)
         self.actNoteDelete.setEnabled(False)
+        self.actNotePreview.triggered.connect(self.previewNote)
+        self.actNotePreview.setEnabled(False)                
         
         self.loadRecents()
+        self.editor.setCurrentIndex(0)
+        
+        # PREVIEW
+        settings = self.web.settings()
+#        settings.setFontFamily(QtWebKit.QWebSettings.StandardFont, 'Times New Roman')
+        settings.setFontSize(settings.DefaultFontSize, 12)
         
         # NOTEBOOKS AND NOTES
         self.notebooks = []
@@ -217,12 +225,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.text.setFocus()
         self.actNoteDelete.setEnabled(True)
+        self.actNotePreview.setEnabled(True)
+        
+    def previewNote(self, preview):
+        if preview:
+            self.web.setStyleSheet("QWebView{background:white; font-size:10px;}")
+            source = MD.render(self.text.note.toText())
+            self.web.setHtml(source)         
+            self.editor.setCurrentIndex(1)
+        else:
+            self.editor.setCurrentIndex(0)
         
     def closeNote(self):
         self.text.setNote(None)
         self.lblNoteDate.setDate(QDate())
         self.lblNoteDate.hide()
         self.actNoteDelete.setEnabled(False)
+        self.actNotePreview.setEnabled(False)
         
     def tblSelectRow(self, UID, blockSignal=True):
         item = F.findRowByUserData(self.tblList, UID)
