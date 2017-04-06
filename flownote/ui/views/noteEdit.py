@@ -35,3 +35,6 @@ class noteEdit(QTextEdit):
             if self.toPlainText():
                 self.setText("")
             self.setEnabled(False)
+            
+    def setHighlighted(self, words, tags):
+        self.highlighter.setHighlighted(words, tags)

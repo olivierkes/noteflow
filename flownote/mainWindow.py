@@ -405,14 +405,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         import random, string, lorem
         path = F.appPath("tests/{}".format(path))
         nb = Notebook(name, path, create=True)
-        for i in range(2):
+        for i in range(20):
             n = Note(
                 date="{}-{:02d}-{:02d}".format(
                     random.randint(2017, 2017),
                     random.randint(4, 4),
                     random.randint(1, 30)
                     ),
-                text="#"+lorem.text(),
+                text=lorem.sentence() + " #"+lorem.text(),
                 title=lorem.sentence()
                 )
             nb.addNote(n)
@@ -613,6 +613,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #    self.editor.setCurrentIndex(1)
         #    self.scroll.setNotes(self.notes)
 
+        # TextEdit Highlight
+        self.text.setHighlighted(
+            words=[i.text() for i in self.lstWords.selectedItems()] + [self.txtFilter.text()],
+            tags=[i.text() for i in self.lstTags.selectedItems()])
     
     def updateTblNotes(self):
         UIDs = [n.UID for n in self.notes]

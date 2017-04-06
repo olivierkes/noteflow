@@ -43,7 +43,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         #'Link': re.compile('(^|(?P<pre>[^!]))\[.*?\]:?[ \t]*\(?[^)]+\)?'),
         'Link': re.compile('(?<!\!)\[(?P<name>.*?)\]:?[ \t]*\(?[^)]+\)?'),
         'Image': re.compile('!\[.*?\]\(.+?\)'),
-        'Html': re.compile('<.+?>')
+        'Html': re.compile('<.+?>'),
+        'Hashtag': re.compile('(?<!^)(?P<tag>#[^\s]+)'),                          
     }
     
     MARKDOWN_LINE_KEYS_REGEX = {
@@ -67,20 +68,31 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.defaultTheme = {
             "background-color":"#ffffff", 
             "color": "#000000", 
-            "bold": {"color": "#000", "font-weight": "bold", "font-style": "normal"},  #859900
-            "emphasis": {"color":"#000", "font-weight":"normal", "font-style":"italic"}, #b58900
-            "link": {"color":"#cb4b16", "font-weight":"normal", "font-style":"normal"}, 
-            "image": {"color":"#cb164b", "font-weight":"normal", "font-style":"normal"}, 
-            "header": {"color":"#2aa198", "font-weight":"bold", "font-style":"normal"}, 
-            "unorderedlist": {"color":"#dc322f", "font-weight":"normal", "font-style":"normal"}, 
-            "orderedlist": {"color":"#dc322f", "font-weight":"normal", "font-style":"normal"}, 
-            "blockquote": {"color":"#dc322f", "font-weight":"normal", "font-style":"normal"}, 
-            "codespan": {"color":"#dc322f", "font-weight":"normal", "font-style":"normal"}, 
-            "codeblock": {"color":"#ff9900", "font-weight":"normal", "font-style":"normal"}, 
-            "line": {"color":"#2aa198", "font-weight":"normal", "font-style":"normal"}, 
-            "html": {"color":"#c000c0", "font-weight":"normal", "font-style":"normal"}
+            "bold": {"font-weight": "bold"},  #859900
+            "emphasis": {"font-style":"italic"}, #b58900
+            "link": {"color":"#cb4b16"}, 
+            "image": {"color":"#cb164b"}, 
+            "header": {"color":"#2aa198", "font-weight":"bold"}, 
+            "unorderedlist": {"color":"#dc322f"}, 
+            "orderedlist": {"color":"#dc322f"}, 
+            "blockquote": {"color":"#dc322f"}, 
+            "codespan": {"color":"#dc322f"}, 
+            "codeblock": {"color":"#ff9900"}, 
+            "line": {"color":"#2aa198"}, 
+            "html": {"color":"#c000c0"}, 
+            "hashtag": {"color":"#07c", "font-weight":"bold"},
+            "highlight": {"background":"#ff0",},
+            "hashtagH": {"color":"#ab0dab", "font-weight":"bold", "background":"#ffd0ff"},
             }
         self.setTheme(self.defaultTheme)
+        
+        self._highlightedWords = []
+        self._highlightedTags = []
+        
+    def setHighlighted(self, words, tags):
+        self._highlightedWords = words
+        self._highlightedTags = tags
+        self.rehighlight()
 
     def setTheme(self, theme):
         self.theme = theme
@@ -107,13 +119,16 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             ("codespan", "CodeSpan"),
             ("codeblock", "CodeBlock"),
             ("line", "HR"), ("line", "eHR"),
-            ("html", "HTML"),            
+            ("html", "HTML"),     
+            ("hashtag", "Hashtag"), ("hashtagH", "HashtagH"),
+            ("highlight", "Highlight"),
             ]:
             
             format = QTextCharFormat()
-            format.setForeground(QBrush(QColor(theme[what]['color'])))
-            format.setFontWeight(QFont.Bold if theme[what]['font-weight']=='bold' else QFont.Normal)
-            format.setFontItalic(True if theme[what]['font-style']=='italic' else False)
+            format.setForeground(QBrush(QColor(theme[what].get('color'))) if theme[what].get('color') else QBrush())
+            format.setBackground(QBrush(QColor(theme[what].get('background'))) if theme[what].get('background') else QBrush())
+            format.setFontWeight(QFont.Bold) if theme[what].get("font-weight") == 'bold' else None
+            format.setFontItalic(True) if theme[what].get('font-style')=='italic' else None
             self.MARKDOWN_KWS_FORMAT[name] = format
             
         # Customisation
@@ -163,6 +178,19 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.highlightBeautifiers(text, cursor, bf, strt)
 
         self.highlightCodeBlock(text, cursor, bf, strt)
+        
+        # Hashtags
+        for mo in re.finditer(self.MARKDOWN_INLINE_KEYS_REGEX['Hashtag'],text):
+            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Hashtag'])
+            
+        # Highlighted
+        for w in self._highlightedWords + self._highlightedTags:
+            if not w: continue
+            for mo in re.finditer(re.escape(w), text, re.I):
+                for i in range(mo.start()+strt, mo.end()):             
+                    f = self.format(i)
+                    f.setBackground(QBrush(QColor("#ff0")))
+                    self.setFormat(i, 1, f)
 
     def highlightBlockQuote(self, text, cursor, bf, strt):
         found = False
