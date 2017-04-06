@@ -102,6 +102,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.scroll.noteActivated.connect(self.tblChangeRow)
         self.tblList.hideColumn(2)
         self.tblList.setStyleSheet(S.tableSS())
+        self.actNewNotebook.triggered.connect(self.newNotebook)
         self.actOpenNotebook.triggered.connect(self.openNotebookDialog)
         self.actCloseCurrent.triggered.connect(self.closeCurrentNotebook)
         self.actSaveAll.triggered.connect(self.save)
@@ -120,6 +121,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.notes = []  # filtered notes
         self.history = []  # history of openned notes
         self.historyPos = 0  
+        self._notesInTable = [] # Cache
         
         # Bullshit notebooks
         self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook")
@@ -279,6 +281,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.setupNotebook(nb)
         
+    def newNotebook(self):
+        name, ok = QInputDialog.getText(self, "Enter Notebook name", "You can always change the name later")
+        if not name:
+            name = "A Notebook With No Name"
+        nb = Notebook(name=name, create=True)
+        self.notebooks.append(nb)
+        self.setupNotebook(nb)
+        
     def setupNotebook(self, nb):
         # Signals
         nb.noteChanged.connect(self.updateSingleTblNote)
@@ -306,7 +316,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def bullshitNoteBook(self, name="Bullshit", path="bullshit"):
         import random, string, lorem
-        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/{}".format(path)
+        path = F.appPath("tests/{}".format(path))
         nb = Notebook(name, path, create=True)
         for i in range(2):
             n = Note(
@@ -374,9 +384,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tblList.setItem(y, 2, QTableWidgetItem(str(note.UID)))
         
     def setupTblNotes(self):
-        self.tblList.clearContents()
-        
         notes = self.allNotes()
+        if notes == self._notesInTable:
+            # Notes haven't changed
+            return
+                    
+        self.tblList.clearContents()    
         self.tblList.setRowCount(len(notes))
         y = 0
         self.tblList.setSortingEnabled(False)
@@ -385,6 +398,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             y += 1
         self.tblList.setSortingEnabled(True)
         self.tblList.sortItems(0)
+        self._notesInTable = notes
         
     def noteAdded(self, UID):
         note = self.noteFromUID(UID)

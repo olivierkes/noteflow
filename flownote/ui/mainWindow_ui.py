@@ -313,6 +313,7 @@ class Ui_MainWindow(object):
         self.actCloseCurrent.setText(_translate("MainWindow", "&Closes notebook"))
         self.actCloseCurrent.setShortcut(_translate("MainWindow", "Ctrl+W"))
         self.actNewNotebook.setText(_translate("MainWindow", "&New Notebook"))
+        self.actNewNotebook.setShortcut(_translate("MainWindow", "Ctrl+Shift+N"))
         self.actRecent.setText(_translate("MainWindow", "&Recent Notebook"))
         self.actSaveAll.setText(_translate("MainWindow", "Save All Notebooks"))
         self.actSaveAll.setShortcut(_translate("MainWindow", "Ctrl+S"))

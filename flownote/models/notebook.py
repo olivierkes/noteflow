@@ -5,6 +5,7 @@ import json, os
 import flownote.functions as F
 from flownote.models.note import Note
 from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 EXT = ".txt"
 
@@ -24,6 +25,7 @@ class Notebook(QObject):
         self.notes = []
         
         if create:
+            assert(name)
             self.name = name
             self.path = path
             self._content = {}
@@ -114,6 +116,11 @@ class Notebook(QObject):
 
     def save(self):
         print("Saving in: {}".format(self.path))
+        
+        if self.path is None:
+            print("No path... Not saving!")
+            #FIXME
+            return
         
         content = self.notesToDisk()
         oldContent = self._content
