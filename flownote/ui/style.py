@@ -97,4 +97,8 @@ def textEditorSS():
         QTextEdit {{
             border: 0px;
         }}
+        QTextEdit:disabled {{
+            background: transparent;
+        }}
+        
     """.format()

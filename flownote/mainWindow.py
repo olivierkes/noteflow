@@ -503,13 +503,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def updateFiltersUI(self):
         self.updateCalendar()
         self.updateTblNotes()
-        #self.editor.setCurrentIndex(1)
-        #self.scroll.setNotes(self.notes)
-        
+                
         notes = self.notes
         self.lstWords.setVisibleWords(F.countDicts([n.words() for n in notes]))
         self.lstTags.setVisibleWords(F.countDicts([n.tags() for n in notes]))
         
+        #if self.text.note is None:
+        #    self.editor.setCurrentIndex(1)
+        #    self.scroll.setNotes(self.notes)
+
     
     def updateTblNotes(self):
         UIDs = [n.UID for n in self.notes]

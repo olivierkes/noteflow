@@ -28,12 +28,23 @@ class cloudView(QListWidget):
         self.btnSettings.setMaximumSize(QSize(16, 16))
         self.btnSettings.setFlat(True)
         self.btnSettings.setObjectName("btnSettings")
+        self.btnSettings.hide()
         #self.btnSettings.installEventFilter(self)
         #self.btnSettings.clicked.connect(self.split)
         
         self.popup = cloudViewPopup(cloud=self, word="words")
         self.popup.setWindowFlags(Qt.Popup)
         self.btnSettings.clicked.connect(self.popupMenu)
+        
+    def enterEvent(self, event):
+        QListWidget.enterEvent(self, event)
+        self.btnSettings.show()
+        
+    def leaveEvent(self, event):
+        QListWidget.leaveEvent(self, event)
+        self.btnSettings.hide()
+        
+    
         
     def sizeHint(self):
         r = QRect()
