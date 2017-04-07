@@ -72,7 +72,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             "emphasis": {"font-style":"italic"}, #b58900
             "link": {"color":"#cb4b16"}, 
             "image": {"color":"#cb164b"}, 
-            "header": {"color":"#2aa198", "font-weight":"bold"}, 
+            "header": {"color":"#2aa198", "font-weight":"bold", "font-size-factor":"1.5"}, 
             "unorderedlist": {"color":"#dc322f"}, 
             "orderedlist": {"color":"#dc322f"}, 
             "blockquote": {"color":"#dc322f"}, 
@@ -129,12 +129,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             format.setBackground(QBrush(QColor(theme[what].get('background'))) if theme[what].get('background') else QBrush())
             format.setFontWeight(QFont.Bold) if theme[what].get("font-weight") == 'bold' else None
             format.setFontItalic(True) if theme[what].get('font-style')=='italic' else None
+            if theme[what].get('font-size-factor'):
+                format.setFontPointSize(self.parent.font().pointSize() * float(theme[what].get('font-size-factor')))
             self.MARKDOWN_KWS_FORMAT[name] = format
             
-        # Customisation
-        # self.MARKDOWN_KWS_FORMAT['Header'].setFontPointSize(self.parent.font().pointSize() * 1.25)
-        # self.MARKDOWN_KWS_FORMAT['HeaderAtx'].setFontPointSize(self.parent.font().pointSize() * 1.25)
-
         self.rehighlight()
 
     def highlightBlock(self, text):
