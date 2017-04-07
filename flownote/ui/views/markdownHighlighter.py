@@ -280,25 +280,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         
         fadedColor = QColor()
         
-        def getLuminance(color):
-            return (0.30 * color.redF())   + \
-                   (0.59 * color.greenF()) + \
-                   (0.11 * color.blueF())
-               
-        def applyAlphaToChannel(foreground, background, alpha):
-            return (foreground * alpha) + (background * (1.0 - alpha))
-        
-        def applyAlpha(foreground, background, alpha):
-            blendedColor = QColor(0, 0, 0)
-            normalizedAlpha = alpha / 255.0
-            blendedColor.setRed(applyAlphaToChannel(
-                foreground.red(), background.red(), normalizedAlpha))
-            blendedColor.setGreen(applyAlphaToChannel(
-                foreground.green(), background.green(),normalizedAlpha))
-            blendedColor.setBlue(applyAlphaToChannel(
-                foreground.blue(), background.blue(), normalizedAlpha))
-            return blendedColor
-        
         if getLuminance(self.backgroundColor) > \
            getLuminance(self.defaultTextColor):
             fadedColor = applyAlpha(self.defaultTextColor, self.backgroundColor, GW_FADE_ALPHA)
@@ -360,8 +341,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             tokenColor = self.colorForToken[tokenType]
             
             if self.inBlockquote and token.type != MTT.TokenBlockquote:
-                tokenColor = tokenColor * GW_FADE_ALPHA/255. + \
-                             background * (1.0 - GW_FADE_ALPHA/255.)
+                tokenColor = applyAlpha(tokenColor, self.backgroundColor, GW_FADE_ALPHA)
                 
             if self.highlightLineBreaks and token.type == MTT.TokenLineBreak:
                 format.setBackground(QBrush(self.markupColor))
@@ -395,11 +375,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             
             adjustedMarkupColor = self.markupColor
             if self.inBlockquote and token.type != MTT.TokenBlockquote:
-                adjustedMarkupColor = adjustedMarkupColor * GW_FADE_ALPHA + \
-                                      self.backgroundColor * (1.0 - GW_FADE_ALPHA)
-            
+                adjustedMarkupColor = applyAlpha(adjustedMarkupColor, self.backgroundColor, GW_FADE_ALPHA)
+
             markupFormat.setForeground(QBrush(adjustedMarkupColor))
-            
+            print(adjustedMarkupColor.name(), self.backgroundColor.name())
             if self.strongMarkup[tokenType]:
                 markupFormat.setFontWeight(QFont.Bold)
             
@@ -476,6 +455,28 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             MS.MarkdownStateSetextHeading1Line1,
             MS.MarkdownStateSetextHeading2Line1,
                 ]
+
+
+def getLuminance(color):
+    return (0.30 * color.redF()) + \
+           (0.59 * color.greenF()) + \
+           (0.11 * color.blueF())
+
+
+def applyAlphaToChannel(foreground, background, alpha):
+    return (foreground * alpha) + (background * (1.0 - alpha))
+
+
+def applyAlpha(foreground, background, alpha):
+    blendedColor = QColor(0, 0, 0)
+    normalizedAlpha = alpha / 255.0
+    blendedColor.setRed(applyAlphaToChannel(
+        foreground.red(), background.red(), normalizedAlpha))
+    blendedColor.setGreen(applyAlphaToChannel(
+        foreground.green(), background.green(), normalizedAlpha))
+    blendedColor.setBlue(applyAlphaToChannel(
+        foreground.blue(), background.blue(), normalizedAlpha))
+    return blendedColor
 
 
 class TextBlockData(QObject, QTextBlockUserData):
