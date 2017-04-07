@@ -14,8 +14,16 @@ class noteEdit(QTextEdit):
         self.textChanged.connect(self.updateNote)
         self.setEnabled(False)
         
+        self.highlighter = None
         if highlighting:
             self.highlighter = MarkdownHighlighter(self)
+            self.highlighter.setColorScheme(
+                QColor(Qt.black),
+                QColor(Qt.white),
+                QColor(Qt.black),
+                QColor(Qt.blue),
+                QColor(Qt.red)
+            )
         
     def setNote(self, note):
         if note is not None:
@@ -37,4 +45,7 @@ class noteEdit(QTextEdit):
             self.setEnabled(False)
             
     def setHighlighted(self, words, tags):
-        self.highlighter.setHighlighted(words, tags)
+        if self.highlighter:
+            pass
+            #FIXME
+            # self.highlighter.setHighlighted(words, tags)

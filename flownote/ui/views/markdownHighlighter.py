@@ -1,316 +1,497 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# MarkdownHighlighter is a simple syntax highlighter for Markdown syntax.
-# The initial code for MarkdownHighlighter was taken from niwmarkdowneditor by John Schember
-# Copyright 2009 John Schember, Copyright 2012 Rupesh Kumar
-
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-# MA 02110-1301, USA.
-
-'''
-Highlight Markdown text
-'''
+# Highlighter based on GhostWriter. GPLV3+.
 
 import re
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from flownote.ui.views.markdownTokenizer import *
+from flownote.ui.views.markdownEnums import MarkdownState as MS
+from flownote.ui.views.markdownEnums import MarkdownTokenType as MTT
+from flownote.ui.views.markdownEnums import BlockquoteStyle as BS
+
+GW_FADE_ALPHA = 140
+
 
 class MarkdownHighlighter(QSyntaxHighlighter):
     
-    MARKDOWN_INLINE_BEAUTIFIERS = ["Bold", "uBold", "Italic", "uItalic", "CodeSpan"]
-    MARKDOWN_INLINE_KEYS_REGEX = {
-        'Bold': re.compile('(?P<delim>\*\*)(?P<text>.+?)(?P=delim)'),
-        'uBold': re.compile('(?P<delim>__)(?P<text>[^_]{2,}?)(?P=delim)'),
-         # No space at the begginning to avoid confusion with list
-        'Italic': re.compile('(?P<delim>\*)(?P<text>[^\s][^*]{2,}?)(?P=delim)(?!\*)'),
-        'uItalic': re.compile('(?P<delim>_)(?P<text>[^_]+?)(?P=delim)(?!_)'),
-        'CodeSpan': re.compile('(?P<delim>`+)(?P<text>.+?)(?P=delim)'),
-        #'Link': re.compile('(^|(?P<pre>[^!]))\[.*?\]:?[ \t]*\(?[^)]+\)?'),
-        'Link': re.compile('(?<!\!)\[(?P<name>.*?)\]:?[ \t]*\(?[^)]+\)?'),
-        'Image': re.compile('!\[.*?\]\(.+?\)'),
-        'Html': re.compile('<.+?>'),
-        'Hashtag': re.compile('(?<!^)(?P<tag>#[\w]+)'),                          
-    }
-    
-    MARKDOWN_LINE_KEYS_REGEX = {
-        'HeaderAtx': re.compile('^\#{1,6}(.*?)\#*(\n|$)'),
-        'Header': re.compile('^(.+)[ \t]*\n(=+|-+)[ \t]*\n+'),
-        'CodeBlock': re.compile('^([ ]{4,}|\t).*'),
-        'UnorderedList': re.compile('^\s*(\* |\+ |- )+\s*'),
-        'UnorderedListStar': re.compile('^\s*(\* )+\s*'),
-        'OrderedList': re.compile('^\s*(\d+\. )\s*'),
-        'BlockQuote': re.compile('^\s*>+\s*'),
-        'BlockQuoteCount': re.compile('^[ \t]*>[ \t]?'),
-        'HR': re.compile('^(\s*(\*|-)\s*){3,}$'),
-        'eHR': re.compile('^(\s*(\*|=)\s*){3,}$'),
-    }
+    highlightBlockAtPosition = pyqtSignal(int)
+    headingFound = pyqtSignal(int, str, QTextBlock)
+    headingRemoved = pyqtSignal(int)
 
-    def __init__(self, parent):
-        QSyntaxHighlighter.__init__(self, parent)
-        self.parent = parent
-        self.parent.setTabStopWidth(self.parent.fontMetrics().width(' ')*8)
-
-        self.defaultTheme = {
-            "background-color":"#ffffff", 
-            "color": "#000000", 
-            "bold": {"font-weight": "bold"},  #859900
-            "emphasis": {"font-style":"italic"}, #b58900
-            "link": {"color":"#cb4b16"}, 
-            "image": {"color":"#cb164b"}, 
-            "header": {"color":"#2aa198", "font-weight":"bold", "font-size-factor":"1.5"}, 
-            "unorderedlist": {"color":"#dc322f"}, 
-            "orderedlist": {"color":"#dc322f"}, 
-            "blockquote": {"color":"#dc322f"}, 
-            "codespan": {"color":"#dc322f"}, 
-            "codeblock": {"color":"#ff9900"}, 
-            "line": {"color":"#2aa198"}, 
-            "html": {"color":"#c000c0"}, 
-            "hashtag": {"color":"#07c", "font-weight":"bold"},
-            "highlight": {"background":"#ff0",},
-            "hashtagH": {"color":"#ab0dab", "font-weight":"bold", "background":"#ffd0ff"},
-            }
-        self.setTheme(self.defaultTheme)
+    def __init__(self, editor):
+        QSyntaxHighlighter.__init__(self, editor)
         
-        self._highlightedWords = []
-        self._highlightedTags = []
+        #default values
+        self.editor = editor
+        self.tokenizer = MarkdownTokenizer()
+        #self.dictionary = DictionaryRef(DictionaryManager.instance().requestDictionary())
+        self.spellCheckEnabled = False
+        #self.typingPaused = True
+        self.useUndlerlineForEmphasis = False
+        self.highlightLineBreaks = False
+        self.inBlockquote = False
+        self.defaultTextColor = QColor(Qt.black)
+        self.backgroundColor = QColor(Qt.white)
+        self.markupColor = QColor(Qt.black)
+        self.linkColor = QColor(Qt.blue)
+        self.spellingErrorColor = QColor(Qt.red)
+        self.blockquoteStyle = BS.BlockquoteStyleFancy
         
-    def setHighlighted(self, words, tags):
-        self._highlightedWords = words
-        self._highlightedTags = tags
-        self.rehighlight()
-
-    def setTheme(self, theme):
-        self.theme = theme
-        self.MARKDOWN_KWS_FORMAT = {}
-
-        pal = self.parent.palette()
-        pal.setColor(QPalette.Base, QColor(theme['background-color']))
-        self.parent.setPalette(pal)
-        self.parent.setTextColor(QColor(theme['color']))
+        #self.editor.typingResumed.connect(self.onTypingResumed)
+        #self.editor.typingPaused.connect(self.onTypingPaused)
+        #self.headingFound.connect(self.editor.headingFound)
+        #self.headingRemoved.connect(self.editor.headingRemoved)
         
-        format = QTextCharFormat()
-        format.setForeground(Qt.lightGray)
-        self.MARKDOWN_KWS_FORMAT['Delim'] = format
+        self.highlightBlockAtPosition.connect(self.onHighlightBlockAtPosition, Qt.QueuedConnection)
+        # self.editor.document().textBlockRemoved.connect(self.onTextBlockRemoved)
         
-        for what, name in [
-            ("bold", "Bold"), ("bold", "uBold"),
-            ("emphasis", "Italic"), ("emphasis", "uItalic"),
-            ("link", "Link"),
-            ("image", "Image"),
-            ("header", "Header"), ("header", "HeaderAtx"),
-            ("unorderedlist", "UnorderedList"),
-            ("orderedlist", "OrderedList"),
-            ("blockquote", "BlockQuote"),
-            ("codespan", "CodeSpan"),
-            ("codeblock", "CodeBlock"),
-            ("line", "HR"), ("line", "eHR"),
-            ("html", "HTML"),     
-            ("hashtag", "Hashtag"), ("hashtagH", "HashtagH"),
-            ("highlight", "Highlight"),
-            ]:
+        font = QFont("Monospace", 12, QFont.Normal, False)
+        font.setStyleStrategy(QFont.PreferAntialias)
+        self.defaultFormat = QTextCharFormat()
+        self.defaultFormat.setFont(font)
+        self.defaultFormat.setForeground(QBrush(self.defaultTextColor))
+        
+        self.colorForToken = []
+        self.applyStyleToMarkup = {}
+        self.emphasizeToken = {}
+        self.strongToken = {}
+        self.strongMarkup = {}
+        self.strikethroughToken = {}
+        self.fontSizeIncrease = {}
+        
+        self.setupTokenColors()
+        
+        for i in range(MTT.TokenLast):
+            self.applyStyleToMarkup[i] = False
+            self.emphasizeToken[i] = False
+            self.strongToken[i] = False
+            self.strongMarkup[i] = False
+            self.strikethroughToken[i] = False
+            self.fontSizeIncrease[i] = 0
             
-            format = QTextCharFormat()
-            format.setForeground(QBrush(QColor(theme[what].get('color'))) if theme[what].get('color') else QBrush())
-            format.setBackground(QBrush(QColor(theme[what].get('background'))) if theme[what].get('background') else QBrush())
-            format.setFontWeight(QFont.Bold) if theme[what].get("font-weight") == 'bold' else None
-            format.setFontItalic(True) if theme[what].get('font-style')=='italic' else None
-            if theme[what].get('font-size-factor'):
-                format.setFontPointSize(self.parent.font().pointSize() * float(theme[what].get('font-size-factor')))
-            self.MARKDOWN_KWS_FORMAT[name] = format
-            
-        self.rehighlight()
+        for i in range(MTT.TokenAtxHeading1, MTT.TokenAtxHeading6+1):
+            self.applyStyleToMarkup[i] = True
+        
+        self.applyStyleToMarkup[MTT.TokenEmphasis] = True
+        self.applyStyleToMarkup[MTT.TokenStrong] = True
+        self.applyStyleToMarkup[MTT.TokenAtxHeading1] = True
+        self.applyStyleToMarkup[MTT.TokenAtxHeading2] = True
+        self.applyStyleToMarkup[MTT.TokenAtxHeading3] = True
+        self.applyStyleToMarkup[MTT.TokenAtxHeading4] = True
+        self.applyStyleToMarkup[MTT.TokenAtxHeading5] = True
+        self.applyStyleToMarkup[MTT.TokenAtxHeading6] = True
 
+        self.emphasizeToken[MTT.TokenEmphasis] = True
+        self.emphasizeToken[MTT.TokenBlockquote] = False
+        self.strongToken[MTT.TokenStrong] = True
+        self.strongToken[MTT.TokenMention] = True
+        self.strongToken[MTT.TokenAtxHeading1] = True
+        self.strongToken[MTT.TokenAtxHeading2] = True
+        self.strongToken[MTT.TokenAtxHeading3] = True
+        self.strongToken[MTT.TokenAtxHeading4] = True
+        self.strongToken[MTT.TokenAtxHeading5] = True
+        self.strongToken[MTT.TokenAtxHeading6] = True
+        self.strongToken[MTT.TokenSetextHeading1Line1] = True
+        self.strongToken[MTT.TokenSetextHeading2Line1] = True
+        self.strongToken[MTT.TokenSetextHeading1Line2] = True
+        self.strongToken[MTT.TokenSetextHeading2Line2] = True
+        self.strongToken[MTT.TokenTableHeader] = True
+        self.strikethroughToken[MTT.TokenStrikethrough] = True
+
+        self.setupHeadingFontSize(True)
+
+        self.strongMarkup[MTT.TokenNumberedList] = True
+        self.strongMarkup[MTT.TokenBlockquote] = True
+        self.strongMarkup[MTT.TokenBulletPointList] = True
+        
     def highlightBlock(self, text):
-        if self.currentBlock().blockNumber() == 0:
-            # This is the title
-            bf = QTextCharFormat()
-            bf.setFontPointSize(self.parent.font().pointSize() * 2)
-            self.setFormat(0, len(text), bf)
-        else:
-            self.highlightMarkdown(text,0)
-#        self.highlightHtml(text)
-
-    def highlightMarkdown(self, text, strt):
-        cursor = QTextCursor(self.document())
-        bf = cursor.blockFormat()
-        self.setFormat(0, len(text), QColor(self.theme['color']))
-        #bf.clearBackground()
-        #cursor.movePosition(QTextCursor.End)
-        #cursor.setBlockFormat(bf)
-
-        #Block quotes can contain all elements so process it first
-        self.highlightBlockQuote(text, cursor, bf, strt)
-
-        #If empty line no need to check for below elements just return
-        if self.highlightEmptyLine(text, cursor, bf, strt):
-            return
-
-        #If horizontal line, look at pevious line to see if its a header, process and return
-        if self.highlightHorizontalLine(text, cursor, bf, strt):
-            return
-
-        if self.highlightAtxHeader(text, cursor, bf, strt):
-            return
-
-        self.highlightList(text, cursor, bf, strt)
-
-        self.highlightLink(text, cursor, bf, strt)
-
-        self.highlightImage(text, cursor, bf, strt)
-
-        self.highlightBeautifiers(text, cursor, bf, strt)
-
-        self.highlightCodeBlock(text, cursor, bf, strt)
+        """
+        Note:  Never set the QTextBlockFormat for a QTextBlock from within the
+        highlighter.  Depending on how the block format is modified, a recursive call
+        to the highlighter may be triggered, which will cause the application to
+        crash.
         
-        # Hashtags
-        for mo in re.finditer(self.MARKDOWN_INLINE_KEYS_REGEX['Hashtag'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Hashtag'])
+        Likewise, don't try to set the QTextBlockFormat outside the highlighter
+        (i.e., from within the text editor).  While the application will not crash,
+        the format change will be added to the undo stack.  Attempting to undo from
+        that point on will cause the undo stack to be virtually frozen, since undoing
+        the format operation causes the text to be considered changed, thus
+        triggering the slot that changes the text formatting to be triggered yet
+        again.
+        """
+        
+        lastState = self.currentBlockState()
+        self.setFormat(0, len(text), self.defaultFormat)
+        
+        if self.tokenizer != None:
+            self.tokenizer.clear()
+            block = self.currentBlock()
+            nextState = MS.MarkdownStateUnknown
+            previousState = self.previousBlockState()
             
-        # Highlighted
-        for w in self._highlightedWords + self._highlightedTags:
-            if not w: continue
-            for mo in re.finditer(re.escape(w), text, re.I):
-                for i in range(mo.start()+strt, mo.end()):             
-                    f = self.format(i)
-                    f.setBackground(QBrush(QColor("#ff0")))
-                    self.setFormat(i, 1, f)
-
-    def highlightBlockQuote(self, text, cursor, bf, strt):
-        found = False
-        mo = re.search(self.MARKDOWN_LINE_KEYS_REGEX['BlockQuote'],text)
-        if mo:
-            self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BlockQuote'])
-            unquote = re.sub(self.MARKDOWN_LINE_KEYS_REGEX['BlockQuoteCount'],'',text)
-            spcs = re.match(self.MARKDOWN_LINE_KEYS_REGEX['BlockQuoteCount'],text)
-            spcslen = 0
-            if spcs:
-                spcslen = len(spcs.group(0))
-            self.highlightMarkdown(unquote,spcslen)
-            found = True
-        return found
-
-    def highlightEmptyLine(self, text, cursor, bf, strt):
-        textAscii = str(text.replace('\u2029','\n'))
-        if textAscii.strip():
-            return False
+            if block.next().isValid():
+                nextState = block.next().userState()
+                
+            self.tokenizer.tokenize(text, lastState, previousState, nextState)
+            self.setCurrentBlockState(self.tokenizer.getState())
+            
+            self.inBlockquote = self.tokenizer.getState() == MS.MarkdownStateBlockquote
+                
+            tokens = self.tokenizer.getTokens()
+            
+            for token in tokens:
+                if token.type in [
+                    MTT.TokenAtxHeading1,
+                    MTT.TokenAtxHeading2,
+                    MTT.TokenAtxHeading3,
+                    MTT.TokenAtxHeading4,
+                    MTT.TokenAtxHeading5,
+                    MTT.TokenAtxHeading6,
+                    MTT.TokenSetextHeading1Line1,
+                    MTT.TokenSetextHeading2Line1,
+                    ]:
+                    self.applyFormattingForToken(token)
+                    self.storeHeadingData(token, text)
+                
+                elif token.type == MTT.TokenUnknown:
+                    qWarning("Highlighter found unknown token type in text block.")
+                
+                else:
+                    self.applyFormattingForToken(token)
+            
+            if self.tokenizer.backtrackRequested():
+                previous = self.currentBlock().previous()
+                self.highlightBlockAtPosition.emit(previous.position())
+                
+        if self.spellCheckEnabled:
+            self.spellCheck(text)
+        
+        # If the block has transitioned from previously being a heading to now
+        # being a non-heading, signal that the position in the document no longer
+        # contains a heading.
+        
+        if self.isHeadingBlockState(lastState) and \
+           not self.isHeadingBlockState(self.currentBlockState()):
+            self.headingRemoved(self.currentBlock().position())
+            
+    def setDictionary(self, dictionary):
+        self.dictionary = dictionary
+        if self.spellCheckEnabled:
+            self.rehighlight()
+    
+    def increaseFontSize(self):
+        self.defaultFormat.setFontPointSize(defaultFormat.fontPointSize() + 1.0)
+        self.rehighlight()
+    
+    def decreaseFontSize(self):
+        self.defaultFormat.setFontPointSize(defaultFormat.fontPointSize() - 1.0)
+        self.rehighlight()
+    
+    def setColorScheme(self, defaultTextColor, backgroundColor, markupColor,
+                       linkColor, spellingErrorColor):
+        self.defaultTextColor = defaultTextColor
+        self.backgroundColor = backgroundColor
+        self.markupColor = markupColor
+        self.linkColor = linkColor
+        self.spellingErrorColor = spellingErrorColor
+        self.defaultFormat.setForeground(QBrush(defaultTextColor))
+        self.setupTokenColors()
+        self.rehighlight()
+        
+    def setEnableLargeHeadingSizes(self, enable):
+        self.setupHeadingFontSize(enable)
+        self.rehighlight()
+        
+    def setUseUnderlineForEmphasis(self, enable):
+        self.useUndlerlineForEmphasis = enable
+        self.rehighlight()
+        
+    def setFont(self, fontFamily, fontSize):
+        font = QFont(family=fontFamily, pointSize=fontSize, weight=QFont.Normal, italic=False)
+        self.defaultFormat.setFont(font)
+        self.rehighlight()
+        
+    def setSpellCheckEnabled(self, enabled):
+        self.spellCheckEnabled = enabled
+        self.rehighlight()
+        
+    def onTypingResumed(self):
+        self.typingPaused = False
+    
+    def onTypingPaused(self):
+        self.typingPaused = True
+        block = self.document().findBlock(self.editor.textCursor().position())
+        self.rehighlightBlock(block)
+        
+    def setBlockquoteStyle(self, style):
+        self.blockquoteStyle = style
+        
+        if style == BS.BlockquoteStyleItalic:
+            self.emphasizeToken[MT.TokenBlockquote] = True
         else:
-            return True
+            self.emphasizeToken[MT.TokenBlockquote] = False
+        
+        self.rehighlight()
+        
+    def setHighlightLineBreaks(self, enable):
+        self.highlightLineBreaks = enable
+        self.rehighlight()
+        
+    def onHighlightBlockAtPosition(self, position):
+        block = self.document().findBlock(position)
+        self.rehighlightBlock(block)
+        
+    def onTextBlockRemoved(self, block):
+        if self.isHeadingBlockState(block.userState):
+            self.headingRemoved.emit(block.position())
+            
+    def spellCheck(self, text):
+        cursorPosition = self.editor.textCursor().position()
+        cursorPosBlock = self.document().findBlock(cursorPosition)
+        cursorPosInBlock = -1
 
-    def highlightHorizontalLine(self, text, cursor, bf, strt):
-        found = False
-        for mo in re.finditer(self.MARKDOWN_LINE_KEYS_REGEX['HR'],text):
-            prevBlock = self.currentBlock().previous()
-            prevCursor = QTextCursor(prevBlock)
-            prev = prevBlock.text()
-            prevAscii = str(prev.replace('\u2029','\n'))
-            if prevAscii.strip():
-                #print "Its a header"
-                prevCursor.select(QTextCursor.LineUnderCursor)
-                #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
-                formatRange = QTextLayout.FormatRange()
-                formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
-                formatRange.length = prevCursor.block().length()
-                formatRange.start = 0
-                prevCursor.block().layout().setAdditionalFormats([formatRange])
-            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
+        if self.currentBlock() == cursorPosBlock:
+            cursorPosInBlock = cursorPosition - cursorPosBlock.position()
 
-        for mo in re.finditer(self.MARKDOWN_LINE_KEYS_REGEX['eHR'],text):
-            prevBlock = self.currentBlock().previous()
-            prevCursor = QTextCursor(prevBlock)
-            prev = prevBlock.text()
-            prevAscii = str(prev.replace('\u2029','\n'))
-            if prevAscii.strip():
-                #print "Its a header"
-                prevCursor.select(QTextCursor.LineUnderCursor)
-                #prevCursor.setCharFormat(self.MARKDOWN_KWS_FORMAT['Header'])
-                formatRange = QTextLayout.FormatRange()
-                formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
-                formatRange.length = prevCursor.block().length()
-                formatRange.start = 0
-                prevCursor.block().layout().setAdditionalFormats([formatRange])
-            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
-        return found
+        misspelledWord = self.dictionary.check(text, 0)
 
-    def highlightAtxHeader(self, text, cursor, bf, strt):
-        found = False
-        for mo in re.finditer(self.MARKDOWN_LINE_KEYS_REGEX['HeaderAtx'],text):
-            #bf.setBackground(QBrush(QColor(7,54,65)))
-            #cursor.movePosition(QTextCursor.End)
-            #cursor.mergeBlockFormat(bf)
-            self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderAtx'])
-            found = True
-        return found
+        while not misspelledWord.isNull():
+            startIndex = misspelledWord.position()
+            length = misspelledWord.length()
 
-    def highlightList(self, text, cursor, bf, strt):
-        found = False
-        for mo in re.finditer(self.MARKDOWN_LINE_KEYS_REGEX['UnorderedList'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['UnorderedList'])
-            found = True
+            if self.typingPaused or cursorPosInBlock != startIndex + length:
+                spellingErrorFormat = self.format(startIndex)
+                spellingErrorFormat.setUnderlineColor(spellingErrorColor)
+                spellingErrorFormat.setUnderlineStyle(
+                    qApp.stlye().styleHint(QStyle.SH_SpellCheckUnderlineStyle))
 
-        for mo in re.finditer(self.MARKDOWN_LINE_KEYS_REGEX['OrderedList'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['OrderedList'])
-            found = True
-        return found
+                self.setFormat(startIndex, length, spellingErrorFormat)
 
-    def highlightLink(self, text, cursor, bf, strt):
-        found = False
-        for mo in re.finditer(self.MARKDOWN_INLINE_KEYS_REGEX['Link'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Link'])
-            found = True
-        return found
+            startIndex += length
+            misspelledWord = dictionary.check(text, startIndex)
+            
+    def setupTokenColors(self):
+        "Functions here are taken from ColorHelper in ghostwriter"
+        self.colorForToken = [self.defaultTextColor for i in range(MTT.TokenLast)]
+        
+        fadedColor = QColor()
+        
+        def getLuminance(color):
+            return (0.30 * color.redF())   + \
+                   (0.59 * color.greenF()) + \
+                   (0.11 * color.blueF())
+               
+        def applyAlphaToChannel(foreground, background, alpha):
+            return (foreground * alpha) + (background * (1.0 - alpha))
+        
+        def applyAlpha(foreground, background, alpha):
+            blendedColor = QColor(0, 0, 0)
+            normalizedAlpha = alpha / 255.0
+            blendedColor.setRed(applyAlphaToChannel(
+                foreground.red(), background.red(), normalizedAlpha))
+            blendedColor.setGreen(applyAlphaToChannel(
+                foreground.green(), background.green(),normalizedAlpha))
+            blendedColor.setBlue(applyAlphaToChannel(
+                foreground.blue(), background.blue(), normalizedAlpha))
+            return blendedColor
+        
+        if getLuminance(self.backgroundColor) > \
+           getLuminance(self.defaultTextColor):
+            fadedColor = applyAlpha(self.defaultTextColor, self.backgroundColor, GW_FADE_ALPHA)
+        else:
+            fadedColor = defaultTextColor.darker(130)
 
-    def highlightImage(self, text, cursor, bf, strt):
-        found = False
-        for mo in re.finditer(self.MARKDOWN_INLINE_KEYS_REGEX['Image'],text):
-            self.setFormat(mo.start()+strt, mo.end() - mo.start()-strt, self.MARKDOWN_KWS_FORMAT['Image'])
-            found = True
-        return found
+        markupColor = self.markupColor
+        linkColor = self.linkColor
+        self.colorForToken[MTT.TokenBlockquote] = fadedColor
+        self.colorForToken[MTT.TokenCodeBlock] = fadedColor
+        self.colorForToken[MTT.TokenVerbatim] = fadedColor
+        self.colorForToken[MTT.TokenHtmlTag] = markupColor
+        self.colorForToken[MTT.TokenHtmlEntity] = markupColor
+        self.colorForToken[MTT.TokenAutomaticLink] = linkColor
+        self.colorForToken[MTT.TokenInlineLink] = linkColor
+        self.colorForToken[MTT.TokenReferenceLink] = linkColor
+        self.colorForToken[MTT.TokenReferenceDefinition] = linkColor
+        self.colorForToken[MTT.TokenImage] = linkColor
+        self.colorForToken[MTT.TokenMention] = linkColor
+        self.colorForToken[MTT.TokenHtmlComment] = markupColor
+        self.colorForToken[MTT.TokenHorizontalRule] = markupColor
+        self.colorForToken[MTT.TokenGithubCodeFence] = markupColor
+        self.colorForToken[MTT.TokenPandocCodeFence] = markupColor
+        self.colorForToken[MTT.TokenCodeFenceEnd] = markupColor
+        self.colorForToken[MTT.TokenSetextHeading1Line2] = markupColor
+        self.colorForToken[MTT.TokenSetextHeading2Line2] = markupColor
+        self.colorForToken[MTT.TokenTableDivider] = markupColor
+        self.colorForToken[MTT.TokenTablePipe] = markupColor
+        
+    def setupHeadingFontSize(self, useLargeHeadings):
+        if useLargeHeadings:
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 6
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 5
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 6
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 5
+            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 6
+            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 5
+            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 4
+            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 3
+            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 2
+            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 1
+            
+        else:
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 0
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 0
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 0
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 0
+    
+    def applyFormattingForToken(self, token):
+        if token.type != MTT.TokenUnknown:
+            tokenType = token.type
+            format = self.format(token.position)
+            tokenColor = self.colorForToken[tokenType]
+            
+            if self.inBlockquote and token.type != MTT.TokenBlockquote:
+                tokenColor = tokenColor * GW_FADE_ALPHA/255. + \
+                             background * (1.0 - GW_FADE_ALPHA/255.)
+                
+            if self.highlightLineBreaks and token.type == MTT.TokenLineBreak:
+                format.setBackground(QBrush(self.markupColor))
+                
+            format.setForeground(QBrush(tokenColor))
+            
+            if self.strongToken[tokenType]:
+                format.setFontWeight(QFont.Bold)
+                
+            if self.emphasizeToken[tokenType]:
+                if self.useUndlerlineForEmphasis and tokenType != MTT.TokenBlockquote:
+                    format.setFontUnderline(True)
+                else:
+                    format.setFontItalic(True)
+            
+            if self.strikethroughToken[tokenType]:
+                format.setFontStrikeOut(True)
+            
+            format.setFontPointSize(format.fontPointSize() +
+                self.fontSizeIncrease[tokenType])
+            
+            markupFormat = QTextCharFormat()
+            
+            if self.applyStyleToMarkup[tokenType] and \
+               not self.emphasizeToken[tokenType] or \
+               not self.useUndlerlineForEmphasis:
+                markupFormat = format
+                
+            else:
+                markupFormat = self.format(token.position)
+            
+            adjustedMarkupColor = self.markupColor
+            if self.inBlockquote and token.type != MTT.TokenBlockquote:
+                adjustedMarkupColor = adjustedMarkupColor * GW_FADE_ALPHA + \
+                                      self.backgroundColor * (1.0 - GW_FADE_ALPHA)
+            
+            markupFormat.setForeground(QBrush(adjustedMarkupColor))
+            
+            if self.strongMarkup[tokenType]:
+                markupFormat.setFontWeight(QFont.Bold)
+            
+            if token.openingMarkupLength > 0:
+                if token.type == MTT.TokenBlockquote and \
+                   self.blockquoteStyle == BS.BlockquoteStyleFancy:
+                    markupFormat.setBackground(QBrush(adjustedMarkupColor))
+                    text = self.currentBlock().text()
+                    
+                    for i in range(token.position, token.openingMarkupLength):
+                        if text[i] != " ":
+                            self.setFormat(i, 1, markupFormat)
+                else:
+                    self.setFormat(token.position, token.openingMarkupLength, 
+                                   markupFormat)
+            
+            self.setFormat(
+                token.position + token.openingMarkupLength,
+                token.length - token.openingMarkupLength - token.closingMarkupLength,
+                format)
+            
+            if token.closingMarkupLength > 0:
+                self.setFormat(
+                    token.position + token.length - token.closingMarkupLength,
+                    token.closingMarkupLength,
+                    markupFormat)
+        
+        else:
+            qWarning("MarkdownHighlighter.applyFormattingForToken() was passed in a "
+                     "token of unknown type.")
+    
+    def storeHeadingData(self, token, text):
+        if token.type in [
+                MTT.TokenAtxHeading1,
+                MTT.TokenAtxHeading2,
+                MTT.TokenAtxHeading3,
+                MTT.TokenAtxHeading4,
+                MTT.TokenAtxHeading5,
+                MTT.TokenAtxHeading6]:
+            level = token.type - MTT.TokenAtxHeading1 + 1
+            s = token.position + token.openingMarkupLength
+            l = token.length - token.openingMarkupLength - token.closingMarkupLength
+            headingText = text[s:s+l].strip()
+            
+        elif token.type == MTT.TokenSetextHeading1Line1:
+            level = 1
+            headingText = text
+            
+        elif token.type == MTT.TokenSetextHeading2Line1:
+            level = 2
+            headingText = text
+        
+        else:
+            qWarning("MarkdownHighlighter.storeHeadingData() encountered" + 
+                     " unexpected token:".format(token.getType()))
+            return
+
+        # FIXME: TypeError: could not convert 'TextBlockData' to 'QTextBlockUserData'
+        # blockData = self.currentBlockUserData()
+        # if blockData is None:
+        #     blockData = TextBlockData(self.document(), self.currentBlock())
+        #
+        # self.setCurrentBlockUserData(blockData)
+        self.headingFound.emit(level, headingText, self.currentBlock())
+            
+    def isHeadingBlockState(self, state):
+        return state in [
+            MS.MarkdownStateAtxHeading1,
+            MS.MarkdownStateAtxHeading2,
+            MS.MarkdownStateAtxHeading3,
+            MS.MarkdownStateAtxHeading4,
+            MS.MarkdownStateAtxHeading5,
+            MS.MarkdownStateAtxHeading6,
+            MS.MarkdownStateSetextHeading1Line1,
+            MS.MarkdownStateSetextHeading2Line1,
+                ]
 
 
-    def highlightBeautifiers(self, text, cursor, bf, strt):
-        found = False
-        for t in self.MARKDOWN_INLINE_BEAUTIFIERS:
-            for mo in re.finditer(self.MARKDOWN_INLINE_KEYS_REGEX[t],text):
-                # Delimiter        
-                self.setFormat(mo.start("delim")+strt,
-                               len(mo.group("delim")),
-                               self.MARKDOWN_KWS_FORMAT["Delim"])
-                # Text                
-                self.setFormat(mo.start("text") + strt, 
-                               len(mo.group("text")) - strt, 
-                               self.MARKDOWN_KWS_FORMAT[t])
-                # Delimiter
-                self.setFormat(mo.start("text") + len(mo.group("text")) +strt,
-                               len(mo.group("delim")), 
-                               self.MARKDOWN_KWS_FORMAT["Delim"])
-                found = True
+class TextBlockData(QObject, QTextBlockUserData):
+    def __init__(self, document, block):
+        QObject.__init__(self)
+        QTextBlockUserData.__init__(self)
 
-        return found
+        self.document = document
+        # Parent text block.  For use with fetching the block's document
+        # position, which can shift as text is inserted and deleted.
+        self.blockRef = block
+        self.wordCount = 0
+        self.alphaNumericCharacterCount = 0
+        self.sentenceCount = 0
+        self.lixLongWordCount = 0
+        self.blankLine = True
 
-    def highlightCodeBlock(self, text, cursor, bf, strt):
-        found = False
-        for mo in re.finditer(self.MARKDOWN_LINE_KEYS_REGEX['CodeBlock'],text):
-            stripped = text.lstrip()
-            if stripped[0] not in ('*','-','+','>'):
-                self.setFormat(mo.start()+strt, mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
-                found = True
-        return found
-
-    def highlightHtml(self, text):
-        for mo in re.finditer(self.MARKDOWN_INLINE_KEYS_REGEX['Html'], text):
-            self.setFormat(mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HTML'])
+    # FIXME: the destructor runs TextDocument.notifyTextBlockRemoved().
+    #       TextDocument is a custom QTextDocument in GhostWriter
