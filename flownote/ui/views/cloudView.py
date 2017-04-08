@@ -23,6 +23,8 @@ class cloudView(QListWidget):
         self._customWordsOnly = False
         self._customWordsAlways = False
         self._maxWords = 20
+        self._minValue = None
+        self._minLength = None
         
         # Setting button
         self.btnSettings = QPushButton(QIcon.fromTheme("applications-system"), "", self)
@@ -95,6 +97,12 @@ class cloudView(QListWidget):
         self.updateGeometry()
         
     def setWords(self, words):
+        if self._minValue:
+            words = {w:words[w] for w in words if words[w] > self._minValue}
+            
+        if self._minLength:
+            words = {w:words[w] for w in words if len(w) >= self._minLength}
+            
         self.words = words.copy()
         # We store selected items
         selected = [s.text() for s in self.selectedItems()]

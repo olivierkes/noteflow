@@ -129,6 +129,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loadRecents()
         self.editor.setCurrentIndex(0)
         
+        self.lstWords._minLength = 3
+        self.lstWords._minValue = 3
+        
         # PREVIEW
         settings = self.web.settings()
 #        settings.setFontFamily(QtWebKit.QWebSettings.StandardFont, 'Times New Roman')
