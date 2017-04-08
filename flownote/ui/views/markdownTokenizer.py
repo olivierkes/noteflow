@@ -581,21 +581,21 @@ class MarkdownTokenizer(HighlightTokenizer):
             firstBracketIndex = escapedText.find("[")
             if firstBracketIndex >= 0:
                 escapedText[firstBracketIndex] = self.DUMMY_CHAR
-        
-        self.tokenizeVerbatim(escapedText)
-        self.tokenizeHtmlComments(escapedText)
-        self.tokenizeTableHeaderRow(escapedText)
-        self.tokenizeTableRow(escapedText)
-        self.tokenizeMatches(MTT.TokenImage, escapedText, self.imageRegex, 0, 0, False, True)
-        self.tokenizeMatches(MTT.TokenInlineLink, escapedText, self.inlineLinkRegex, 0, 0, False, True)
-        self.tokenizeMatches(MTT.TokenReferenceLink, escapedText, self.referenceLinkRegex, 0, 0, False, True)
-        self.tokenizeMatches(MTT.TokenHtmlEntity, escapedText, self.htmlEntityRegex)
-        self.tokenizeMatches(MTT.TokenAutomaticLink, escapedText, self.automaticLinkRegex, 0, 0, False, True)
-        self.tokenizeMatches(MTT.TokenStrikethrough, escapedText, self.strikethroughRegex, 2, 2)
-        self.tokenizeMatches(MTT.TokenStrong, escapedText, self.strongRegex, 2, 2, True)
-        self.tokenizeMatches(MTT.TokenEmphasis, escapedText, self.emphasisRegex, 1, 1, True)
-        self.tokenizeMatches(MTT.TokenHtmlTag, escapedText, self.htmlTagRegex)
-        self.tokenizeMatches(MTT.TokenMention, escapedText, self.mentionRegex, 0, 0, False, True)
+
+        escapedText = self.tokenizeVerbatim(escapedText)
+        escapedText = self.tokenizeHtmlComments(escapedText)
+        escapedText = self.tokenizeTableHeaderRow(escapedText)
+        escapedText = self.tokenizeTableRow(escapedText)
+        escapedText = self.tokenizeMatches(MTT.TokenImage, escapedText, self.imageRegex, 0, 0, False, True)
+        escapedText = self.tokenizeMatches(MTT.TokenInlineLink, escapedText, self.inlineLinkRegex, 0, 0, False, True)
+        escapedText = self.tokenizeMatches(MTT.TokenReferenceLink, escapedText, self.referenceLinkRegex, 0, 0, False, True)
+        escapedText = self.tokenizeMatches(MTT.TokenHtmlEntity, escapedText, self.htmlEntityRegex)
+        escapedText = self.tokenizeMatches(MTT.TokenAutomaticLink, escapedText, self.automaticLinkRegex, 0, 0, False, True)
+        escapedText = self.tokenizeMatches(MTT.TokenStrikethrough, escapedText, self.strikethroughRegex, 2, 2)
+        escapedText = self.tokenizeMatches(MTT.TokenStrong, escapedText, self.strongRegex, 2, 2, True)
+        escapedText = self.tokenizeMatches(MTT.TokenEmphasis, escapedText, self.emphasisRegex, 1, 1, True)
+        escapedText = self.tokenizeMatches(MTT.TokenHtmlTag, escapedText, self.htmlTagRegex)
+        escapedText = self.tokenizeMatches(MTT.TokenMention, escapedText, self.mentionRegex, 0, 0, False, True)
 
         return True
     
@@ -637,6 +637,7 @@ class MarkdownTokenizer(HighlightTokenizer):
                 index += 1
             
             index = self.verbatimRegex.indexIn(text, index)
+        return text
         
     def tokenizeHtmlComments(self, text):
         previousState = self.previousState
@@ -683,6 +684,7 @@ class MarkdownTokenizer(HighlightTokenizer):
             
             for i in range(commentStart, len(text)):
                 text = text[:i] + self.DUMMY_CHAR + text[i+1:]
+        return text
             
     def tokenizeTableHeaderRow(self, text):
         previousState = self.previousState
@@ -737,6 +739,8 @@ class MarkdownTokenizer(HighlightTokenizer):
                 token.position = headerStart
                 token.length = len(text) - headerStart
                 self.addToken(token)
+
+        return text
     
     def tokenizeTableDivider(self, text):
         previousState = self.previousState
@@ -791,8 +795,10 @@ class MarkdownTokenizer(HighlightTokenizer):
                     token.position = i
                     token.length = 1
                     self.addToken(token)
+
+        return text
             
-    def tokenizeMatches(self, tokenType, text, regex, 
+    def tokenizeMatches(self, tokenType, text, regex,
                         markupStartCount=0, markupEndCount=0,
                         replaceMarkupChars=False, replaceAllChars=False):
         """
@@ -840,9 +846,11 @@ class MarkdownTokenizer(HighlightTokenizer):
                     text = text[:i] + self.DUMMY_CHAR + text[i+1:]
                 for i in range(index + length - markupEndCount, index + length):
                     text = text[:i] + self.DUMMY_CHAR + text[i+1:]
-            
+
             self.addToken(token)
             index = regex.indexIn(text, index + length)
+
+        return text
     
     def dummyOutEscapeCharacters(self, text):
         """

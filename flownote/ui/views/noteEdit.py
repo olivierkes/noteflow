@@ -20,7 +20,7 @@ class noteEdit(QTextEdit):
             self.highlighter.setColorScheme(
                 QColor(Qt.black),
                 QColor(Qt.white),
-                QColor(Qt.black),
+                QColor(Qt.lightGray),
                 QColor(Qt.blue),
                 QColor(Qt.red)
             )
