@@ -31,8 +31,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         #self.dictionary = DictionaryRef(DictionaryManager.instance().requestDictionary())
         self.spellCheckEnabled = False
         #self.typingPaused = True
-        self.useUndlerlineForEmphasis = False
-        self.highlightLineBreaks = False
         self.inBlockquote = False
         self.defaultTextColor = QColor(Qt.black)
         self.backgroundColor = QColor(Qt.white)
@@ -40,6 +38,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.linkColor = QColor(Qt.blue)
         self.spellingErrorColor = QColor(Qt.red)
         self.blockquoteStyle = BS.BlockquoteStyleFancy
+        
+        # Settings
+        self.useUndlerlineForEmphasis = False
+        self.highlightLineBreaks = True
         
         #self.editor.typingResumed.connect(self.onTypingResumed)
         #self.editor.typingPaused.connect(self.onTypingPaused)
@@ -179,6 +181,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
            not self.isHeadingBlockState(self.currentBlockState()):
             self.headingRemoved.emit(self.currentBlock().position())
             
+# ==============================================================================
+#   SETTINGS
+# ==============================================================================
+            
     def setDictionary(self, dictionary):
         self.dictionary = dictionary
         if self.spellCheckEnabled:
@@ -192,20 +198,34 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.defaultFormat.setFontPointSize(defaultFormat.fontPointSize() - 1.0)
         self.rehighlight()
     
-    def setColorScheme(self, defaultTextColor, backgroundColor, markupColor,
-                       linkColor, spellingErrorColor):
-        self.defaultTextColor = defaultTextColor
-        self.backgroundColor = backgroundColor
-        self.markupColor = markupColor
-        self.linkColor = linkColor
-        self.spellingErrorColor = spellingErrorColor
-        self.defaultFormat.setForeground(QBrush(defaultTextColor))
-        self.setupTokenColors()
-        self.rehighlight()
-        
     def setEnableLargeHeadingSizes(self, enable):
         self.setupHeadingFontSize(enable)
         self.rehighlight()
+        
+    def setupHeadingFontSize(self, useLargeHeadings):
+        if useLargeHeadings:
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 6
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 5
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 6
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 5
+            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 6
+            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 5
+            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 4
+            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 3
+            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 2
+            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 1
+            
+        else:
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 0
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 0
+            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 0
+            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 0
+            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 0
         
     def setUseUnderlineForEmphasis(self, enable):
         self.useUndlerlineForEmphasis = enable
@@ -219,14 +239,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def setSpellCheckEnabled(self, enabled):
         self.spellCheckEnabled = enabled
         self.rehighlight()
-        
-    def onTypingResumed(self):
-        self.typingPaused = False
-    
-    def onTypingPaused(self):
-        self.typingPaused = True
-        block = self.document().findBlock(self.editor.textCursor().position())
-        self.rehighlightBlock(block)
         
     def setBlockquoteStyle(self, style):
         self.blockquoteStyle = style
@@ -242,6 +254,18 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.highlightLineBreaks = enable
         self.rehighlight()
         
+# ==============================================================================
+#   GHOSTWRITER SPECIFIC?
+# ==============================================================================
+            
+    def onTypingResumed(self):
+        self.typingPaused = False
+    
+    def onTypingPaused(self):
+        self.typingPaused = True
+        block = self.document().findBlock(self.editor.textCursor().position())
+        self.rehighlightBlock(block)
+        
     def onHighlightBlockAtPosition(self, position):
         block = self.document().findBlock(position)
         self.rehighlightBlock(block)
@@ -249,6 +273,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def onTextBlockRemoved(self, block):
         if self.isHeadingBlockState(block.userState):
             self.headingRemoved.emit(block.position())
+            
+# ==============================================================================
+#   SPELLCHECK
+# ==============================================================================
             
     def spellCheck(self, text):
         cursorPosition = self.editor.textCursor().position()
@@ -275,6 +303,21 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             startIndex += length
             misspelledWord = dictionary.check(text, startIndex)
             
+# ==============================================================================
+#   COLORS & FORMATTING
+# ==============================================================================
+            
+    def setColorScheme(self, defaultTextColor, backgroundColor, markupColor,
+                       linkColor, spellingErrorColor):
+        self.defaultTextColor = defaultTextColor
+        self.backgroundColor = backgroundColor
+        self.markupColor = markupColor
+        self.linkColor = linkColor
+        self.spellingErrorColor = spellingErrorColor
+        self.defaultFormat.setForeground(QBrush(defaultTextColor))
+        self.setupTokenColors()
+        self.rehighlight()
+        
     def setupTokenColors(self):
         "Functions here are taken from ColorHelper in ghostwriter"
         self.colorForToken = [self.defaultTextColor for i in range(MTT.TokenLast)]
@@ -309,46 +352,25 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.colorForToken[MTT.TokenSetextHeading2Line2] = markupColor
         self.colorForToken[MTT.TokenTableDivider] = markupColor
         self.colorForToken[MTT.TokenTablePipe] = markupColor
-        
-    def setupHeadingFontSize(self, useLargeHeadings):
-        if useLargeHeadings:
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 6
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 5
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 6
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 5
-            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 6
-            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 5
-            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 4
-            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 3
-            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 2
-            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 1
-            
-        else:
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 0
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 0
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 0
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 0
-    
+
+# ==============================================================================
+#   ACTUAL FORMATTING
+# ==============================================================================
+
     def applyFormattingForToken(self, token, text):
         if token.type != MTT.TokenUnknown:
             tokenType = token.type
             format = self.format(token.position)
             tokenColor = QColor(self.colorForToken[tokenType])
 
-            # Debug
-            # print("{}\n{}{}{}{}".format(
-            #     text,
-            #     " "*token.position,
-            #     "*"*token.openingMarkupLength,
-            #     str(token.type).center(token.length - token.openingMarkupLength - token.closingMarkupLength, " "),
-            #     "*" * token.closingMarkupLength)
-            # )
+            ## Debug
+            #print("{}\n{}{}{}{}".format(
+                #text,
+                #" "*token.position,
+                #"^"*token.openingMarkupLength,
+                #str(token.type).center(token.length - token.openingMarkupLength - token.closingMarkupLength, "-"),
+                #"^" * token.closingMarkupLength)
+            #)
             
             if self.inBlockquote and token.type != MTT.TokenBlockquote:
                 tokenColor = applyAlpha(tokenColor, self.backgroundColor, GW_FADE_ALPHA)
