@@ -103,15 +103,25 @@ class cloudView(QListWidget):
         if not words:
             return
         
-        # If there's a limit of number of words
-        if self._maxWords > 0:
-            m = min(self._maxWords, len(words))
-            val = sorted(words.values())[-m]
-            words2 = words.copy()
-            for w in words2:
-                if words2[w] < val:
-                    words.pop(w)
+        w2 = {}
+        if self._customWordsOnly or self._customWordsAlways:
+            cw = self.customWords.toListLower()
+            for w in words:
+                if w in cw:
+                    w2[w] = words[w]
         
+        if not self._customWordsOnly:
+            # If there's a limit of number of words
+            m = min(self._maxWords, len(self.words))
+            w = self.words.copy()
+            s = sorted(w, key=w.get)
+            
+            while len(w2) < m:
+                k = s.pop()
+                if not k in w2:
+                    w2[k] = w[k]
+        
+        words = w2
         minCount, maxCount = min(words.values()), max(words.values())
         if minCount == maxCount:
             minCount -= 1
@@ -224,8 +234,10 @@ class customDelegate(QStyledItemDelegate):
             color.setAlpha(255 if enabled else 64)
             background = tag.background if tag.background else QColor()            
             background.setAlpha(255 if enabled else 64)
-            border = tag.border if tag.border else QColor()                        
-            border.setAlpha(255 if enabled else 64)
+            border = None
+            if tag.border:
+                border = tag.border
+                border.setAlpha(255 if enabled else 64)
             
             # Selection
             cg = QPalette.ColorGroup(QPalette.Normal if option.state & QStyle.State_Enabled else QPalette.Disabled)

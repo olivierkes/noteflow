@@ -142,7 +142,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # CUSTOM TAGS
         self.tags = TagCollector()
-        self.tags.addTag("TODO", color="#00F", background="#FF0", border="#00F")
+        self.tags.addTag("TODO", color="#00F", background="#FF0") # border="#00F"
         self.tags.addTag("ut", color="#F00")
         
         self.lstTags.setCustomTags(self.tags)
