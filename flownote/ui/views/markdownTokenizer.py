@@ -709,6 +709,7 @@ class MarkdownTokenizer(HighlightTokenizer):
             MS.MarkdownStateUnknown] and \
            nextState == MS.MarkdownStatePipeTableDivider:
             self.setState(MS.MarkdownStatePipeTableHeader)
+            
             headerStart = 0
             for i in range(len(text)):
                 if text[i] == "|":
@@ -717,7 +718,7 @@ class MarkdownTokenizer(HighlightTokenizer):
                     # Note that we use a space rather than DUMMY_CHAR for this,
                     # to prevent formatting such as strong and emphasis from
                     # picking it up.
-                    text[i] = " "
+                    text = text[:i] + " " + text[i+1:]
                     
                     token = Token()
                     
@@ -762,6 +763,7 @@ class MarkdownTokenizer(HighlightTokenizer):
             if self.pipeTableDividerRegex.exactMatch(text):
                 # Restart tokenizing on the previous line.
                 self.requestBacktrack()
+                self.setState(MS.MarkdownStatePipeTableDivider)
                 
                 token = Token()
                 token.length = len(text)
@@ -788,7 +790,7 @@ class MarkdownTokenizer(HighlightTokenizer):
                     # to prevent formatting such as strong and emphasis from
                     # picking it up.
                     
-                    text[i] = ' '
+                    text = text[:i] + " " + text[i+1:]
 
                     token = Token()
                     token.type = MTT.TokenTablePipe

@@ -143,7 +143,19 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             self.setCurrentBlockState(self.tokenizer.getState())
             
             self.inBlockquote = self.tokenizer.getState() == MS.MarkdownStateBlockquote
-                
+            
+            # STATE FORMATTING
+            # FIXME: generic
+            if self.currentBlockState() in [
+                    MS.MarkdownStatePipeTableHeader,
+                    MS.MarkdownStatePipeTableDivider,
+                    MS.MarkdownStatePipeTableRow]:
+                fmt = QTextCharFormat()
+                f = fmt.font()
+                f.setFamily("Monospace")
+                fmt.setFont(f)
+                self.setFormat(0, len(text), fmt)
+            
             tokens = self.tokenizer.getTokens()
             
             for token in tokens:
@@ -373,8 +385,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             #)
             
             if self.inBlockquote and token.type != MTT.TokenBlockquote:
-                tokenColor = applyAlpha(tokenColor, self.backgroundColor, GW_FADE_ALPHA)
-                
+                #tokenColor = applyAlpha(tokenColor, self.backgroundColor, GW_FADE_ALPHA)
+                pass
             if self.highlightLineBreaks and token.type == MTT.TokenLineBreak:
                 format.setBackground(QBrush(self.markupColor))
                 
@@ -394,7 +406,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             
             format.setFontPointSize(format.fontPointSize() +
                 self.fontSizeIncrease[tokenType])
-
+            
             # FIXME: generic thing for the font
             if token.type in [MTT.TokenVerbatim,
                               MTT.TokenSetextHeading1Line1, MTT.TokenSetextHeading1Line2,
@@ -402,9 +414,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 f = format.font()
                 f.setFamily("Monospace")
                 format.setFont(f)
+                
 
             # FIXME: add superscript and subscript (^n^, ~n~)
-                # format.setVerticalAlignment(format.AlignSuperScript)
+            #        format.setVerticalAlignment(format.AlignSuperScript)
 
             # MARKUP FORMAT
 
