@@ -58,58 +58,15 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.defaultFormat.setFont(font)
         self.defaultFormat.setForeground(QBrush(self.defaultTextColor))
         
-        self.colorForToken = []
-        self.applyStyleToMarkup = {}
-        self.emphasizeToken = {}
-        self.strongToken = {}
-        self.strongMarkup = {}
-        self.strikethroughToken = {}
-        self.fontSizeIncrease = {}
-        
-        self.setupTokenColors()
-        
-        for i in range(MTT.TokenLast):
-            self.applyStyleToMarkup[i] = False
-            self.emphasizeToken[i] = False
-            self.strongToken[i] = False
-            self.strongMarkup[i] = False
-            self.strikethroughToken[i] = False
-            self.fontSizeIncrease[i] = 0
-            
-        for i in range(MTT.TokenAtxHeading1, MTT.TokenAtxHeading6+1):
-            self.applyStyleToMarkup[i] = True
-        
-        self.applyStyleToMarkup[MTT.TokenEmphasis] = True
-        self.applyStyleToMarkup[MTT.TokenStrong] = True
-        self.applyStyleToMarkup[MTT.TokenAtxHeading1] = True
-        self.applyStyleToMarkup[MTT.TokenAtxHeading2] = True
-        self.applyStyleToMarkup[MTT.TokenAtxHeading3] = True
-        self.applyStyleToMarkup[MTT.TokenAtxHeading4] = True
-        self.applyStyleToMarkup[MTT.TokenAtxHeading5] = True
-        self.applyStyleToMarkup[MTT.TokenAtxHeading6] = True
-
-        self.emphasizeToken[MTT.TokenEmphasis] = True
-        self.emphasizeToken[MTT.TokenBlockquote] = False
-        self.strongToken[MTT.TokenStrong] = True
-        self.strongToken[MTT.TokenMention] = True
-        self.strongToken[MTT.TokenAtxHeading1] = True
-        self.strongToken[MTT.TokenAtxHeading2] = True
-        self.strongToken[MTT.TokenAtxHeading3] = True
-        self.strongToken[MTT.TokenAtxHeading4] = True
-        self.strongToken[MTT.TokenAtxHeading5] = True
-        self.strongToken[MTT.TokenAtxHeading6] = True
-        self.strongToken[MTT.TokenSetextHeading1Line1] = True
-        self.strongToken[MTT.TokenSetextHeading2Line1] = True
-        self.strongToken[MTT.TokenSetextHeading1Line2] = True
-        self.strongToken[MTT.TokenSetextHeading2Line2] = True
-        self.strongToken[MTT.TokenTableHeader] = True
-        self.strikethroughToken[MTT.TokenStrikethrough] = True
-
+        self.theme = self.defaultTheme()
         self.setupHeadingFontSize(True)
-
-        self.strongMarkup[MTT.TokenNumberedList] = True
-        self.strongMarkup[MTT.TokenBlockquote] = True
-        self.strongMarkup[MTT.TokenBulletPointList] = True
+        
+        self.highlihtedWords = []
+        self.highlightedTags = []
+        
+        #f = self.document().defaultFont()
+        #f.setFamily("monospace")
+        #self.document().setDefaultFont(f)
         
     def highlightBlock(self, text):
         """
@@ -126,6 +83,15 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         triggering the slot that changes the text formatting to be triggered yet
         again.
         """
+        
+        if self.currentBlock().blockNumber() == 0:
+            # This is the title
+            bf = QTextCharFormat()
+            bf.setFontPointSize(self.editor.font().pointSize() * 2)
+            bf.setFontWeight(QFont.Bold)
+            bf.setForeground(Qt.lightGray)
+            self.setFormat(0, len(text), bf)
+            return
         
         lastState = self.currentBlockState()
         self.setFormat(0, len(text), self.defaultFormat)
@@ -155,10 +121,19 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 f.setFamily("Monospace")
                 fmt.setFont(f)
                 self.setFormat(0, len(text), fmt)
+                
+            #if self.currentBlockState() == MS.MarkdownStateBlockquote:
+                #fmt = QTextCharFormat(self.defaultFormat)
+                #fmt.setForeground(Qt.lightGray)
+                #self.setFormat(0, len(text), fmt)
             
             tokens = self.tokenizer.getTokens()
             
             for token in tokens:
+                if token.type == MTT.TokenUnknown:
+                    qWarning("Highlighter found unknown token type in text block.")
+                    continue
+                
                 if token.type in [
                     MTT.TokenAtxHeading1,
                     MTT.TokenAtxHeading2,
@@ -169,14 +144,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                     MTT.TokenSetextHeading1Line1,
                     MTT.TokenSetextHeading2Line1,
                     ]:
-                    self.applyFormattingForToken(token, text)
                     self.storeHeadingData(token, text)
                 
-                elif token.type == MTT.TokenUnknown:
-                    qWarning("Highlighter found unknown token type in text block.")
-                
-                else:
-                    self.applyFormattingForToken(token, text)
+                self.applyFormattingForToken(token, text)
             
             if self.tokenizer.backtrackRequested():
                 previous = self.currentBlock().previous()
@@ -184,6 +154,28 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 
         if self.spellCheckEnabled:
             self.spellCheck(text)
+            
+        # HASHTAGS AND HIGHLIGHTS
+        
+        # Hashtags
+        s = 0
+        ht = QRegExp('([^#])(#[\w]+)')
+        while ht.indexIn(text, s) >= 0:
+            f = self.format(ht.pos()+1)
+            f.setForeground(QColor("#07c"))
+            f.setFontWeight(QFont.Bold)
+            self.setFormat(ht.pos()+1, ht.matchedLength()-1, f)
+            s = ht.pos() + 1
+            
+        # Highlighted
+        for w in self.highlightedWords + self.highlightedTags:
+            pos = text.lower().find(w.lower())
+            while pos >= 0:
+                for i in range(pos, pos + len(w)):             
+                    f = self.format(i)
+                    f.setBackground(QBrush(QColor("#ff0")))
+                    self.setFormat(i, 1, f)
+                pos = text.lower().find(w.lower(), pos+1)
         
         # If the block has transitioned from previously being a heading to now
         # being a non-heading, signal that the position in the document no longer
@@ -192,11 +184,187 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         if self.isHeadingBlockState(lastState) and \
            not self.isHeadingBlockState(self.currentBlockState()):
             self.headingRemoved.emit(self.currentBlock().position())
+
+
+# ==============================================================================
+#   COLORS & FORMATTING
+# ==============================================================================
+    
+    def defaultTheme(self):
+        theme = {
+            "markup": Qt.lightGray}
+        
+        #Exemple:
+            #"color": Qt.red,
+            #"deltaSize": 10,
+            #"background": Qt.yellow,
+            #"monospace": True,
+            #"bold": True,
+            #"italic": True,
+            #"underline": True,
+            #"overline": True,
+            #"strike": True,
+            #"formatMarkup": True,
+            #"markupBold": True,
+            #"markupColor": Qt.blue,
+            #"markupBackground": Qt.green,
+            #"markupMonospace": True,
+            
+        for i in MTT.TITLES:
+            theme[i] = {
+                "formatMarkup":True,
+                "bold": True,
+                "monospace": True}
+        for i in [MTT.TokenSetextHeading1Line2, MTT.TokenSetextHeading2Line2]:
+            theme[i] = {"color": Qt.lightGray, "monospace":True}
+        
+        theme[MTT.TokenEmphasis] = {"italic":True, "underline":True}
+        theme[MTT.TokenStrong] = {"bold":True}
+        theme[MTT.TokenStrikethrough] = {"strike":True}
+        theme[MTT.TokenVerbatim] = {
+            "monospace":True,
+            "background": QColor("#f0f0f0"),
+            "formatMarkup": True, 
+            "markupColor": Qt.darkGray}
+        theme[MTT.TokenHtmlTag] = {"color":Qt.red}
+        theme[MTT.TokenHtmlEntity] = {"color":Qt.red}
+        theme[MTT.TokenAutomaticLink] = {"color": Qt.blue}
+        theme[MTT.TokenInlineLink] = {"color": Qt.blue}
+        theme[MTT.TokenReferenceLink] = {"color": Qt.blue}
+        theme[MTT.TokenReferenceDefinition] = {"color":Qt.blue}
+        theme[MTT.TokenImage] = {"color": Qt.green}
+        theme[MTT.TokenHtmlComment] = {"color": Qt.gray}
+        theme[MTT.TokenNumberedList] = {
+            "markupColor": QColor(Qt.red).lighter(), 
+            "markupBold": True,
+            "markupMonospace": True,}
+        theme[MTT.TokenBulletPointList] = {
+            "markupColor": QColor(Qt.red).lighter(), 
+            "markupBold": True,
+            "markupMonospace": True,}
+        theme[MTT.TokenHorizontalRule] = {
+            "overline": True,
+            "underline": True,
+            "monospace": True,
+            "color": Qt.lightGray}
+        theme[MTT.TokenLineBreak] = {"background":Qt.lightGray}
+        theme[MTT.TokenBlockquote] = {
+                "color": Qt.darkGray,
+                "markupColor": QColor("#f0f0f0"),
+                "markupBackground": QColor("#f0f0f0")}
+        theme[MTT.TokenCodeBlock] = {"color": Qt.darkGray, "monospace":True}
+        theme[MTT.TokenGithubCodeFence] = {"color": Qt.lightGray}
+        theme[MTT.TokenPandocCodeFence] = {"color": Qt.lightGray}
+        theme[MTT.TokenCodeFenceEnd] = {"color": Qt.lightGray}
+        theme[MTT.TokenMention] = {} # FIXME
+        theme[MTT.TokenTableHeader] = {"color":Qt.gray, "monospace":True}
+        theme[MTT.TokenTableDivider] = {"color":Qt.gray, "monospace":True}
+        theme[MTT.TokenTablePipe] = {"color":Qt.gray, "monospace":True}
+        
+        return theme
+    
+    def setColorScheme(self, defaultTextColor, backgroundColor, markupColor,
+                       linkColor, spellingErrorColor):
+        self.defaultTextColor = defaultTextColor
+        self.backgroundColor = backgroundColor
+        self.markupColor = markupColor
+        self.linkColor = linkColor
+        self.spellingErrorColor = spellingErrorColor
+        self.defaultFormat.setForeground(QBrush(defaultTextColor))
+        
+        # FIXME: generate a theme based on that
+        self.rehighlight()
+
+# ==============================================================================
+#   ACTUAL FORMATTING
+# ==============================================================================
+    
+    def applyFormattingForToken(self, token, text):
+        if token.type != MTT.TokenUnknown:
+            format = self.format(token.position)
+            markupFormat = self.format(token.position)
+            if self.theme.get("markup"):
+                markupFormat.setForeground(self.theme["markup"])
+                
+            ## Debug
+            def debug():
+                print("{}\n{}{}{}{}".format(
+                    text,
+                    " "*token.position,
+                    "^"*token.openingMarkupLength,
+                    str(token.type).center(token.length - token.openingMarkupLength - token.closingMarkupLength, "-"),
+                    "^" * token.closingMarkupLength)
+                )
+            
+            #if token.type in range(6, 10):
+                #debug()
+            
+            theme = self.theme.get(token.type)
+            if theme:
+                # Token
+                if theme.get("color"):
+                    format.setForeground(theme["color"])
+                if theme.get("deltaSize"):
+                    format.setFontPointSize(format.fontPointSize() + theme["deltaSize"])
+                if theme.get("background"):
+                    format.setBackground(theme["background"])
+                if theme.get("monospace"):
+                    format.setFontFamily("Monospace")
+                if theme.get("bold"):
+                    format.setFontWeight(QFont.Bold)
+                if theme.get("italic"):
+                    format.setFontItalic(theme["italic"])
+                if theme.get("underline"):
+                    format.setFontUnderline(theme["underline"])
+                if theme.get("overline"):
+                    format.setFontOverline(theme["overline"])
+                if theme.get("strike"):
+                    format.setFontStrikeOut(theme["strike"])
+                    
+                # Markup
+                if theme.get("formatMarkup"):
+                    c = markupFormat.foreground()
+                    markupFormat = QTextCharFormat(format)
+                    markupFormat.setForeground(c)
+                if theme.get("markupBold"):
+                    markupFormat.setFontWeight(QFont.Bold)
+                if theme.get("markupColor"):
+                    markupFormat.setForeground(theme["markupColor"])
+                if theme.get("markupBackground"):
+                    markupFormat.setBackground(theme["markupBackground"])
+                if theme.get("markupMonospace"):
+                    markupFormat.setFontFamily("Monospace")
+            
+            # Format openning Markup
+            self.setFormat(token.position, token.openingMarkupLength, 
+                                   markupFormat)
+            
+            # Format Text
+            self.setFormat(
+                token.position + token.openingMarkupLength,
+                token.length - token.openingMarkupLength - token.closingMarkupLength,
+                format)
+            
+            # Format closing Markup
+            if token.closingMarkupLength > 0:
+                self.setFormat(
+                    token.position + token.length - token.closingMarkupLength,
+                    token.closingMarkupLength,
+                    markupFormat)
+        
+        else:
+            qWarning("MarkdownHighlighter.applyFormattingForToken() was passed in a "
+                     "token of unknown type.")
             
 # ==============================================================================
 #   SETTINGS
 # ==============================================================================
             
+    def setHighlighted(self, words, tags):
+        self.highlightedWords = words
+        self.highlightedTags = tags
+        self.rehighlight()
+    
     def setDictionary(self, dictionary):
         self.dictionary = dictionary
         if self.spellCheckEnabled:
@@ -216,28 +384,20 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         
     def setupHeadingFontSize(self, useLargeHeadings):
         if useLargeHeadings:
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 6
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 5
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 6
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 5
-            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 6
-            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 5
-            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 4
-            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 3
-            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 2
-            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 1
+            self.theme[MTT.TokenSetextHeading1Line1]["deltaSize"] = 6
+            self.theme[MTT.TokenSetextHeading2Line1]["deltaSize"] = 5
+            self.theme[MTT.TokenSetextHeading1Line2]["deltaSize"] = 6
+            self.theme[MTT.TokenSetextHeading2Line2]["deltaSize"] = 5
+            self.theme[MTT.TokenAtxHeading1]["deltaSize"] = 6
+            self.theme[MTT.TokenAtxHeading2]["deltaSize"] = 5
+            self.theme[MTT.TokenAtxHeading3]["deltaSize"] = 4
+            self.theme[MTT.TokenAtxHeading4]["deltaSize"] = 3
+            self.theme[MTT.TokenAtxHeading5]["deltaSize"] = 2
+            self.theme[MTT.TokenAtxHeading6]["deltaSize"] = 1
             
         else:
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line1] = 0
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line1] = 0
-            self.fontSizeIncrease[MTT.TokenSetextHeading1Line2] = 0
-            self.fontSizeIncrease[MTT.TokenSetextHeading2Line2] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading1] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading2] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading3] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading4] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading5] = 0
-            self.fontSizeIncrease[MTT.TokenAtxHeading6] = 0
+            for i in MTT.TITLES:
+                self.theme[i]["deltaSize"] = 0
         
     def setUseUnderlineForEmphasis(self, enable):
         self.useUndlerlineForEmphasis = enable
@@ -314,158 +474,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
             startIndex += length
             misspelledWord = dictionary.check(text, startIndex)
-            
-# ==============================================================================
-#   COLORS & FORMATTING
-# ==============================================================================
-            
-    def setColorScheme(self, defaultTextColor, backgroundColor, markupColor,
-                       linkColor, spellingErrorColor):
-        self.defaultTextColor = defaultTextColor
-        self.backgroundColor = backgroundColor
-        self.markupColor = markupColor
-        self.linkColor = linkColor
-        self.spellingErrorColor = spellingErrorColor
-        self.defaultFormat.setForeground(QBrush(defaultTextColor))
-        self.setupTokenColors()
-        self.rehighlight()
-        
-    def setupTokenColors(self):
-        "Functions here are taken from ColorHelper in ghostwriter"
-        self.colorForToken = [self.defaultTextColor for i in range(MTT.TokenLast)]
-        
-        fadedColor = QColor()
-        
-        if getLuminance(self.backgroundColor) > \
-           getLuminance(self.defaultTextColor):
-            fadedColor = applyAlpha(self.defaultTextColor, self.backgroundColor, GW_FADE_ALPHA)
-        else:
-            fadedColor = defaultTextColor.darker(130)
-
-        markupColor = self.markupColor
-        linkColor = self.linkColor
-        self.colorForToken[MTT.TokenBlockquote] = fadedColor
-        self.colorForToken[MTT.TokenCodeBlock] = fadedColor
-        self.colorForToken[MTT.TokenVerbatim] = fadedColor
-        self.colorForToken[MTT.TokenHtmlTag] = markupColor
-        self.colorForToken[MTT.TokenHtmlEntity] = markupColor
-        self.colorForToken[MTT.TokenAutomaticLink] = linkColor
-        self.colorForToken[MTT.TokenInlineLink] = linkColor
-        self.colorForToken[MTT.TokenReferenceLink] = linkColor
-        self.colorForToken[MTT.TokenReferenceDefinition] = linkColor
-        self.colorForToken[MTT.TokenImage] = linkColor
-        self.colorForToken[MTT.TokenMention] = linkColor
-        self.colorForToken[MTT.TokenHtmlComment] = markupColor
-        self.colorForToken[MTT.TokenHorizontalRule] = markupColor
-        self.colorForToken[MTT.TokenGithubCodeFence] = markupColor
-        self.colorForToken[MTT.TokenPandocCodeFence] = markupColor
-        self.colorForToken[MTT.TokenCodeFenceEnd] = markupColor
-        self.colorForToken[MTT.TokenSetextHeading1Line2] = markupColor
-        self.colorForToken[MTT.TokenSetextHeading2Line2] = markupColor
-        self.colorForToken[MTT.TokenTableDivider] = markupColor
-        self.colorForToken[MTT.TokenTablePipe] = markupColor
-
-# ==============================================================================
-#   ACTUAL FORMATTING
-# ==============================================================================
-
-    def applyFormattingForToken(self, token, text):
-        if token.type != MTT.TokenUnknown:
-            tokenType = token.type
-            format = self.format(token.position)
-            tokenColor = QColor(self.colorForToken[tokenType])
-
-            ## Debug
-            #print("{}\n{}{}{}{}".format(
-                #text,
-                #" "*token.position,
-                #"^"*token.openingMarkupLength,
-                #str(token.type).center(token.length - token.openingMarkupLength - token.closingMarkupLength, "-"),
-                #"^" * token.closingMarkupLength)
-            #)
-            
-            if self.inBlockquote and token.type != MTT.TokenBlockquote:
-                #tokenColor = applyAlpha(tokenColor, self.backgroundColor, GW_FADE_ALPHA)
-                pass
-            if self.highlightLineBreaks and token.type == MTT.TokenLineBreak:
-                format.setBackground(QBrush(self.markupColor))
-                
-            format.setForeground(QBrush(tokenColor))
-            
-            if self.strongToken[tokenType]:
-                format.setFontWeight(QFont.Bold)
-                
-            if self.emphasizeToken[tokenType]:
-                if self.useUndlerlineForEmphasis and tokenType != MTT.TokenBlockquote:
-                    format.setFontUnderline(True)
-                else:
-                    format.setFontItalic(True)
-            
-            if self.strikethroughToken[tokenType]:
-                format.setFontStrikeOut(True)
-            
-            format.setFontPointSize(format.fontPointSize() +
-                self.fontSizeIncrease[tokenType])
-            
-            # FIXME: generic thing for the font
-            if token.type in [MTT.TokenVerbatim,
-                              MTT.TokenSetextHeading1Line1, MTT.TokenSetextHeading1Line2,
-                              MTT.TokenSetextHeading2Line1, MTT.TokenSetextHeading2Line2]:
-                f = format.font()
-                f.setFamily("Monospace")
-                format.setFont(f)
-                
-
-            # FIXME: add superscript and subscript (^n^, ~n~)
-            #        format.setVerticalAlignment(format.AlignSuperScript)
-
-            # MARKUP FORMAT
-
-            markupFormat = QTextCharFormat()
-            
-            if self.applyStyleToMarkup[tokenType] and \
-               not self.emphasizeToken[tokenType] or \
-               not self.useUndlerlineForEmphasis:
-                markupFormat = QTextCharFormat(format)
-                
-            else:
-                markupFormat = self.format(token.position)
-            
-            adjustedMarkupColor = QColor(self.markupColor)
-            if self.inBlockquote and token.type != MTT.TokenBlockquote:
-                adjustedMarkupColor = applyAlpha(adjustedMarkupColor, self.backgroundColor, GW_FADE_ALPHA)
-
-            markupFormat.setForeground(QBrush(adjustedMarkupColor))
-            if self.strongMarkup[tokenType]:
-                markupFormat.setFontWeight(QFont.Bold)
-            
-            if token.openingMarkupLength > 0:
-                if token.type == MTT.TokenBlockquote and \
-                   self.blockquoteStyle == BS.BlockquoteStyleFancy:
-                    markupFormat.setBackground(QBrush(adjustedMarkupColor))
-                    text = self.currentBlock().text()
-                    
-                    for i in range(token.position, token.openingMarkupLength):
-                        if text[i] != " ":
-                            self.setFormat(i, 1, markupFormat)
-                else:
-                    self.setFormat(token.position, token.openingMarkupLength, 
-                                   markupFormat)
-            
-            self.setFormat(
-                token.position + token.openingMarkupLength,
-                token.length - token.openingMarkupLength - token.closingMarkupLength,
-                format)
-            
-            if token.closingMarkupLength > 0:
-                self.setFormat(
-                    token.position + token.length - token.closingMarkupLength,
-                    token.closingMarkupLength,
-                    markupFormat)
-        
-        else:
-            qWarning("MarkdownHighlighter.applyFormattingForToken() was passed in a "
-                     "token of unknown type.")
     
     def storeHeadingData(self, token, text):
         if token.type in [

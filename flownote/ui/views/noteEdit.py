@@ -46,6 +46,6 @@ class noteEdit(QTextEdit):
             
     def setHighlighted(self, words, tags):
         if self.highlighter:
-            pass
-            #FIXME
-            # self.highlighter.setHighlighted(words, tags)
+            self.highlighter.setHighlighted(
+                [w for w in words if len(w) >= 2],
+                tags)

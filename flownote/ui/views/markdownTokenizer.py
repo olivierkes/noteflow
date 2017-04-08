@@ -80,8 +80,8 @@ class MarkdownTokenizer(HighlightTokenizer):
         self.githubCodeFenceEndRegex = QRegExp("^```+\\s*$")
         self.pandocCodeFenceStartRegex = QRegExp("^~~~+.*$")
         self.pandocCodeFenceEndRegex = QRegExp("^~~~+\\s*$")
-        self.numberedListRegex = QRegExp("^ {0,3}[0-9]+[.)]\\s+.*$")
-        self.numberedNestedListRegex = QRegExp("^\\s*[0-9]+[.)]\\s+.*$")
+        self.numberedListRegex = QRegExp("^ {0,3}[0-9a-z]+[.)]\\s+.*$")
+        self.numberedNestedListRegex = QRegExp("^\\s*[0-9a-z]+[.)]\\s+.*$")
         self.hruleRegex = QRegExp("\\s*(\\*\\s*){3,}|(\\s*(_\\s*){3,})|((\\s*(-\\s*){3,}))")
         self.lineBreakRegex = QRegExp(".*\\s{2,}$")
         self.emphasisRegex = QRegExp("(\\*(?![\\s*]).*[^\\s*]\\*)|_(?![\\s_]).*[^\\s_]_")
@@ -580,7 +580,8 @@ class MarkdownTokenizer(HighlightTokenizer):
             
             firstBracketIndex = escapedText.find("[")
             if firstBracketIndex >= 0:
-                escapedText[firstBracketIndex] = self.DUMMY_CHAR
+                i = firstBracketIndex
+                escapedText = escapedText[:i] + self.DUMMY_CHAR + escapedText[i+1:]
 
         escapedText = self.tokenizeVerbatim(escapedText)
         escapedText = self.tokenizeHtmlComments(escapedText)

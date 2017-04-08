@@ -39,6 +39,8 @@ class MarkdownState:
         
 class MarkdownTokenType:
     TokenUnknown  = -1
+    
+    # Titles
     TokenAtxHeading1 = 0
     TokenAtxHeading2 = 1
     TokenAtxHeading3 = 2
@@ -49,6 +51,7 @@ class MarkdownTokenType:
     TokenSetextHeading1Line2 = 7
     TokenSetextHeading2Line1 = 8
     TokenSetextHeading2Line2 = 9
+    
     TokenEmphasis = 10
     TokenStrong = 11
     TokenStrikethrough = 12
@@ -75,6 +78,13 @@ class MarkdownTokenType:
     TokenTableDivider = 33
     TokenTablePipe = 34
     TokenLast = 35
+    
+    TITLES =  [TokenAtxHeading1, TokenAtxHeading2, TokenAtxHeading3,
+               TokenAtxHeading4, TokenAtxHeading5, TokenAtxHeading6,
+               TokenSetextHeading1Line1, TokenSetextHeading1Line2,
+               TokenSetextHeading2Line1, TokenSetextHeading2Line2]
+    
+    
     
 class BlockquoteStyle:
     BlockquoteStylePlain = 0
