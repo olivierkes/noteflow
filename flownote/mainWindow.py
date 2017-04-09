@@ -212,6 +212,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.text.note == note:
             return
         self.tblSelectRow(UID)
+        self.calendar.blockSignals(True)
+        self.calendar.setSelectedDate(F.strToDate(note.date))
+        self.calendar.blockSignals(False)
         
         # History
         if not noHistory:
@@ -632,6 +635,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
     def updateCalendar(self):
         # clear all
+        f = QTextCharFormat()
+        c = QColor(S.window)
+        f.setBackground(c)
+        for i in range(Qt.Monday, Qt.Saturday):
+            self.calendar.setWeekdayTextFormat(i, f)
+        #f.setBackground(c.darker())
+        f.setForeground(Qt.red)
+        for i in range(Qt.Saturday, Qt.Sunday+1):
+            self.calendar.setWeekdayTextFormat(i, f)
+        
         self.calendar.setDateTextFormat(QDate(), QTextCharFormat())
         
         allDates = []
@@ -640,11 +653,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     
         filterDates = list([n.date for n in self.notes])
         
+        dateColor = c.darker(110) # QColor("#22000000")
+        selectedColor = QColor("#FFFF00")
+        selectedDateColor = QColor("#77999900")
+        
         # Selected date range
         if self.dateB:
             d = self.dateA
             cf = QTextCharFormat()
-            cf.setBackground(QColor("#FFFF00"))
+            cf.setBackground(selectedColor)
             while d <= self.dateB:
                 self.calendar.setDateTextFormat(d, cf)
                 d = d.addDays(1)
@@ -655,7 +672,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if not qd: continue
             cf = QTextCharFormat()
             #cf.setFontWeight(QFont.Bold)
-            cf.setBackground(QColor("#22000000"))
+            cf.setBackground(dateColor)
+            #cf.setForeground(Qt.white)
                 
             # In current filter
             if d in filterDates:
@@ -663,7 +681,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 cf.setFontWeight(QFont.Bold)
                 
                 if self.dateB and self.dateA <= qd <= self.dateB:
-                    cf.setBackground(QColor("#77999900"))
+                    cf.setBackground(selectedDateColor)
                     
             self.calendar.setDateTextFormat(qd, cf)
         
