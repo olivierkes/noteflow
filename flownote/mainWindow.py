@@ -147,6 +147,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tags = TagCollector()
         self.tags.addTag("TODO", color="#00F", background="#FF0") # border="#00F"
         self.tags.addTag("ut", color="#F00")
+        self.tags.addTag("doLorem", background="#0F0", border="#F0F")
+        self.tags.addTag("TEMporA", border="#F00")
         
         self.lstTags.setCustomTags(self.tags)
         self.tblList.setCustomTags(self.tags)

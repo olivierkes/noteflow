@@ -154,7 +154,7 @@ class cloudView(QListWidget):
         self.blockSignals(False)
         
     def setVisibleWords(self, words):
-        self._visibleWords = words
+        self._visibleWords = words.copy()
         k = 0
         for k in range(self.count()):
             i = self.item(k)
@@ -240,8 +240,11 @@ class customDelegate(QStyledItemDelegate):
             enabled = index.data(Qt.UserRole+1)
             color = tag.color if tag.color else QColor("#000")
             color.setAlpha(255 if enabled else 64)
-            background = tag.background if tag.background else QColor()            
-            background.setAlpha(255 if enabled else 64)
+            if tag.background:
+                background = tag.background
+                background.setAlpha(255 if enabled else 64)
+            else:
+                background = Qt.transparent
             border = None
             if tag.border:
                 border = tag.border
@@ -261,7 +264,7 @@ class customDelegate(QStyledItemDelegate):
                 
             option.rect = option.rect.adjusted(self.margin, self.margin, -self.margin, -self.margin)
             
-            if tag.background:
+            if background or border:
                 painter.save()
                 painter.setBrush(QBrush(background))
                 painter.setPen(QPen(border, 2) if border else Qt.transparent)
