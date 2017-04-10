@@ -344,8 +344,8 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QWebView" name="web">
-           <property name="url">
+          <widget class="QWebView" name="web" native="true">
+           <property name="url" stdset="0">
             <url>
              <string>about:blank</string>
             </url>
@@ -398,7 +398,7 @@
      <x>0</x>
      <y>0</y>
      <width>806</width>
-     <height>27</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -447,9 +447,21 @@
     <addaction name="actToggleList"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuFormat">
+    <property name="title">
+     <string>&amp;Format</string>
+    </property>
+    <addaction name="actFormatBold"/>
+    <addaction name="actFormatItalic"/>
+    <addaction name="actFormatStrike"/>
+    <addaction name="actFormatVerbatim"/>
+    <addaction name="actFormatComment"/>
+    <addaction name="actFormatCommentLine"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuNote"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menuFormat"/>
    <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -705,6 +717,48 @@
    </property>
    <property name="shortcut">
     <string>F3</string>
+   </property>
+  </action>
+  <action name="actFormatBold">
+   <property name="text">
+    <string>Bold</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actFormatItalic">
+   <property name="text">
+    <string>Italic</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actFormatStrike">
+   <property name="text">
+    <string>Strike</string>
+   </property>
+  </action>
+  <action name="actFormatVerbatim">
+   <property name="text">
+    <string>Verbatim</string>
+   </property>
+  </action>
+  <action name="actFormatComment">
+   <property name="text">
+    <string>Comment</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actFormatCommentLine">
+   <property name="text">
+    <string>Comment Line</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

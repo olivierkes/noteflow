@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Mon Apr 10 08:29:13 2017
+# Created: Tue Apr 11 00:12:23 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -155,7 +155,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_8.setObjectName("verticalLayout_8")
         self.web = QtWebKitWidgets.QWebView(self.previewPage)
-        self.web.setUrl(QtCore.QUrl("about:blank"))
+        self.web.setProperty("url", QtCore.QUrl("about:blank"))
         self.web.setObjectName("web")
         self.verticalLayout_8.addWidget(self.web)
         self.editor.addWidget(self.previewPage)
@@ -176,7 +176,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 806, 27))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 806, 20))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -186,6 +186,8 @@ class Ui_MainWindow(object):
         self.menuNote.setObjectName("menuNote")
         self.menuView = QtWidgets.QMenu(self.menubar)
         self.menuView.setObjectName("menuView")
+        self.menuFormat = QtWidgets.QMenu(self.menubar)
+        self.menuFormat.setObjectName("menuFormat")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -275,6 +277,18 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon.fromTheme("media-playback-start")
         self.actNotePreview.setIcon(icon)
         self.actNotePreview.setObjectName("actNotePreview")
+        self.actFormatBold = QtWidgets.QAction(MainWindow)
+        self.actFormatBold.setObjectName("actFormatBold")
+        self.actFormatItalic = QtWidgets.QAction(MainWindow)
+        self.actFormatItalic.setObjectName("actFormatItalic")
+        self.actFormatStrike = QtWidgets.QAction(MainWindow)
+        self.actFormatStrike.setObjectName("actFormatStrike")
+        self.actFormatVerbatim = QtWidgets.QAction(MainWindow)
+        self.actFormatVerbatim.setObjectName("actFormatVerbatim")
+        self.actFormatComment = QtWidgets.QAction(MainWindow)
+        self.actFormatComment.setObjectName("actFormatComment")
+        self.actFormatCommentLine = QtWidgets.QAction(MainWindow)
+        self.actFormatCommentLine.setObjectName("actFormatCommentLine")
         self.menu_File.addAction(self.actNewNotebook)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.actOpenNotebook)
@@ -301,9 +315,16 @@ class Ui_MainWindow(object):
         self.menuView.addAction(self.actToggleWords)
         self.menuView.addAction(self.actToggleList)
         self.menuView.addSeparator()
+        self.menuFormat.addAction(self.actFormatBold)
+        self.menuFormat.addAction(self.actFormatItalic)
+        self.menuFormat.addAction(self.actFormatStrike)
+        self.menuFormat.addAction(self.actFormatVerbatim)
+        self.menuFormat.addAction(self.actFormatComment)
+        self.menuFormat.addAction(self.actFormatCommentLine)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuNote.menuAction())
         self.menubar.addAction(self.menu_Edit.menuAction())
+        self.menubar.addAction(self.menuFormat.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.toolBar.addAction(self.actNewNotebook)
         self.toolBar.addAction(self.actOpenNotebook)
@@ -329,6 +350,7 @@ class Ui_MainWindow(object):
         self.menu_Edit.setTitle(_translate("MainWindow", "&Edit"))
         self.menuNote.setTitle(_translate("MainWindow", "Note"))
         self.menuView.setTitle(_translate("MainWindow", "View"))
+        self.menuFormat.setTitle(_translate("MainWindow", "&Format"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actOpenNotebook.setText(_translate("MainWindow", "&Open"))
         self.actOpenNotebook.setShortcut(_translate("MainWindow", "Ctrl+O"))
@@ -364,10 +386,20 @@ class Ui_MainWindow(object):
         self.actViewToolbar.setText(_translate("MainWindow", "Toolbar"))
         self.actNotePreview.setText(_translate("MainWindow", "Preview"))
         self.actNotePreview.setShortcut(_translate("MainWindow", "F3"))
+        self.actFormatBold.setText(_translate("MainWindow", "Bold"))
+        self.actFormatBold.setShortcut(_translate("MainWindow", "Ctrl+B"))
+        self.actFormatItalic.setText(_translate("MainWindow", "Italic"))
+        self.actFormatItalic.setShortcut(_translate("MainWindow", "Ctrl+I"))
+        self.actFormatStrike.setText(_translate("MainWindow", "Strike"))
+        self.actFormatVerbatim.setText(_translate("MainWindow", "Verbatim"))
+        self.actFormatComment.setText(_translate("MainWindow", "Comment"))
+        self.actFormatComment.setShortcut(_translate("MainWindow", "Ctrl+Shift+C"))
+        self.actFormatCommentLine.setText(_translate("MainWindow", "Comment Line"))
+        self.actFormatCommentLine.setShortcut(_translate("MainWindow", "Ctrl+D"))
 
 from PyQt5 import QtWebKitWidgets
 from flownote.ui.views.cloudView import cloudView
-from flownote.ui.views.tableView import tableView
+from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.scrollView import scrollView
 from flownote.ui.views.noteEdit import noteEdit
-from PyQt5.QtWidgets import QTabBar
+from flownote.ui.views.tableView import tableView

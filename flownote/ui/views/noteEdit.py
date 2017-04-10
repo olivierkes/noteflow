@@ -160,6 +160,98 @@ class noteEdit(QPlainTextEdit):
         return ""
 
 # ==============================================================================
+#   FORMATTING
+# ==============================================================================
+
+    def bold(self): self.insertFormattingMarkup("**")
+    def italic(self): self.insertFormattingMarkup("*")
+    def strike(self): self.insertFormattingMarkup("~~")
+    def verbatim(self): self.insertFormattingMarkup("`")
+    
+    def comment(self):
+        cursor = self.textCursor()
+        if cursor.hasSelection():
+            text = cursor.selectedText()
+            cursor.insertText("<!-- " + text + " -->")
+        else:
+            cursor.insertText("<!--  -->")
+            cursor.movePosition(QTextCursor.PreviousCharacter, 
+                                QTextCursor.MoveAnchor, 4)
+            self.setTextCursor(cursor)
+        
+    def commentLine(self):
+        cursor = self.textCursor()
+        
+        start = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        block = self.document().findBlock(start)
+        block2 = self.document().findBlock(end)
+        
+        if True:
+            # Method 1
+            cursor.beginEditBlock()
+            while block.isValid():
+                self.commentBlock(block)
+                if block == block2: break
+                block = block.next()
+            cursor.endEditBlock()
+        
+        else:
+            # Method 2
+            cursor.beginEditBlock()
+            cursor.setPosition(block.position())
+            cursor.insertText("<!--\n")
+            cursor.setPosition(block2.position() + block2.length() - 1)
+            cursor.insertText("\n-->")
+            cursor.endEditBlock()
+        
+        
+    def commentBlock(self, block):
+        cursor = QTextCursor(block)
+        text = block.text()
+        if text[:5] == "<!-- " and \
+           text[-4:] == " -->":
+            text2 = text[5:-4]
+        else:
+            text2 = "<!-- " + text + " -->"
+        cursor.movePosition(QTextCursor.StartOfBlock)
+        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        cursor.insertText(text2)
+    
+    def insertFormattingMarkup(self, markup):
+        cursor = self.textCursor()
+        
+        # Select begining and end of words
+        end = cursor.selectionEnd()
+        cursor.movePosition(QTextCursor.StartOfWord)
+        cursor.setPosition(end, QTextCursor.KeepAnchor)
+        cursor.movePosition(QTextCursor.EndOfWord, QTextCursor.KeepAnchor)
+        
+        if cursor.hasSelection():
+            start = cursor.selectionStart()
+            end = cursor.selectionEnd() + len(markup)
+            cursor.beginEditBlock()
+            cursor.setPosition(start)
+            cursor.insertText(markup)
+            cursor.setPosition(end)
+            cursor.insertText(markup)
+            cursor.endEditBlock()
+            cursor.movePosition(QTextCursor.PreviousCharacter,
+                                QTextCursor.KeepAnchor, len(markup))
+            #self.setTextCursor(cursor)
+            
+        else:
+            # Insert markup twice (for opening and closing around the cursor),
+            # and then move the cursor to be between the pair.
+            cursor.beginEditBlock()
+            cursor.insertText(markup)
+            cursor.insertText(markup)
+            cursor.movePosition(QTextCursor.PreviousCharacter,
+                                QTextCursor.MoveAnchor, len(markup))
+            cursor.endEditBlock()
+            self.setTextCursor(cursor)
+
+# ==============================================================================
 #   NOTES
 # ==============================================================================
 

@@ -124,8 +124,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actNoteDelete.triggered.connect(self.deleteNote)
         self.actNoteDelete.setEnabled(False)
         self.actNotePreview.triggered.connect(self.previewNote)
-        self.actNotePreview.setEnabled(False)                
+        self.actNotePreview.setEnabled(False)   
         
+        self.actFormatBold.triggered.connect(self.text.bold)
+        self.actFormatItalic.triggered.connect(self.text.italic)
+        self.actFormatStrike.triggered.connect(self.text.strike)
+        self.actFormatVerbatim.triggered.connect(self.text.verbatim)
+        self.actFormatComment.triggered.connect(self.text.comment)
+        self.actFormatCommentLine.triggered.connect(self.text.commentLine)
+                  
         self.loadRecents()
         self.editor.setCurrentIndex(0)
         
@@ -240,8 +247,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lblNoteDate.dateChanged.connect(note.setDate)
         
         self.text.setFocus()
-        self.actNoteDelete.setEnabled(True)
-        self.actNotePreview.setEnabled(True)
+        self.updateUIforNoteOpen(True)
         
     def previewNote(self, preview):
         if preview:
@@ -256,8 +262,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text.setNote(None)
         self.lblNoteDate.setDate(QDate())
         self.lblNoteDate.hide()
-        self.actNoteDelete.setEnabled(False)
-        self.actNotePreview.setEnabled(False)
+        self.updateUIforNoteOpen(False)
         
     def tblSelectRow(self, UID, blockSignal=True):
         item = F.findRowByUserData(self.tblList, UID)
@@ -269,7 +274,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item = F.findRowByUserData(self.tblList, UID)
         self.tblList.setCurrentItem(item)
         self.tblList.itemSelectionChanged.emit()
-            
+        
+    def updateUIforNoteOpen(self, isOpen):
+        self.actNoteDelete.setEnabled(isOpen)
+        self.actNotePreview.setEnabled(isOpen)
+        self.actFormatBold.setEnabled(isOpen)
+        self.actFormatItalic.setEnabled(isOpen)
+        self.actFormatStrike.setEnabled(isOpen)
+        self.actFormatVerbatim.setEnabled(isOpen)
+        self.actFormatComment.setEnabled(isOpen)
+        self.actFormatCommentLine.setEnabled(isOpen)
+        
 #==============================================================================
 #   SMALL STUFF
 #==============================================================================
