@@ -381,6 +381,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setupNotebook(self, nb):
         # Signals
         nb.noteChanged.connect(self.updateSingleTblNote)
+        nb.dateChanged.connect(self.updateSingleTblNote)
         nb.dateChanged.connect(self.updateCalendar)
         nb.tagsAndWordsChanged.connect(self.setupTagsAndWords)
         nb.noteAdded.connect(self.noteAdded)
