@@ -24,7 +24,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     headingRemoved = pyqtSignal(int)
 
     def __init__(self, editor):
-        QSyntaxHighlighter.__init__(self, editor)
+        QSyntaxHighlighter.__init__(self, editor.document())
         
         #default values
         self.editor = editor
@@ -127,7 +127,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 #fmt = QTextCharFormat(self.defaultFormat)
                 #fmt.setForeground(Qt.lightGray)
                 #self.setFormat(0, len(text), fmt)
-            
+                
             tokens = self.tokenizer.getTokens()
             
             for token in tokens:
@@ -253,7 +253,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 "color": Qt.darkGray,
                 "markupColor": QColor("#f0f0f0"),
                 "markupBackground": QColor("#f0f0f0")}
-        theme[MTT.TokenCodeBlock] = {"color": Qt.darkGray, "monospace":True}
+        theme[MTT.TokenCodeBlock] = {
+                "color": Qt.darkGray,
+                "markupBackground": QColor("#fafafa"),
+                "monospace":True}
         theme[MTT.TokenGithubCodeFence] = {"color": Qt.lightGray}
         theme[MTT.TokenPandocCodeFence] = {"color": Qt.lightGray}
         theme[MTT.TokenCodeFenceEnd] = {"color": Qt.lightGray}
@@ -289,16 +292,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 
             ## Debug
             def debug():
-                print("{}\n{}{}{}{}".format(
+                print("{}\n{}{}{}{}   (state:{})".format(
                     text,
                     " "*token.position,
                     "^"*token.openingMarkupLength,
                     str(token.type).center(token.length - token.openingMarkupLength - token.closingMarkupLength, "-"),
-                    "^" * token.closingMarkupLength)
+                    "^" * token.closingMarkupLength,
+                    self.currentBlockState(),)
                 )
             
             #if token.type in range(6, 10):
-                #debug()
+            #debug()
             
             theme = self.theme.get(token.type)
             if theme:

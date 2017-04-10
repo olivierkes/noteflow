@@ -2,7 +2,8 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created: Mon Apr 10 08:29:13 2017
+#      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -15,14 +16,14 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.centralwidget)
-        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_5.setSpacing(0)
+        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.wdgTab = QtWidgets.QWidget(self.centralwidget)
         self.wdgTab.setObjectName("wdgTab")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.wdgTab)
-        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_5.setSpacing(0)
+        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.tab = QTabBar(self.wdgTab)
         self.tab.setObjectName("tab")
@@ -37,14 +38,14 @@ class Ui_MainWindow(object):
         self.filter = QtWidgets.QWidget(self.splitter)
         self.filter.setObjectName("filter")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.filter)
-        self.verticalLayout_2.setContentsMargins(6, 0, 0, 0)
         self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setContentsMargins(6, 0, 0, 0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.wdgCalendar = QtWidgets.QWidget(self.filter)
         self.wdgCalendar.setObjectName("wdgCalendar")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.wdgCalendar)
-        self.verticalLayout_7.setContentsMargins(0, 0, 0, 6)
         self.verticalLayout_7.setSpacing(0)
+        self.verticalLayout_7.setContentsMargins(0, 0, 0, 6)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.calendar = QtWidgets.QCalendarWidget(self.wdgCalendar)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
@@ -61,8 +62,8 @@ class Ui_MainWindow(object):
         self.wdgDateInfos = QtWidgets.QWidget(self.wdgCalendar)
         self.wdgDateInfos.setObjectName("wdgDateInfos")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.wdgDateInfos)
-        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_4.setSpacing(0)
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.txtDate = QtWidgets.QLineEdit(self.wdgDateInfos)
         self.txtDate.setFrame(False)
@@ -141,8 +142,8 @@ class Ui_MainWindow(object):
         self.textPage = QtWidgets.QWidget()
         self.textPage.setObjectName("textPage")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.textPage)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.text = noteEdit(self.textPage)
         self.text.setObjectName("text")
@@ -365,8 +366,8 @@ class Ui_MainWindow(object):
         self.actNotePreview.setShortcut(_translate("MainWindow", "F3"))
 
 from PyQt5 import QtWebKitWidgets
-from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.cloudView import cloudView
-from flownote.ui.views.noteEdit import noteEdit
-from flownote.ui.views.scrollView import scrollView
 from flownote.ui.views.tableView import tableView
+from flownote.ui.views.scrollView import scrollView
+from flownote.ui.views.noteEdit import noteEdit
+from PyQt5.QtWidgets import QTabBar

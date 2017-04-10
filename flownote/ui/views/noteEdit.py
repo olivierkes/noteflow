@@ -3,16 +3,26 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
 from flownote.ui.views.markdownHighlighter import MarkdownHighlighter
+from flownote.ui.views.markdownEnums import MarkdownState as MS
+#from flownote.ui.views.markdownTokenizer import MarkdownTokenizer as MT
 
-class noteEdit(QTextEdit):
+
+class noteEdit(QPlainTextEdit):
+    
+    blockquoteRegex = QRegExp("^ {0,3}(>\\s*)+")
+    listRegex = QRegExp("^(\\s*)([+*-]|([0-9a-z])+([.\)]))(\\s+)")
+    taskListRegex = QRegExp("^\\s*[-*+] \\[([x ])\\]\\s+")
     
     def __init__(self, parent=None, highlighting=True):
-        QTextEdit.__init__(self, parent)
+        QPlainTextEdit.__init__(self, parent)
         self.note = None
         self.textChanged.connect(self.updateNote)
         self.setEnabled(False)
+        
+        f = QFont("Sans", 11)
+        self.setFont(f)
+        self.document().setDefaultFont(f)
         
         self.highlighter = None
         if highlighting:
@@ -24,16 +34,144 @@ class noteEdit(QTextEdit):
                 QColor(Qt.blue),
                 QColor(Qt.red)
             )
+
+# ==============================================================================
+#   KEYS
+# ==============================================================================
+
+    def keyPressEvent(self, event):
+        k = event.key()
+        m = event.modifiers()
+        cursor = self.textCursor()
+        #QPlainTextEdit.keyPressEvent(self, event)
         
+        if k == Qt.Key_Return:
+            if not cursor.hasSelection():
+                if m & Qt.ShiftModifier:
+                    # Insert Markdown-style line break
+                    cursor.insertText("  ")
+                
+                if m & Qt.ControlModifier:
+                    cursor.insertText("\n")
+                else:
+                    self.handleCarriageReturn()
+            else:
+                QPlainTextEdit.keyPressEvent(self, event)
+        elif k == Qt.Key_Tab:
+            #self.indentText()
+            # FIXME
+            QPlainTextEdit.keyPressEvent(self, event)
+        elif k == Qt.Key_Backtab:
+            #self.unindentText()
+            # FIXME
+            QPlainTextEdit.keyPressEvent(self, event)
+            
+        else:
+            QPlainTextEdit.keyPressEvent(self, event)
+    
+    # Again, thanks to GhostWriter, mainly
+    def handleCarriageReturn(self):
+        autoInsertText = "";
+        cursor = self.textCursor()
+        endList = False
+        moveBack = False
+        text = cursor.block().text()
+
+        if cursor.positionInBlock() < cursor.block().length() - 1:
+            autoInsertText = self.getPriorIndentation()
+            if cursor.positionInBlock() < len(autoInsertText):
+                autoInsertText = autoInsertText[:cursor.positionInBlock()]
+        
+        else:
+            s = cursor.block().userState()
+            
+            if s in [MS.MarkdownStateNumberedList,
+                     MS.MarkdownStateBulletPointList]:
+                self.listRegex.indexIn(text)
+                g = self.listRegex.capturedTexts()
+                    # 0 = "   a. " or "  * "
+                    # 1 = "   "       "  "
+                    # 2 =    "a."       "*"
+                    # 3 =    "a"          ""
+                    # 4 =     "."         ""
+                    # 5 =      " "        " "
+                
+                # If the line of text is an empty list item, end the list.
+                if len(g[0].strip()) == len(text.strip()):
+                    endList = True
+                
+                # Else increment the list number
+                elif g[3]:  # Numbered list
+                    try: # digit
+                        i = int(g[3])+1
+                        
+                    except: # letter
+                        i = chr(ord(g[3])+1)
+                    
+                    autoInsertText = "{}{}{}{}".format(
+                            g[1], i, g[4], g[5])
+
+                else:  # Bullet list
+                    autoInsertText = g[0]
+                
+                if text[-2:] == "  ":
+                    autoInsertText = " " * len(autoInsertText)
+                
+            elif s == MS.MarkdownStateBlockquote:
+                self.blockquoteRegex.indexIn(text)
+                g = self.blockquoteRegex.capturedTexts()
+                autoInsertText = g[0]
+                
+            elif s in [MS.MarkdownStateInGithubCodeFence,
+                       MS.MarkdownStateInPandocCodeFence] and \
+                 cursor.block().previous().userState() != s:
+                autoInsertText = "\n" + text
+                moveBack = True
+                
+            else:
+                autoInsertText = self.getPriorIndentation()
+        
+        # Clear the list
+        if endList:
+            autoInsertText = self.getPriorIndentation()
+            cursor.movePosition(QTextCursor.StartOfBlock)
+            cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            cursor.insertText(autoInsertText)
+            autoInsertText = ""
+        
+        # Finally, we insert
+        cursor.insertText("\n" + autoInsertText)
+        if moveBack:
+            cursor.movePosition(QTextCursor.PreviousBlock)
+            self.setTextCursor(cursor)
+            
+        self.ensureCursorVisible()
+    
+    def getPriorIndentation(self):
+        text = self.textCursor().block().text()
+        l = len(text) - len(text.lstrip())
+        return text[:l]
+    
+    def getPriorMarkdownBlockItemStart(self, itemRegex):
+        text = self.textCursor().block().text()
+        if itemRegex.indexIn(text) >= 0:
+            return text[itemRegex.matchedLength():]
+
+        return ""
+
+# ==============================================================================
+#   NOTES
+# ==============================================================================
+
     def setNote(self, note):
         if note is not None:
             self.note = note
-            self.setText(note.wholeText())
+            self.setPlainText(note.wholeText())
             self.setEnabled(True)
         else:
             self.note = None
             self.setEnabled(False)
-            self.setText("")
+            self.setPlainText("")
             
         
     def updateNote(self):
@@ -41,7 +179,7 @@ class noteEdit(QTextEdit):
             self.note.setWholeText(self.toPlainText())
         else:
             if self.toPlainText():
-                self.setText("")
+                self.setPlainText("")
             self.setEnabled(False)
             
     def setHighlighted(self, words, tags):
