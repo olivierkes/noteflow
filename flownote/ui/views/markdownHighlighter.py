@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Highlighter based on GhostWriter. GPLV3+.
-
 import re
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -14,6 +12,9 @@ from flownote.ui.views.markdownEnums import MarkdownTokenType as MTT
 from flownote.ui.views.markdownEnums import BlockquoteStyle as BS
 
 GW_FADE_ALPHA = 140
+
+# Highlighter based on GhostWriter (http://wereturtle.github.io/ghostwriter/).
+# GPLV3+.
 
 
 class MarkdownHighlighter(QSyntaxHighlighter):
