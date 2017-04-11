@@ -44,12 +44,25 @@ class cloudView(QListWidget):
         self.delegate = customDelegate(self)
         self.setItemDelegate(self.delegate)
         
+    def mousePressEvent(self, event):
+        if Qt.RightButton == event.button():
+            self.popupTagMenu(event.pos())
+        else:
+            return QListWidget.mousePressEvent(self, event)
+    
+    def popupTagMenu(self, pos):
+        item = self.itemAt(pos)
+        if not item:
+            return
+        print(item.text())
+        #FIXME
+    
     def setCustomTags(self, tags):
         self.customWords = tags
         self.customWords.tagsChanged.connect(self.customTagsChanged)
         
     def customTagsChanged(self):
-        print("FIXME")
+        print("FIXME: cloudView.customTagsChanged")
         #FIXME
         
     def setCustomWordsOnly(self, val):

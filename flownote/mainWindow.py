@@ -606,9 +606,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         sel = [i.text() for i in self.lstTags.selectedItems()]
         if sel:
             # AND
-#            notes = [n for n in notes if len([s for s in sel if s.lower() in n.text.lower()]) == len(sel)]
+           notes = [n for n in notes if len([s for s in sel if s.lower() in n.text.lower()]) == len(sel)]
             # OR
-            notes = [n for n in notes if len([s for s in sel if s.lower() in n.text.lower()])]
+            #notes = [n for n in notes if len([s for s in sel if s.lower() in n.text.lower()])]
             
         # Word filter
         sel = [i.text() for i in self.lstWords.selectedItems()]
@@ -616,7 +616,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # AND
             notes = [n for n in notes if len([s for s in sel if s in n.text.lower()]) == len(sel)]
             # OR
-#            notes = [n for n in notes if len([s for s in sel if s in n.text.lower()])]
+            #notes = [n for n in notes if len([s for s in sel if s in n.text.lower()])]
         
         #Calendar
         if self.dateA and self.dateB:
