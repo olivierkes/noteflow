@@ -135,7 +135,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actFormatSuperScript.triggered.connect(self.text.superscript)
         self.actFormatSubScript.triggered.connect(self.text.subscript)
         
-        
         self.actFormatClear.triggered.connect(self.text.clearFormat)
         self.actFormatHeaderSetext1.triggered.connect(lambda: self.text.titleSetext(1))
         self.actFormatHeaderSetext1.setShortcut("Ctrl+Alt+1")
@@ -427,14 +426,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupNotebooks()    
     
     def closeCurrentNotebook(self):
-        if len(self.notebooks) == 1:
-            self.notebooks = []
-            
-        else:
-            nb = self.currentNotebook()
-            if nb:
-                self.notebooks.remove(nb)
-            
+        nb = self.currentNotebook()
+        if self.text.note in nb.notes:
+            self.closeNote()
+        if nb:
+            self.notebooks.remove(nb)
         self.setupNotebooks()
         
     def addToRecentNotebooks(self, nb):
@@ -551,7 +547,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def setupTblNotes(self):
         notes = self.allNotes()
+        self.tblList.blockSignals(True)
         self.tblList.setupNotes(notes)
+        self.tblList.blockSignals(False)
         
     def noteAdded(self, UID):
         note = self.noteFromUID(UID)
@@ -560,9 +558,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def noteRemoved(self, UID):
         self.closeNote()
-        self.tblList.blockSignals(True)
         self.setupTblNotes()
-        self.tblList.blockSignals(False)
         self.setupFilters()
             
     def updateSingleTblNote(self, UID):
