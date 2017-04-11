@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import re
+from flownote import functions as F
 from flownote.ui.views.markdownHighlighter import MarkdownHighlighter
 from flownote.ui.views.markdownEnums import MarkdownState as MS
 #from flownote.ui.views.markdownTokenizer import MarkdownTokenizer as MT
@@ -14,6 +15,9 @@ class noteEdit(QPlainTextEdit):
     blockquoteRegex = QRegExp("^ {0,3}(>\\s*)+")
     listRegex = QRegExp("^(\\s*)([+*-]|([0-9a-z])+([.\)]))(\\s+)")
     taskListRegex = QRegExp("^\\s*[-*+] \\[([x ])\\]\\s+")
+    
+    statsChanged = pyqtSignal(int, int, int, bool)
+    # word, chars, chars no spaces, selection
     
     def __init__(self, parent=None, highlighting=True):
         QPlainTextEdit.__init__(self, parent)
@@ -35,6 +39,15 @@ class noteEdit(QPlainTextEdit):
                 QColor(Qt.blue),
                 QColor(Qt.red)
             )
+            
+        # Statistics
+        self.statsTimer = QTimer()
+        self.statsTimer.setInterval(300)
+        self.statsTimer.setSingleShot(True)
+        self.statsTimer.timeout.connect(self.onDocChanged)
+        self.document().contentsChanged.connect(self.statsTimer.start)
+        self.selectionChanged.connect(self.onSelChanged)
+        
 
 # ==============================================================================
 #   KEYS
@@ -171,8 +184,22 @@ class noteEdit(QPlainTextEdit):
     def superscript(self): self.insertFormattingMarkup("^")
     def subscript(self): self.insertFormattingMarkup("~")
     
+    def selectWord(self, cursor):
+        end = cursor.selectionEnd()
+        cursor.movePosition(QTextCursor.StartOfWord)
+        cursor.setPosition(end, QTextCursor.KeepAnchor)
+        cursor.movePosition(QTextCursor.EndOfWord, QTextCursor.KeepAnchor)
+        
+    def selectBlock(self, cursor):
+        cursor.movePosition(QTextCursor.StartOfBlock)
+        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+    
     def comment(self):
         cursor = self.textCursor()
+        
+        # Select begining and end of words
+        self.selectWord(cursor)
+        
         if cursor.hasSelection():
             text = cursor.selectedText()
             cursor.insertText("<!-- " + text + " -->")
@@ -216,18 +243,14 @@ class noteEdit(QPlainTextEdit):
             text2 = text[5:-4]
         else:
             text2 = "<!-- " + text + " -->"
-        cursor.movePosition(QTextCursor.StartOfBlock)
-        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        self.selectBlock(cursor)
         cursor.insertText(text2)
     
     def insertFormattingMarkup(self, markup):
         cursor = self.textCursor()
         
         # Select begining and end of words
-        end = cursor.selectionEnd()
-        cursor.movePosition(QTextCursor.StartOfWord)
-        cursor.setPosition(end, QTextCursor.KeepAnchor)
-        cursor.movePosition(QTextCursor.EndOfWord, QTextCursor.KeepAnchor)
+        self.selectWord(cursor)
         
         if cursor.hasSelection():
             start = cursor.selectionStart()
@@ -256,21 +279,46 @@ class noteEdit(QPlainTextEdit):
     def clearFormat(self):
         cursor = self.textCursor()
         text = cursor.selectedText()
-        
-        # FIXME: clear also block formats
-        for reg, rep in [
-            ("\*\*(.*?)\*\*", "\\1"), # bold
-            ("__(.*?)__", "\\1"), # bold
-            ("\*(.*?)\*", "\\1"), # emphasis
-            ("_(.*?)_", "\\1"), # emphasis
-            ("`(.*?)`", "\\1"), # verbatim
-            ("~~(.*?)~~", "\\1"), # strike
-            ("\^(.*?)\^", "\\1"), # superscript
-            ("~(.*?)~", "\\1"), # subscript
-            ]:
-            text = re.sub(reg, rep, text)
-        
+        if not text:
+            self.selectBlock()
+            text = cursor.selectedText()
+        text = self.clearedFormat(text)
         cursor.insertText(text)
+        
+    def clearedFormat(self, text):
+        # FIXME: clear also block formats
+        for reg, rep, flags in [
+            ("\*\*(.*?)\*\*", "\\1", None), # bold
+            ("__(.*?)__", "\\1", None), # bold
+            ("\*(.*?)\*", "\\1", None), # emphasis
+            ("_(.*?)_", "\\1", None), # emphasis
+            ("`(.*?)`", "\\1", None), # verbatim
+            ("~~(.*?)~~", "\\1", None), # strike
+            ("\^(.*?)\^", "\\1", None), # superscript
+            ("~(.*?)~", "\\1", None), # subscript
+            ("<!--(.*)-->", "\\1", re.S), # comments
+            
+            
+            # LINES OR BLOCKS
+            (r"^#*\s*(.+?)\s*", "\\1", re.M), # ATX
+            (r"^[=-]*$", "", re.M), # Setext
+            (r"^`*$", "", re.M), # Code block fenced
+            (r"^\s*[-+*]\s*(.*?)\s*$", "\\1", re.M), # Bullet List
+            (r"^\s*[0-9a-z](\.|\))\s*(.*?)\s*$", "\\2", re.M), # Bullet List
+            (r"\s*[>\s]*(.*?)\s*$", "\\1", re.M), # Code block and blockquote
+            
+            ]:
+            text = re.sub(reg, rep, text, flags if flags else 0)
+        return text
+    
+    def clearedFormatForStats(self, text):
+        # Remove stuff that musn't be counted
+        # FIXME: clear also block formats
+        for reg, rep, flags in [
+            ("<!--.*-->", "", re.S), # comments
+            ]:
+            text = re.sub(reg, rep, text, flags if flags else 0)
+        return text
         
     def titleSetext(self, level):
         cursor = self.textCursor()
@@ -289,8 +337,7 @@ class noteEdit(QPlainTextEdit):
                 MS.MarkdownStateSetextHeading2Line1]:
             # Need to remove line below
             c = QTextCursor(cursor.block().next())
-            c.movePosition(QTextCursor.StartOfBlock)
-            c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            self.selectBlock(c)
             c.insertText("")
         
         char = "=" if level == 1 else "-"
@@ -298,8 +345,7 @@ class noteEdit(QPlainTextEdit):
         sub = char * len(text)
         text = text + "\n" + sub
         
-        cursor.movePosition(QTextCursor.StartOfBlock)
-        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        self.selectBlock(cursor)
         cursor.insertText(text)
         cursor.endEditBlock()
     
@@ -314,12 +360,10 @@ class noteEdit(QPlainTextEdit):
             # Need to remove line below
             cursor.beginEditBlock()
             c = QTextCursor(cursor.block().next())
-            c.movePosition(QTextCursor.StartOfBlock)
-            c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            self.selectBlock(c)
             c.insertText("")
         
-            cursor.movePosition(QTextCursor.StartOfBlock)
-            cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            self.selectBlock(cursor)
             cursor.insertText(text)
             cursor.endEditBlock()
             return
@@ -347,10 +391,44 @@ class noteEdit(QPlainTextEdit):
         else:
             text = "#" * level + " " + text
         
-        cursor.movePosition(QTextCursor.StartOfBlock)
-        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        self.selectBlock(cursor)
         cursor.insertText(text)
+
+# ==============================================================================
+#   STATISTICS
+# ==============================================================================
+
+    def onDocChanged(self):
+        # Update statistics !
+        b = self.document().begin()
+        w = 0
+        c = 0
+        c2 = 0
+        while b.isValid():
+            # Do stuff
+            uData = b.userData()
+            if not uData:
+                uData = UserData(b, self)
+                b.setUserData(uData)
+            
+            uData.countChars()
+            w += uData.wordsNumber
+            c += uData.charsNumber
+            c2 += uData.charsNumberNoSpace
+            b = b.next()
         
+        self._statsWord = w
+        self._statsChars = c
+        self._statsCharsNoSpaces = c2
+        self.statsChanged.emit(w, c, c2, False)
+        
+    def onSelChanged(self):
+        cursor = self.textCursor()
+        text = cursor.selectedText().replace("\u2029", "\n")
+        text = self.clearedFormatForStats(text)
+        text = "\n".join([self.clearedFormat(t) for t in text.split("\n")])
+        w, c, c2 = F.stats(text)
+        self.statsChanged.emit(w, c, c2, True)
 
 # ==============================================================================
 #   NOTES
@@ -366,7 +444,6 @@ class noteEdit(QPlainTextEdit):
             self.setEnabled(False)
             self.setPlainText("")
             
-        
     def updateNote(self):
         if self.note:
             self.note.setWholeText(self.toPlainText())
@@ -380,3 +457,26 @@ class noteEdit(QPlainTextEdit):
             self.highlighter.setHighlighted(
                 [w for w in words if len(w) >= 2],
                 tags)
+
+
+class UserData(QTextBlockUserData):
+    def __init__(self, block, editor):
+        QTextBlockUserData.__init__(self)
+        self.block = block
+        self.editor = editor
+        self.text = None
+        self.wordsNumber = -1
+        self.charsNumber = -1
+        self.charsNumberNoSpace = -1
+    
+    def countChars(self):
+        text = self.block.text()
+        
+        if text != self.text:
+            t = self.editor.clearedFormat(text)
+            t = self.editor.clearedFormatForStats(t)
+            w, c, c2 = F.stats(t)
+            self.wordsNumber = w
+            self.charsNumber = c
+            self.charsNumberNoSpace = c2
+            self.text = text

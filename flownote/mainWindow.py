@@ -17,6 +17,8 @@ from flownote.models.tag import TagCollector
 
 from flownote.ui.widgets.folderDialog import folderDialog
 from flownote.ui.widgets.labelDate import LabelDate
+from flownote.ui.widgets.labelTextStats import LabelTextStats
+
 import flownote.functions as F
 import flownote.markdownFunctions as MD
 
@@ -78,6 +80,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #l.addWidget(btn)
         #self.statusBar().addWidget(w)
         ##w.setStyleSheet("QToolButton{border: 1px solid;}")
+        self.lblStats = LabelTextStats()
+        self.statusBar().addPermanentWidget(self.lblStats)
+        self.text.statsChanged.connect(self.lblStats.setStats)
         self.lblNoteDate = LabelDate()
         self.statusBar().addPermanentWidget(self.lblNoteDate)
         self.lblNoteDate.hide()

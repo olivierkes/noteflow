@@ -83,3 +83,11 @@ def loadTextFile(path):
     
 def strToDate(date):
     return QDate(*[int(i) for i in date.split("-")])
+
+def stats(text):
+    w = len(re.findall(r"\b[\w'-]+\b", text))
+    text = text.replace("\n", "")
+    c = len(text)
+    c2 = len([c for c in text if c.strip()])
+    
+    return w, c, c2

@@ -555,22 +555,3 @@ def applyAlpha(foreground, background, alpha):
     blendedColor.setBlue(applyAlphaToChannel(
         foreground.blue(), background.blue(), normalizedAlpha))
     return blendedColor
-
-
-class TextBlockData(QObject, QTextBlockUserData):
-    def __init__(self, document, block):
-        QObject.__init__(self)
-        QTextBlockUserData.__init__(self)
-
-        self.document = document
-        # Parent text block.  For use with fetching the block's document
-        # position, which can shift as text is inserted and deleted.
-        self.blockRef = block
-        self.wordCount = 0
-        self.alphaNumericCharacterCount = 0
-        self.sentenceCount = 0
-        self.lixLongWordCount = 0
-        self.blankLine = True
-
-    # FIXME: the destructor runs TextDocument.notifyTextBlockRemoved().
-    #       TextDocument is a custom QTextDocument in GhostWriter
