@@ -145,6 +145,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actFormatHeaderATX5.triggered.connect(lambda: self.text.titleATX(5))
         self.actFormatHeaderATX6.triggered.connect(lambda: self.text.titleATX(6))
         
+        # Shortcuts for tab navigation
+        QShortcut("Ctrl+Tab", self).activated.connect(lambda:
+            self.tab.setCurrentIndex((self.tab.currentIndex() + 1) % self.tab.count()) 
+            if self.tab.isVisible() else None)
+        QShortcut("Ctrl+Shift+Tab", self).activated.connect(lambda:
+            self.tab.setCurrentIndex((self.tab.currentIndex() - 1) % self.tab.count()) 
+            if self.tab.isVisible() else None)
+        
         self.updateUIforNoteOpen(False)
                   
         self.loadRecents()
@@ -505,17 +513,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def setupNotebooks(self):
         # TabBar
         self.tab.setDocumentMode(True)
+        self._shortcuts = []
+        
         while self.tab.count():         # Remove all tabs
             self.tab.removeTab(0)
+            
+        # We only show the tabBar if there are more than 1 notebooks
         if len(self.notebooks) > 1:
+            # One tab to rule them all
             self.tab.addTab("All")
-            #self.tab.show()
             self.wdgTab.show()
+            
             for nb in self.notebooks:
                 i = self.tab.addTab(nb.name)
                 self.tab.setTabData(i, nb.UID)
+                
         else:
-            #self.tab.hide()
             self.wdgTab.hide()
         
         self.updateUI()
