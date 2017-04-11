@@ -132,6 +132,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actFormatVerbatim.triggered.connect(self.text.verbatim)
         self.actFormatComment.triggered.connect(self.text.comment)
         self.actFormatCommentLine.triggered.connect(self.text.commentLine)
+        
+        self.actFormatClear.triggered.connect(self.text.clearFormat)
+        self.actFormatHeaderSetext1.triggered.connect(lambda: self.text.titleSetext(1))
+        self.actFormatHeaderSetext1.setShortcut("CTRL+SHIFT+1")
+        self.actFormatHeaderSetext2.triggered.connect(lambda: self.text.titleSetext(2))
+        self.actFormatHeaderSetext2.setShortcut("CTRL+SHIFT+2")
+        self.actFormatHeaderATX1.triggered.connect(lambda: self.text.titleATX(1))
+        self.actFormatHeaderATX2.triggered.connect(lambda: self.text.titleATX(2))
+        self.actFormatHeaderATX3.triggered.connect(lambda: self.text.titleATX(3))
+        self.actFormatHeaderATX4.triggered.connect(lambda: self.text.titleATX(4))
+        self.actFormatHeaderATX5.triggered.connect(lambda: self.text.titleATX(5))
+        self.actFormatHeaderATX6.triggered.connect(lambda: self.text.titleATX(6))
+        
+        self.updateUIforNoteOpen(False)
                   
         self.loadRecents()
         self.editor.setCurrentIndex(0)
@@ -251,7 +265,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def previewNote(self, preview):
         if preview:
-            self.web.setStyleSheet("QWebView{background:white; font-size:10px;}")
+            self.web.setStyleSheet("QWebView{{background:{}; font-size:12px;}}".format(
+                S.window))
             source = MD.render(self.text.note.toText())
             self.web.setHtml(source)         
             self.editor.setCurrentIndex(1)
@@ -284,6 +299,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actFormatVerbatim.setEnabled(isOpen)
         self.actFormatComment.setEnabled(isOpen)
         self.actFormatCommentLine.setEnabled(isOpen)
+        self.actFormatClear.setEnabled(isOpen)
+        self.actFormatHeaderSetext1.setEnabled(isOpen)
+        self.actFormatHeaderSetext2.setEnabled(isOpen)
+        self.actFormatHeaderATX1.setEnabled(isOpen)
+        self.actFormatHeaderATX2.setEnabled(isOpen)
+        self.actFormatHeaderATX3.setEnabled(isOpen)
+        self.actFormatHeaderATX4.setEnabled(isOpen)
+        self.actFormatHeaderATX5.setEnabled(isOpen)
+        self.actFormatHeaderATX6.setEnabled(isOpen)
+        self.menuHeader.setEnabled(isOpen)
         
 #==============================================================================
 #   SMALL STUFF

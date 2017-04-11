@@ -451,12 +451,30 @@
     <property name="title">
      <string>&amp;Format</string>
     </property>
+    <widget class="QMenu" name="menuHeader">
+     <property name="title">
+      <string>Header</string>
+     </property>
+     <addaction name="actFormatHeaderSetext1"/>
+     <addaction name="actFormatHeaderSetext2"/>
+     <addaction name="separator"/>
+     <addaction name="actFormatHeaderATX1"/>
+     <addaction name="actFormatHeaderATX2"/>
+     <addaction name="actFormatHeaderATX3"/>
+     <addaction name="actFormatHeaderATX4"/>
+     <addaction name="actFormatHeaderATX5"/>
+     <addaction name="actFormatHeaderATX6"/>
+    </widget>
+    <addaction name="menuHeader"/>
+    <addaction name="separator"/>
     <addaction name="actFormatBold"/>
     <addaction name="actFormatItalic"/>
     <addaction name="actFormatStrike"/>
     <addaction name="actFormatVerbatim"/>
     <addaction name="actFormatComment"/>
     <addaction name="actFormatCommentLine"/>
+    <addaction name="separator"/>
+    <addaction name="actFormatClear"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuNote"/>
@@ -720,6 +738,9 @@
    </property>
   </action>
   <action name="actFormatBold">
+   <property name="icon">
+    <iconset theme="format-text-bold"/>
+   </property>
    <property name="text">
     <string>Bold</string>
    </property>
@@ -728,6 +749,9 @@
    </property>
   </action>
   <action name="actFormatItalic">
+   <property name="icon">
+    <iconset theme="format-text-italic"/>
+   </property>
    <property name="text">
     <string>Italic</string>
    </property>
@@ -736,11 +760,17 @@
    </property>
   </action>
   <action name="actFormatStrike">
+   <property name="icon">
+    <iconset theme="format-text-strikethrough"/>
+   </property>
    <property name="text">
     <string>Strike</string>
    </property>
   </action>
   <action name="actFormatVerbatim">
+   <property name="icon">
+    <iconset theme="text-x-script"/>
+   </property>
    <property name="text">
     <string>Verbatim</string>
    </property>
@@ -759,6 +789,78 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actFormatClear">
+   <property name="icon">
+    <iconset theme="edit-clear"/>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderSetext1">
+   <property name="text">
+    <string>Level 1 (Setext)</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderSetext2">
+   <property name="text">
+    <string>Level 2 (Setext)</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderATX1">
+   <property name="text">
+    <string>Level 1 (atx)</string>
+   </property>
+   <property name="toolTip">
+    <string>Level 1 (ATX)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderATX2">
+   <property name="text">
+    <string>Level 2</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderATX3">
+   <property name="text">
+    <string>Level 3</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderATX4">
+   <property name="text">
+    <string>Level 4</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderATX5">
+   <property name="text">
+    <string>Level 5</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actFormatHeaderATX6">
+   <property name="text">
+    <string>Level 6</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+6</string>
    </property>
   </action>
  </widget>

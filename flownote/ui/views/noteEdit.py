@@ -3,6 +3,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+import re
 from flownote.ui.views.markdownHighlighter import MarkdownHighlighter
 from flownote.ui.views.markdownEnums import MarkdownState as MS
 #from flownote.ui.views.markdownTokenizer import MarkdownTokenizer as MT
@@ -205,7 +206,6 @@ class noteEdit(QPlainTextEdit):
             cursor.insertText("\n-->")
             cursor.endEditBlock()
         
-        
     def commentBlock(self, block):
         cursor = QTextCursor(block)
         text = block.text()
@@ -250,6 +250,105 @@ class noteEdit(QPlainTextEdit):
                                 QTextCursor.MoveAnchor, len(markup))
             cursor.endEditBlock()
             self.setTextCursor(cursor)
+            
+    def clearFormat(self):
+        cursor = self.textCursor()
+        text = cursor.selectedText()
+        
+        # FIXME: clear also block formats
+        for reg, rep in [
+            ("\*\*(.*?)\*\*", "\\1"), # bold
+            ("__(.*?)__", "\\1"), # bold
+            ("\*(.*?)\*", "\\1"), # emphasis
+            ("_(.*?)_", "\\1"), # emphasis
+            ("`(.*?)`", "\\1"), # verbatim
+            ("~~(.*?)~~", "\\1"), # strike
+            ("\^(.*?)\^", "\\1"), # superscript
+            ("~(.*?)~", "\\1"), # subscript
+            ]:
+            text = re.sub(reg, rep, text)
+        
+        cursor.insertText(text)
+        
+    def titleSetext(self, level):
+        cursor = self.textCursor()
+        
+        cursor.beginEditBlock()
+        # Is it already a Setext header?
+        if cursor.block().userState() in [
+                MS.MarkdownStateSetextHeading1Line2,
+                MS.MarkdownStateSetextHeading2Line2]:
+            cursor.movePosition(QTextCursor.PreviousBlock)
+        
+        text = cursor.block().text()
+        
+        if cursor.block().userState() in [
+                MS.MarkdownStateSetextHeading1Line1,
+                MS.MarkdownStateSetextHeading2Line1]:
+            # Need to remove line below
+            c = QTextCursor(cursor.block().next())
+            c.movePosition(QTextCursor.StartOfBlock)
+            c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            c.insertText("")
+        
+        char = "=" if level == 1 else "-"
+        text = re.sub("^#*\s*(.*)\s*#*", "\\1", text)  # Removes #
+        sub = char * len(text)
+        text = text + "\n" + sub
+        
+        cursor.movePosition(QTextCursor.StartOfBlock)
+        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        cursor.insertText(text)
+        cursor.endEditBlock()
+    
+    def titleATX(self, level):
+        cursor = self.textCursor()
+        text = cursor.block().text()
+        
+        # Are we in a Setext Header?
+        if cursor.block().userState() in [
+                MS.MarkdownStateSetextHeading1Line1,
+                MS.MarkdownStateSetextHeading2Line1]:
+            # Need to remove line below
+            cursor.beginEditBlock()
+            c = QTextCursor(cursor.block().next())
+            c.movePosition(QTextCursor.StartOfBlock)
+            c.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            c.insertText("")
+        
+            cursor.movePosition(QTextCursor.StartOfBlock)
+            cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+            cursor.insertText(text)
+            cursor.endEditBlock()
+            return
+        
+        elif cursor.block().userState() in [
+                MS.MarkdownStateSetextHeading1Line2,
+                MS.MarkdownStateSetextHeading2Line2]:
+            cursor.movePosition(QTextCursor.PreviousBlock)
+            self.setTextCursor(cursor)
+            self.titleATX(level)
+            return
+        
+        m = re.match("^(#+)(\s*)(.+)", text)
+        if m:
+            pre = m.group(1)
+            space = m.group(2)
+            txt = m.group(3)
+        
+            if len(pre) == level:
+                # Remove title
+                text = txt
+            else:
+                text = "#" * level + space + txt
+        
+        else:
+            text = "#" * level + " " + text
+        
+        cursor.movePosition(QTextCursor.StartOfBlock)
+        cursor.movePosition(QTextCursor.EndOfBlock, QTextCursor.KeepAnchor)
+        cursor.insertText(text)
+        
 
 # ==============================================================================
 #   NOTES

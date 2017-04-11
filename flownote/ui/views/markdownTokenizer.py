@@ -142,8 +142,8 @@ class MarkdownTokenizer(HighlightTokenizer):
             # No further tokenizing required
             pass
         
-        elif self.tokenizeAtxHeading(text) or \
-             self.tokenizeSetextHeadingLine1(text) or \
+        elif self.tokenizeSetextHeadingLine1(text) or \
+             self.tokenizeAtxHeading(text) or \
              self.tokenizeBlockquote(text) or \
              self.tokenizeNumberedList(text) or \
              self.tokenizeBulletPointList(text):
