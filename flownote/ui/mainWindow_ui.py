@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Tue Apr 11 06:57:21 2017
+# Created: Tue Apr 11 14:25:22 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -319,6 +319,14 @@ class Ui_MainWindow(object):
         self.actFormatHeaderATX5.setObjectName("actFormatHeaderATX5")
         self.actFormatHeaderATX6 = QtWidgets.QAction(MainWindow)
         self.actFormatHeaderATX6.setObjectName("actFormatHeaderATX6")
+        self.actFormatSuperScript = QtWidgets.QAction(MainWindow)
+        icon = QtGui.QIcon.fromTheme("format-text-superscript")
+        self.actFormatSuperScript.setIcon(icon)
+        self.actFormatSuperScript.setObjectName("actFormatSuperScript")
+        self.actFormatSubScript = QtWidgets.QAction(MainWindow)
+        icon = QtGui.QIcon.fromTheme("format-text-subscript")
+        self.actFormatSubScript.setIcon(icon)
+        self.actFormatSubScript.setObjectName("actFormatSubScript")
         self.menu_File.addAction(self.actNewNotebook)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.actOpenNotebook)
@@ -360,6 +368,8 @@ class Ui_MainWindow(object):
         self.menuFormat.addAction(self.actFormatItalic)
         self.menuFormat.addAction(self.actFormatStrike)
         self.menuFormat.addAction(self.actFormatVerbatim)
+        self.menuFormat.addAction(self.actFormatSuperScript)
+        self.menuFormat.addAction(self.actFormatSubScript)
         self.menuFormat.addAction(self.actFormatComment)
         self.menuFormat.addAction(self.actFormatCommentLine)
         self.menuFormat.addSeparator()
@@ -457,10 +467,14 @@ class Ui_MainWindow(object):
         self.actFormatHeaderATX5.setShortcut(_translate("MainWindow", "Ctrl+5"))
         self.actFormatHeaderATX6.setText(_translate("MainWindow", "Level 6"))
         self.actFormatHeaderATX6.setShortcut(_translate("MainWindow", "Ctrl+6"))
+        self.actFormatSuperScript.setText(_translate("MainWindow", "Superscript"))
+        self.actFormatSuperScript.setShortcut(_translate("MainWindow", "Ctrl++"))
+        self.actFormatSubScript.setText(_translate("MainWindow", "Subscript"))
+        self.actFormatSubScript.setShortcut(_translate("MainWindow", "Ctrl+-"))
 
 from PyQt5 import QtWebKitWidgets
-from flownote.ui.views.noteEdit import noteEdit
-from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.cloudView import cloudView
 from flownote.ui.views.tableView import tableView
+from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.scrollView import scrollView
+from flownote.ui.views.noteEdit import noteEdit

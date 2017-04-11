@@ -132,12 +132,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actFormatVerbatim.triggered.connect(self.text.verbatim)
         self.actFormatComment.triggered.connect(self.text.comment)
         self.actFormatCommentLine.triggered.connect(self.text.commentLine)
+        self.actFormatSuperScript.triggered.connect(self.text.superscript)
+        self.actFormatSubScript.triggered.connect(self.text.subscript)
+        
         
         self.actFormatClear.triggered.connect(self.text.clearFormat)
         self.actFormatHeaderSetext1.triggered.connect(lambda: self.text.titleSetext(1))
-        self.actFormatHeaderSetext1.setShortcut("CTRL+SHIFT+1")
+        self.actFormatHeaderSetext1.setShortcut("Ctrl+Alt+1")
         self.actFormatHeaderSetext2.triggered.connect(lambda: self.text.titleSetext(2))
-        self.actFormatHeaderSetext2.setShortcut("CTRL+SHIFT+2")
+        self.actFormatHeaderSetext2.setShortcut("Ctrl+Alt+2")
         self.actFormatHeaderATX1.triggered.connect(lambda: self.text.titleATX(1))
         self.actFormatHeaderATX2.triggered.connect(lambda: self.text.titleATX(2))
         self.actFormatHeaderATX3.triggered.connect(lambda: self.text.titleATX(3))

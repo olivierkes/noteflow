@@ -471,6 +471,8 @@
     <addaction name="actFormatItalic"/>
     <addaction name="actFormatStrike"/>
     <addaction name="actFormatVerbatim"/>
+    <addaction name="actFormatSuperScript"/>
+    <addaction name="actFormatSubScript"/>
     <addaction name="actFormatComment"/>
     <addaction name="actFormatCommentLine"/>
     <addaction name="separator"/>
@@ -861,6 +863,28 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+6</string>
+   </property>
+  </action>
+  <action name="actFormatSuperScript">
+   <property name="icon">
+    <iconset theme="format-text-superscript"/>
+   </property>
+   <property name="text">
+    <string>Superscript</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actFormatSubScript">
+   <property name="icon">
+    <iconset theme="format-text-subscript"/>
+   </property>
+   <property name="text">
+    <string>Subscript</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
    </property>
   </action>
  </widget>

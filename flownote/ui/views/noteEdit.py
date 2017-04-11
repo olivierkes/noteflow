@@ -168,6 +168,8 @@ class noteEdit(QPlainTextEdit):
     def italic(self): self.insertFormattingMarkup("*")
     def strike(self): self.insertFormattingMarkup("~~")
     def verbatim(self): self.insertFormattingMarkup("`")
+    def superscript(self): self.insertFormattingMarkup("^")
+    def subscript(self): self.insertFormattingMarkup("~")
     
     def comment(self):
         cursor = self.textCursor()

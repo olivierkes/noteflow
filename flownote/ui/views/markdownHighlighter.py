@@ -210,6 +210,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             #"markupColor": Qt.blue,
             #"markupBackground": Qt.green,
             #"markupMonospace": True,
+            #"super":True,
+            #"sub":True
             
         for i in MTT.TITLES:
             theme[i] = {
@@ -227,6 +229,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             "background": QColor("#f0f0f0"),
             "formatMarkup": True, 
             "markupColor": Qt.darkGray}
+        theme[MTT.TokenSuperScript] = {"super":True, "formatMarkup":True}
+        theme[MTT.TokenSubScript] = {"sub":True, "formatMarkup":True}
         theme[MTT.TokenHtmlTag] = {"color":Qt.red}
         theme[MTT.TokenHtmlEntity] = {"color":Qt.red}
         theme[MTT.TokenAutomaticLink] = {"color": Qt.blue}
@@ -325,7 +329,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                     format.setFontOverline(theme["overline"])
                 if theme.get("strike"):
                     format.setFontStrikeOut(theme["strike"])
-                    
+                if theme.get("super"):
+                    format.setVerticalAlignment(QTextCharFormat.AlignSuperScript)
+                if theme.get("sub"):
+                    format.setVerticalAlignment(QTextCharFormat.AlignSubScript)
+                
                 # Markup
                 if theme.get("formatMarkup"):
                     c = markupFormat.foreground()

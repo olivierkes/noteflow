@@ -77,7 +77,9 @@ class MarkdownTokenType:
     TokenTableHeader = 32
     TokenTableDivider = 33
     TokenTablePipe = 34
-    TokenLast = 35
+    TokenSuperScript = 35
+    TokenSubScript = 36
+    TokenLast = 37
     
     TITLES =  [TokenAtxHeading1, TokenAtxHeading2, TokenAtxHeading3,
                TokenAtxHeading4, TokenAtxHeading5, TokenAtxHeading6,

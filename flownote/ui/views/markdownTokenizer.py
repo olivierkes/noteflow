@@ -91,6 +91,10 @@ class MarkdownTokenizer(HighlightTokenizer):
     strongRegex.setMinimal(True)
     strikethroughRegex = QRegExp("~~[^\\s]+.*[^\\s]+~~")
     strikethroughRegex.setMinimal(True)
+    superScriptRegex = QRegExp("\^([^\\s]|(\\\\\\s))+\^")  # Spaces must be escaped "\ "
+    superScriptRegex.setMinimal(True)
+    subScriptRegex = QRegExp("~([^\\s]|(\\\\\\s))+~")  # Spaces must be escaped "\ "
+    subScriptRegex.setMinimal(True)
     verbatimRegex = QRegExp("`+")
     htmlTagRegex = QRegExp("<[^<>]+>")
     htmlTagRegex.setMinimal(True)
@@ -600,6 +604,8 @@ class MarkdownTokenizer(HighlightTokenizer):
         escapedText = self.tokenizeMatches(MTT.TokenStrikethrough, escapedText, self.strikethroughRegex, 2, 2)
         escapedText = self.tokenizeMatches(MTT.TokenStrong, escapedText, self.strongRegex, 2, 2, True)
         escapedText = self.tokenizeMatches(MTT.TokenEmphasis, escapedText, self.emphasisRegex, 1, 1, True)
+        escapedText = self.tokenizeMatches(MTT.TokenSuperScript, escapedText, self.superScriptRegex, 1, 1, True)
+        escapedText = self.tokenizeMatches(MTT.TokenSubScript, escapedText, self.subScriptRegex, 1, 1, True)
         escapedText = self.tokenizeMatches(MTT.TokenHtmlTag, escapedText, self.htmlTagRegex)
         escapedText = self.tokenizeMatches(MTT.TokenMention, escapedText, self.mentionRegex, 0, 0, False, True)
 
