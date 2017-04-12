@@ -40,8 +40,8 @@ class LabelTextStats(QLabel):
                         self.wordsS, self.charsS) if showSel else ""))
         
         self.setToolTip("<b>{}</b> chars without spaces<br><b>{}</b> pages".format(
-            charsNoSpace,
-            words / 250))
+            self.charsNoSpace,
+            self.words / 250))
         
         self.show()
         

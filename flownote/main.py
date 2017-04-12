@@ -3,9 +3,9 @@
 import os
 import sys
 
-from PyQt5.QtCore import QLocale, QTranslator, QSettings
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, qApp
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 _version = "0.1.0"
 
@@ -49,7 +49,8 @@ def run():
         print(app.tr("Loaded translation: {}.").format(translation))
 
     else:
-        print(app.tr("Warning: failed to load translator for locale {}...").format(locale))
+        pass
+        # qDebug(app.tr("Warning: failed to load translator for locale {}...").format(locale))
 
 #    print(QIcon.themeSearchPaths())
     QIcon.setThemeSearchPaths(QIcon.themeSearchPaths() + [F.appPath("icons")])

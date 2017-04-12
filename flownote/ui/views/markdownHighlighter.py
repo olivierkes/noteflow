@@ -192,8 +192,18 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 # ==============================================================================
     
     def defaultTheme(self):
+
+        markup = qApp.palette().color(QPalette.Mid)
+        dark = qApp.palette().color(QPalette.Dark)
+        darker = dark.darker(150)
+        
+        # Text background
+        background = qApp.palette().color(QPalette.Base)
+        lightBackground = background.darker(130)
+        veryLightBackground = background.darker(105)
+
         theme = {
-            "markup": Qt.lightGray}
+            "markup": markup}
         
         #Exemple:
             #"color": Qt.red,
@@ -219,55 +229,69 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 "bold": True,
                 "monospace": True}
         for i in [MTT.TokenSetextHeading1Line2, MTT.TokenSetextHeading2Line2]:
-            theme[i] = {"color": Qt.lightGray, "monospace":True}
+            theme[i] = {
+                "color": markup,
+                "monospace":True}
         
-        theme[MTT.TokenEmphasis] = {"italic":True, "underline":True}
-        theme[MTT.TokenStrong] = {"bold":True}
-        theme[MTT.TokenStrikethrough] = {"strike":True}
+        # Beautifiers
+        theme[MTT.TokenEmphasis] = {
+                "italic":True, 
+                "underline":True}
+        theme[MTT.TokenStrong] = {
+                "bold":True}
+        theme[MTT.TokenStrikethrough] = {
+                "strike":True}
         theme[MTT.TokenVerbatim] = {
-            "monospace":True,
-            "background": QColor("#f0f0f0"),
-            "formatMarkup": True, 
-            "markupColor": Qt.darkGray}
-        theme[MTT.TokenSuperScript] = {"super":True, "formatMarkup":True}
-        theme[MTT.TokenSubScript] = {"sub":True, "formatMarkup":True}
+                "monospace":True,
+                "background": veryLightBackground,
+                "formatMarkup": True, 
+                "markupColor": markup}
+        theme[MTT.TokenSuperScript] = {
+                "super":True,
+                "formatMarkup":True}
+        theme[MTT.TokenSubScript] = {
+                "sub":True,
+                "formatMarkup":True}
+
         theme[MTT.TokenHtmlTag] = {"color":Qt.red}
         theme[MTT.TokenHtmlEntity] = {"color":Qt.red}
-        theme[MTT.TokenAutomaticLink] = {"color": Qt.blue}
-        theme[MTT.TokenInlineLink] = {"color": Qt.blue}
-        theme[MTT.TokenReferenceLink] = {"color": Qt.blue}
-        theme[MTT.TokenReferenceDefinition] = {"color":Qt.blue}
+        theme[MTT.TokenAutomaticLink] = {"color": qApp.palette().color(QPalette.Link)}
+        theme[MTT.TokenInlineLink] = {"color": qApp.palette().color(QPalette.Link)}
+        theme[MTT.TokenReferenceLink] = {"color": qApp.palette().color(QPalette.Link)}
+        theme[MTT.TokenReferenceDefinition] = {"color": qApp.palette().color(QPalette.Link)}
         theme[MTT.TokenImage] = {"color": Qt.green}
-        theme[MTT.TokenHtmlComment] = {"color": Qt.gray}
+        theme[MTT.TokenHtmlComment] = {
+                "color": dark}
         theme[MTT.TokenNumberedList] = {
-            "markupColor": QColor(Qt.red).lighter(), 
-            "markupBold": True,
-            "markupMonospace": True,}
+                "markupColor": QColor(Qt.red).lighter(), 
+                "markupBold": True,
+                "markupMonospace": True,}
         theme[MTT.TokenBulletPointList] = {
-            "markupColor": QColor(Qt.red).lighter(), 
-            "markupBold": True,
-            "markupMonospace": True,}
+                "markupColor": QColor(Qt.red).lighter(), 
+                "markupBold": True,
+                "markupMonospace": True,}
         theme[MTT.TokenHorizontalRule] = {
-            "overline": True,
-            "underline": True,
-            "monospace": True,
-            "color": Qt.lightGray}
-        theme[MTT.TokenLineBreak] = {"background":Qt.lightGray}
+                "overline": True,
+                "underline": True,
+                "monospace": True,
+                "color": markup}
+        theme[MTT.TokenLineBreak] = {
+                "background": markup}
         theme[MTT.TokenBlockquote] = {
-                "color": Qt.darkGray,
-                "markupColor": QColor("#f0f0f0"),
-                "markupBackground": QColor("#f0f0f0")}
+                "color": darker,
+                "markupColor": lightBackground,
+                "markupBackground": lightBackground}
         theme[MTT.TokenCodeBlock] = {
-                "color": Qt.darkGray,
-                "markupBackground": QColor("#fafafa"),
+                "color": darker,
+                "markupBackground": veryLightBackground,
                 "monospace":True}
-        theme[MTT.TokenGithubCodeFence] = {"color": Qt.lightGray}
-        theme[MTT.TokenPandocCodeFence] = {"color": Qt.lightGray}
-        theme[MTT.TokenCodeFenceEnd] = {"color": Qt.lightGray}
+        theme[MTT.TokenGithubCodeFence] = {"color": markup}
+        theme[MTT.TokenPandocCodeFence] = {"color": markup}
+        theme[MTT.TokenCodeFenceEnd] = {"color": markup}
         theme[MTT.TokenMention] = {} # FIXME
-        theme[MTT.TokenTableHeader] = {"color":Qt.gray, "monospace":True}
-        theme[MTT.TokenTableDivider] = {"color":Qt.gray, "monospace":True}
-        theme[MTT.TokenTablePipe] = {"color":Qt.gray, "monospace":True}
+        theme[MTT.TokenTableHeader] = {"color": darker, "monospace":True}
+        theme[MTT.TokenTableDivider] = {"color": markup, "monospace":True}
+        theme[MTT.TokenTablePipe] = {"color": markup, "monospace":True}
         
         return theme
     

@@ -29,6 +29,8 @@ def mainWindowSS():
             
             QGroupBox{border:none; margin: 2ex 0 0 2ex; font-weight: bold;}
             QGroupBox:title{subcontrol-origin: margin;}
+
+            QStatusBar::item {border: 0px;}
             """
 
 def tableSS():

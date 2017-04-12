@@ -601,7 +601,7 @@ class MarkdownTokenizer(HighlightTokenizer):
         escapedText = self.tokenizeMatches(MTT.TokenReferenceLink, escapedText, self.referenceLinkRegex, 0, 0, False, True)
         escapedText = self.tokenizeMatches(MTT.TokenHtmlEntity, escapedText, self.htmlEntityRegex)
         escapedText = self.tokenizeMatches(MTT.TokenAutomaticLink, escapedText, self.automaticLinkRegex, 0, 0, False, True)
-        escapedText = self.tokenizeMatches(MTT.TokenStrikethrough, escapedText, self.strikethroughRegex, 2, 2)
+        escapedText = self.tokenizeMatches(MTT.TokenStrikethrough, escapedText, self.strikethroughRegex, 2, 2, True)
         escapedText = self.tokenizeMatches(MTT.TokenStrong, escapedText, self.strongRegex, 2, 2, True)
         escapedText = self.tokenizeMatches(MTT.TokenEmphasis, escapedText, self.emphasisRegex, 1, 1, True)
         escapedText = self.tokenizeMatches(MTT.TokenSuperScript, escapedText, self.superScriptRegex, 1, 1, True)
