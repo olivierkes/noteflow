@@ -152,6 +152,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actFormatHeaderATX5.triggered.connect(lambda: self.text.titleATX(5))
         self.actFormatHeaderATX6.triggered.connect(lambda: self.text.titleATX(6))
         
+        # Add some status tips
+        self.tab.setStatusTip("CTRL+Tab to cycle through open notebooks. (CTRL+Shift+Tab to cycle backward)")
+        self.calendar.setStatusTip("Click on a date to filter that date. " +
+                                   "Then Shift-click an other date to select a range.")
+
         # Shortcuts for tab navigation
         QShortcut("Ctrl+Tab", self).activated.connect(lambda:
             self.tab.setCurrentIndex((self.tab.currentIndex() + 1) % self.tab.count()) 
