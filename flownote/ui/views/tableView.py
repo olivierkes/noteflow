@@ -19,8 +19,7 @@ class tableView(QTableWidget):
         self.customTags.tagsChanged.connect(self.customTagsChanged)
         
     def customTagsChanged(self):
-        print("FIXME")
-        #FIXME
+        self.update()
         
     def setupNotes(self, notes):
         if sorted(notes, key=lambda n:n.UID) == \
@@ -55,13 +54,6 @@ class tableView(QTableWidget):
         item = QTableWidgetItem(note.title or note.text[:50])
         self.setItem(y, 1, item)
         self.setItem(y, 2, QTableWidgetItem(str(note.UID)))
-        
-        # Check custom tags
-        if self.customTags:
-            for t in self.customTags:
-                if t.match(note):
-                    if t.color:
-                        item.setForeground(QBrush(t.color))
                         
         self.notes.append(note)
         
@@ -83,25 +75,31 @@ class customDelegate(QStyledItemDelegate):
         text = option.text
         UID = index.sibling(index.row(), 0).data(Qt.UserRole)
         note = [n for n in self.parent.notes if n.UID == UID][0]
-        
+
         tags = []
         for t in ct:
             if t.match(note):
                 tags.append(t)
-        
+
         if not tags:
             # No tag match
             QStyledItemDelegate.paint(self, painter, option, index)
+            index.model().setData(index, QBrush(), Qt.ForegroundRole)
             return
-        
+
         tagsWithBackgrounds = [t for t in tags if t.background or t.border]
-        
+
         M = 4
         h = option.rect.height()
-        
+
         # We reduce the rect for the text
         w = len(tagsWithBackgrounds) * ( h - M + 1)
         option.rect.setRight(option.rect.right() - w)
+
+        color = [t for t in tags if t.color]
+        if color:
+            index.model().setData(index, QBrush(color[0].color), Qt.ForegroundRole)
+
         # Call the native painter, easier
         QStyledItemDelegate.paint(self, painter, option, index)
         

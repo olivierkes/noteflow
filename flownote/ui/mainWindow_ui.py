@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Tue Apr 11 14:25:22 2017
+# Created: Wed Apr 12 22:11:45 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -180,8 +180,6 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
-        self.menu_Edit = QtWidgets.QMenu(self.menubar)
-        self.menu_Edit.setObjectName("menu_Edit")
         self.menuNote = QtWidgets.QMenu(self.menubar)
         self.menuNote.setObjectName("menuNote")
         self.menuView = QtWidgets.QMenu(self.menubar)
@@ -199,13 +197,13 @@ class Ui_MainWindow(object):
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actOpenNotebook = QtWidgets.QAction(MainWindow)
-        icon = QtGui.QIcon.fromTheme("folder-open")
+        icon = QtGui.QIcon.fromTheme("document-open")
         self.actOpenNotebook.setIcon(icon)
         self.actOpenNotebook.setObjectName("actOpenNotebook")
-        self.actionPreferences = QtWidgets.QAction(MainWindow)
+        self.actPreferences = QtWidgets.QAction(MainWindow)
         icon = QtGui.QIcon.fromTheme("preferences-system")
-        self.actionPreferences.setIcon(icon)
-        self.actionPreferences.setObjectName("actionPreferences")
+        self.actPreferences.setIcon(icon)
+        self.actPreferences.setObjectName("actPreferences")
         self.actQuit = QtWidgets.QAction(MainWindow)
         icon = QtGui.QIcon.fromTheme("application-exit")
         self.actQuit.setIcon(icon)
@@ -334,8 +332,9 @@ class Ui_MainWindow(object):
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.actSaveAll)
         self.menu_File.addAction(self.actCloseCurrent)
+        self.menu_File.addSeparator()
+        self.menu_File.addAction(self.actPreferences)
         self.menu_File.addAction(self.actQuit)
-        self.menu_Edit.addAction(self.actionPreferences)
         self.menuNote.addAction(self.actNotePrevious)
         self.menuNote.addAction(self.actNoteNext)
         self.menuNote.addAction(self.actNoteUp)
@@ -376,13 +375,14 @@ class Ui_MainWindow(object):
         self.menuFormat.addAction(self.actFormatClear)
         self.menubar.addAction(self.menu_File.menuAction())
         self.menubar.addAction(self.menuNote.menuAction())
-        self.menubar.addAction(self.menu_Edit.menuAction())
         self.menubar.addAction(self.menuFormat.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.toolBar.addAction(self.actNewNotebook)
         self.toolBar.addAction(self.actOpenNotebook)
         self.toolBar.addAction(self.actSaveAll)
         self.toolBar.addAction(self.actCloseCurrent)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.actPreferences)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actNoteNew)
         self.toolBar.addAction(self.actNoteDelete)
@@ -397,10 +397,9 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Flownote"))
         self.tblList.setSortingEnabled(True)
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
-        self.menu_Edit.setTitle(_translate("MainWindow", "&Edit"))
         self.menuNote.setTitle(_translate("MainWindow", "Note"))
         self.menuView.setTitle(_translate("MainWindow", "View"))
         self.menuFormat.setTitle(_translate("MainWindow", "&Format"))
@@ -408,7 +407,8 @@ class Ui_MainWindow(object):
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actOpenNotebook.setText(_translate("MainWindow", "&Open"))
         self.actOpenNotebook.setShortcut(_translate("MainWindow", "Ctrl+O"))
-        self.actionPreferences.setText(_translate("MainWindow", "&Preferences"))
+        self.actPreferences.setText(_translate("MainWindow", "&Preferences"))
+        self.actPreferences.setShortcut(_translate("MainWindow", "Ctrl+F8"))
         self.actQuit.setText(_translate("MainWindow", "&Quit"))
         self.actQuit.setShortcut(_translate("MainWindow", "Alt+F4"))
         self.actCloseCurrent.setText(_translate("MainWindow", "&Close notebook"))
@@ -473,8 +473,8 @@ class Ui_MainWindow(object):
         self.actFormatSubScript.setShortcut(_translate("MainWindow", "Ctrl+-"))
 
 from PyQt5 import QtWebKitWidgets
-from flownote.ui.views.cloudView import cloudView
-from flownote.ui.views.tableView import tableView
-from PyQt5.QtWidgets import QTabBar
-from flownote.ui.views.scrollView import scrollView
 from flownote.ui.views.noteEdit import noteEdit
+from PyQt5.QtWidgets import QTabBar
+from flownote.ui.views.tableView import tableView
+from flownote.ui.views.scrollView import scrollView
+from flownote.ui.views.cloudView import cloudView

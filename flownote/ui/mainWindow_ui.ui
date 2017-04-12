@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Flownote</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -412,13 +412,9 @@
     <addaction name="separator"/>
     <addaction name="actSaveAll"/>
     <addaction name="actCloseCurrent"/>
+    <addaction name="separator"/>
+    <addaction name="actPreferences"/>
     <addaction name="actQuit"/>
-   </widget>
-   <widget class="QMenu" name="menu_Edit">
-    <property name="title">
-     <string>&amp;Edit</string>
-    </property>
-    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuNote">
     <property name="title">
@@ -480,7 +476,6 @@
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuNote"/>
-   <addaction name="menu_Edit"/>
    <addaction name="menuFormat"/>
    <addaction name="menuView"/>
   </widget>
@@ -503,6 +498,8 @@
    <addaction name="actSaveAll"/>
    <addaction name="actCloseCurrent"/>
    <addaction name="separator"/>
+   <addaction name="actPreferences"/>
+   <addaction name="separator"/>
    <addaction name="actNoteNew"/>
    <addaction name="actNoteDelete"/>
    <addaction name="actNotePreview"/>
@@ -512,7 +509,7 @@
   </widget>
   <action name="actOpenNotebook">
    <property name="icon">
-    <iconset theme="folder-open">
+    <iconset theme="document-open">
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
@@ -522,13 +519,16 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionPreferences">
+  <action name="actPreferences">
    <property name="icon">
     <iconset theme="preferences-system">
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
     <string>&amp;Preferences</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F8</string>
    </property>
   </action>
   <action name="actQuit">
@@ -741,7 +741,9 @@
   </action>
   <action name="actFormatBold">
    <property name="icon">
-    <iconset theme="format-text-bold"/>
+    <iconset theme="format-text-bold">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Bold</string>
@@ -752,7 +754,9 @@
   </action>
   <action name="actFormatItalic">
    <property name="icon">
-    <iconset theme="format-text-italic"/>
+    <iconset theme="format-text-italic">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Italic</string>
@@ -763,7 +767,9 @@
   </action>
   <action name="actFormatStrike">
    <property name="icon">
-    <iconset theme="format-text-strikethrough"/>
+    <iconset theme="format-text-strikethrough">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Strike</string>
@@ -771,7 +777,9 @@
   </action>
   <action name="actFormatVerbatim">
    <property name="icon">
-    <iconset theme="text-x-script"/>
+    <iconset theme="text-x-script">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Verbatim</string>
@@ -795,7 +803,9 @@
   </action>
   <action name="actFormatClear">
    <property name="icon">
-    <iconset theme="edit-clear"/>
+    <iconset theme="edit-clear">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Clear</string>
@@ -867,7 +877,9 @@
   </action>
   <action name="actFormatSuperScript">
    <property name="icon">
-    <iconset theme="format-text-superscript"/>
+    <iconset theme="format-text-superscript">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Superscript</string>
@@ -878,7 +890,9 @@
   </action>
   <action name="actFormatSubScript">
    <property name="icon">
-    <iconset theme="format-text-subscript"/>
+    <iconset theme="format-text-subscript">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Subscript</string>

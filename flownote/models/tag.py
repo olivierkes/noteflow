@@ -15,30 +15,43 @@ class TagCollector(QObject):
     def __init__(self):
         QObject.__init__(self)
         self._tags = []
-        
+
     def addTag(self, text, color=None, background=None, border=None):
         t = Tag(text, color=color, background=background, border=border)
         self._tags.append(t)
+        t.changed.connect(self.tagsChanged)
         self.tagsChanged.emit()
-        
+
     def toListLower(self):
         return [t.text.lower() for t in self._tags]
-        
+
     def find(self, text):
         t = [t for t in self._tags if text.lower() == t.text.lower()]
         if t:
             return t[0]
+
+    def contains(self, tag):
+        return tag.lower() in self.toListLower()
             
     def match(self, note):
         for t in self._tags:
             if t.match(note):
                 return t
         return False
-            
+    
+    def removeTag(self, text):
+        t = self.find(text)
+        if not t:
+            return
+        self._tags.remove(t)
+        self.tagsChanged.emit()
+
     def __iter__(self):
         return iter(self._tags)
 
 class Tag(QObject):
+    
+    changed = pyqtSignal()
     
     def __init__(self, text, color=None, background=None, border=None):
         QObject.__init__(self)
