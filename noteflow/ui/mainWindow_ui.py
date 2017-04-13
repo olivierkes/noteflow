@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
+# Form implementation generated from reading ui file 'noteflow/ui/mainWindow_ui.ui'
 #
-# Created: Thu Apr 13 15:59:31 2017
+# Created: Thu Apr 13 16:50:51 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -397,7 +397,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Flownote"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Noteflow"))
         self.tblList.setSortingEnabled(True)
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menuNote.setTitle(_translate("MainWindow", "Note"))
@@ -473,8 +473,8 @@ class Ui_MainWindow(object):
         self.actFormatSubScript.setShortcut(_translate("MainWindow", "Ctrl+-"))
 
 from PyQt5 import QtWebKitWidgets
-from flownote.ui.views.tableView import tableView
-from flownote.ui.views.scrollView import scrollView
-from flownote.ui.views.noteEdit import noteEdit
+from noteflow.ui.views.cloudView import cloudView
 from PyQt5.QtWidgets import QTabBar
-from flownote.ui.views.cloudView import cloudView
+from noteflow.ui.views.scrollView import scrollView
+from noteflow.ui.views.noteEdit import noteEdit
+from noteflow.ui.views.tableView import tableView

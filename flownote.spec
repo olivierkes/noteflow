@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['bin/flownote'],
-             pathex=['/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote'],
+a = Analysis(['bin/noteflow'],
+             pathex=['/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/noteflow'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -21,7 +21,7 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='flownote',
+          name='noteflow',
           debug=False,
           strip=False,
           upx=True,

@@ -4,8 +4,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import os
-from flownote.ui.widgets.preferences_ui import Ui_Preferences
-import flownote.functions as F
+from noteflow.ui.widgets.preferences_ui import Ui_Preferences
+import noteflow.functions as F
 
 
 class Preferences(QDialog, Ui_Preferences):
@@ -44,14 +44,14 @@ class Preferences(QDialog, Ui_Preferences):
         self.lstTags.currentTextChanged.connect(self.setCurrentTag)
 
     def showEvent(self, event):
-        from flownote import MW
+        from noteflow import MW
         # Center window
         c = MW.geometry().center()
         s = self.size()
         self.move(c - QPoint(s.width() / 2, s.height() / 2))
 
     def loadValues(self):
-        from flownote import MW
+        from noteflow import MW
 
         # General
         self.chkOpenLast.setCheckState(F.settings("OpenLast", Qt.Checked, int))
@@ -77,7 +77,7 @@ class Preferences(QDialog, Ui_Preferences):
                 self.lstTags.setCurrentItem(items[0])
 
     def setWordsExclude(self):
-        from flownote import MW
+        from noteflow import MW
         words = self.txtWordsExclude.text().split(", ")
         words = [w.strip().lower() for w in words if w]
         MW.setHiddenWords(words)

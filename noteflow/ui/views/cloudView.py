@@ -61,7 +61,7 @@ class cloudView(QListWidget):
         if not item:
             return
 
-        from flownote import MW
+        from noteflow import MW
         text = item.text()
         m = QMenu(self)
 
@@ -212,7 +212,7 @@ class cloudView(QListWidget):
             i = self.item(k)
             i.setHidden(text not in i.text().lower())
 
-from flownote.ui.views.cloudViewPopup_ui import Ui_CloudViewPopup
+from noteflow.ui.views.cloudViewPopup_ui import Ui_CloudViewPopup
 
 class cloudViewPopup(QMenu, Ui_CloudViewPopup):
     def __init__(self, cloud, parent=None, word="words"):

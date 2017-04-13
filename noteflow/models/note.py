@@ -3,7 +3,7 @@
 
 import re
 
-import flownote.functions as F
+import noteflow.functions as F
 from PyQt5.QtCore import *
 
 class Note(QObject):

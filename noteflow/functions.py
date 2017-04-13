@@ -28,7 +28,7 @@ def countWords(words):
     return r
     
 def settings(key=None, default=None, type=None):
-    #~/.config/flownote/flownote.conf on my systems
+    #~/.config/noteflow/noteflow.conf on my systems
     s = QSettings(qApp.organizationName(), qApp.applicationName())
     if key is None:
         return s

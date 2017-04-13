@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'flownote/ui/views/cloudViewPopup_ui.ui'
+# Form implementation generated from reading ui file 'noteflow/ui/views/cloudViewPopup_ui.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created: Thu Apr 13 16:56:15 2017
+#      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
 

@@ -4,8 +4,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import os
-from flownote.ui.widgets.folderDialog_ui import Ui_folderDialog
-import flownote.functions as F
+from noteflow.ui.widgets.folderDialog_ui import Ui_folderDialog
+import noteflow.functions as F
 
 class folderDialog(QDialog, Ui_folderDialog):
     def __init__(self, parent=None):
@@ -36,7 +36,7 @@ class folderDialog(QDialog, Ui_folderDialog):
         
     def checkValidity(self, index):
         path = self.model.filePath(index)
-        filename = os.path.join(path, ".FLOWNOTE")
+        filename = os.path.join(path, ".NOTEFLOW")
         valid = os.path.exists(filename)
         self.btns.button(self.btns.Open).setEnabled(valid)
         self.label.setVisible(not valid)

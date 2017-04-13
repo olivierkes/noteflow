@@ -7,21 +7,21 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from flownote.ui.mainWindow_ui import Ui_MainWindow
-from flownote.functions import *
-from flownote.ui import style as S
+from noteflow.ui.mainWindow_ui import Ui_MainWindow
+from noteflow.functions import *
+from noteflow.ui import style as S
 
-from flownote.models.notebook import Notebook
-from flownote.models.note import Note
-from flownote.models.tag import TagCollector
+from noteflow.models.notebook import Notebook
+from noteflow.models.note import Note
+from noteflow.models.tag import TagCollector
 
-from flownote.ui.widgets.folderDialog import folderDialog
-from flownote.ui.widgets.labelDate import LabelDate
-from flownote.ui.widgets.labelTextStats import LabelTextStats
-from flownote.ui.widgets.preferences import Preferences
+from noteflow.ui.widgets.folderDialog import folderDialog
+from noteflow.ui.widgets.labelDate import LabelDate
+from noteflow.ui.widgets.labelTextStats import LabelTextStats
+from noteflow.ui.widgets.preferences import Preferences
 
-import flownote.functions as F
-import flownote.markdownFunctions as MD
+import noteflow.functions as F
+import noteflow.markdownFunctions as MD
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -214,9 +214,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         nb = self.currentNotebook()
         if nb:
-            self.setWindowTitle("Flownote — {}".format(nb.name))
+            self.setWindowTitle("Noteflow — {}".format(nb.name))
         else:
-            self.setWindowTitle("Flownote")
+            self.setWindowTitle("Noteflow")
 
 #==============================================================================
 #   SETTINGS
@@ -429,6 +429,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def openNotebook(self, path):
         # We check that the notebook is not open
+        
+        if not os.path.exists(path):
+            print("Error: the given path does not exist.")
+            print("       {}".format(path))
+            return
+        
         for nb in self.notebooks:
             if os.path.abspath(path) == os.path.abspath(nb.path):
                 self.message("Notebook is already open.")
@@ -523,7 +529,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             while r:
                 path = r.pop()
                 name = r.pop()
-                recents.append((name, path))
+                if os.path.exists(path):
+                    recents.append((name, path))
         return recents
 
     def loadRecents(self):

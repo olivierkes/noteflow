@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'flownote/ui/widgets/preferences_ui.ui'
+# Form implementation generated from reading ui file 'noteflow/ui/widgets/preferences_ui.ui'
 #
-# Created: Thu Apr 13 15:59:31 2017
+# Created: Thu Apr 13 16:56:15 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!

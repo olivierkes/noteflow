@@ -1,4 +1,4 @@
-UI := $(wildcard flownote/ui/*.ui) $(wildcard flownote/ui/*/*.ui) $(wildcard flownote/ui/*/*/*.ui) $(wildcard flownote/ui/*.qrc) 
+UI := $(wildcard noteflow/ui/*.ui) $(wildcard noteflow/ui/*/*.ui) $(wildcard noteflow/ui/*/*/*.ui) $(wildcard noteflow/ui/*.qrc) 
 UIs= $(UI:.ui=.py) $(UI:.qrc=_rc.py)
 TS := $(wildcard i18n/*.ts)
 QMs= $(TS:.ts=.qm)
@@ -6,7 +6,7 @@ QMs= $(TS:.ts=.qm)
 ui: $(UIs)
 
 run: $(UIs)
-	bin/flownote
+	bin/noteflow
 
 man:
 	/usr/lib/x86_64-linux-gnu/qt5/bin/assistant &
@@ -15,26 +15,26 @@ designer:
 	/usr/lib/x86_64-linux-gnu/qt5/bin/designer &
 
 debug: $(UIs)
-	gdb --args python3 bin/flownote
+	gdb --args python3 bin/noteflow
 
 lineprof:
-	kernprof -l -v bin/flownote
+	kernprof -l -v bin/noteflow
 
 profile:
-	python3 -m cProfile -s 'cumtime' bin/flownote | more
+	python3 -m cProfile -s 'cumtime' bin/noteflow | more
 
 compile:
-	cd flownote && python3 setup.py build_ext --inplace
+	cd noteflow && python3 setup.py build_ext --inplace
 	
 callgraph:
-	cd flownote; pycallgraph myoutput -- main.py
+	cd noteflow; pycallgraph myoutput -- main.py
 
 translation:
-	pylupdate5 -noobsolete i18n/flownote.pro
+	pylupdate5 -noobsolete i18n/noteflow.pro
 	
 linguist:
-	linguist i18n/flownote_fr.ts
-	lrelease i18n/flownote_fr.ts
+	linguist i18n/noteflow_fr.ts
+	lrelease i18n/noteflow_fr.ts
 	
 i18n: $(QMs)
 

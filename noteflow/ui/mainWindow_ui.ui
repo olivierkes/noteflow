@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Flownote</string>
+   <string>Noteflow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -911,7 +911,7 @@
   <customwidget>
    <class>cloudView</class>
    <extends>QListWidget</extends>
-   <header>flownote.ui.views.cloudView.h</header>
+   <header>noteflow.ui.views.cloudView.h</header>
   </customwidget>
   <customwidget>
    <class>QTabBar</class>
@@ -922,18 +922,18 @@
   <customwidget>
    <class>scrollView</class>
    <extends>QScrollArea</extends>
-   <header>flownote.ui.views.scrollView.h</header>
+   <header>noteflow.ui.views.scrollView.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>noteEdit</class>
    <extends>QTextEdit</extends>
-   <header>flownote.ui.views.noteEdit.h</header>
+   <header>noteflow.ui.views.noteEdit.h</header>
   </customwidget>
   <customwidget>
    <class>tableView</class>
    <extends>QTableWidget</extends>
-   <header>flownote.ui.views.tableView.h</header>
+   <header>noteflow.ui.views.tableView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

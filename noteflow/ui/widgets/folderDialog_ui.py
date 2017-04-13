@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'flownote/ui/widgets/folderDialog_ui.ui'
+# Form implementation generated from reading ui file 'noteflow/ui/widgets/folderDialog_ui.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created: Thu Apr 13 16:50:51 2017
+#      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -34,5 +35,5 @@ class Ui_folderDialog(object):
     def retranslateUi(self, folderDialog):
         _translate = QtCore.QCoreApplication.translate
         folderDialog.setWindowTitle(_translate("folderDialog", "Dialog"))
-        self.label.setText(_translate("folderDialog", "Please select a valid existant flownote folder."))
+        self.label.setText(_translate("folderDialog", "Please select a valid existant noteflow folder."))
 

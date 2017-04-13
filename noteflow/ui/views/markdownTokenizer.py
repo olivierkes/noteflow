@@ -6,8 +6,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from flownote.ui.views.markdownEnums import MarkdownState as MS
-from flownote.ui.views.markdownEnums import MarkdownTokenType as MTT
+from noteflow.ui.views.markdownEnums import MarkdownState as MS
+from noteflow.ui.views.markdownEnums import MarkdownTokenType as MTT
 
 # This file is simply a python translation of GhostWriter's Tokenizer.
 # http://wereturtle.github.io/ghostwriter/

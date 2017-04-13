@@ -6,10 +6,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from flownote.ui.views.markdownTokenizer import *
-from flownote.ui.views.markdownEnums import MarkdownState as MS
-from flownote.ui.views.markdownEnums import MarkdownTokenType as MTT
-from flownote.ui.views.markdownEnums import BlockquoteStyle as BS
+from noteflow.ui.views.markdownTokenizer import *
+from noteflow.ui.views.markdownEnums import MarkdownState as MS
+from noteflow.ui.views.markdownEnums import MarkdownTokenType as MTT
+from noteflow.ui.views.markdownEnums import BlockquoteStyle as BS
 
 GW_FADE_ALPHA = 140
 

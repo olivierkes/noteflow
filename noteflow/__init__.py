@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import *
 
 _version = "0.1.0"
 
-import flownote.functions as F
+import noteflow.functions as F
 
 MW = None
 
@@ -18,14 +18,14 @@ def run():
     global MW
 
     app = QApplication(sys.argv)
-    app.setOrganizationName("flownote")
+    app.setOrganizationName("noteflow")
     app.setOrganizationDomain("www.theologeek.ch")
-    app.setApplicationName("flownote")
+    app.setApplicationName("noteflow")
     app.setApplicationVersion(_version)
 
     #icon = QIcon()
     #for i in [16, 31, 64, 128, 256, 512]:
-        #icon.addFile(appPath("icons/flownote/icon-{}px.png".format(i)))
+        #icon.addFile(appPath("icons/noteflow/icon-{}px.png".format(i)))
     #qApp.setWindowIcon(icon)
 
     #app.setStyle("fusion")
@@ -41,7 +41,7 @@ def run():
 
     appTranslator = QTranslator()
     # By default: locale
-    translation = F.appPath(os.path.join("i18n", "flownote_{}.qm".format(locale)))
+    translation = F.appPath(os.path.join("i18n", "noteflow_{}.qm".format(locale)))
 
     # Load translation from settings
     if settings.contains("applicationTranslation"):

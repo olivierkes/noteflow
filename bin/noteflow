@@ -8,5 +8,5 @@ realpath = os.path.realpath(__file__)
 
 sys.path.insert(1, os.path.join(os.path.dirname(realpath), '..'))
 
-import flownote
-flownote.run()
+import noteflow
+noteflow.run()

@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import os
-import flownote.functions as F
+import noteflow.functions as F
 
 class LabelDate(QLabel):
     

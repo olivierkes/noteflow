@@ -2,8 +2,8 @@
 # --!-- coding: utf8 --!--
 
 import json, os
-import flownote.functions as F
-from flownote.models.note import Note
+import noteflow.functions as F
+from noteflow.models.note import Note
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
@@ -34,7 +34,7 @@ class Notebook(QObject):
         
         else:
             # We must load from path
-            ini = os.path.join(path, ".FLOWNOTE")
+            ini = os.path.join(path, ".NOTEFLOW")
             assert os.path.exists(ini)
             s = QSettings(ini, QSettings.IniFormat)
             self.name = s.value("Name")
@@ -154,7 +154,7 @@ class Notebook(QObject):
                 pass
             
         # Write settings
-        filename = os.path.join(self.path, ".FLOWNOTE")
+        filename = os.path.join(self.path, ".NOTEFLOW")
         s = QSettings(filename, QSettings.IniFormat)
         s.setValue("Format", "1")
         s.setValue("Name", self.name)

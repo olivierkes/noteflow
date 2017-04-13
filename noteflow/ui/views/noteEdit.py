@@ -4,10 +4,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import re
-from flownote import functions as F
-from flownote.ui.views.markdownHighlighter import MarkdownHighlighter
-from flownote.ui.views.markdownEnums import MarkdownState as MS
-#from flownote.ui.views.markdownTokenizer import MarkdownTokenizer as MT
+from noteflow import functions as F
+from noteflow.ui.views.markdownHighlighter import MarkdownHighlighter
+from noteflow.ui.views.markdownEnums import MarkdownState as MS
+#from noteflow.ui.views.markdownTokenizer import MarkdownTokenizer as MT
 
 
 class noteEdit(QPlainTextEdit):

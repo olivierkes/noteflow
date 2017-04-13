@@ -20,7 +20,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Please select a valid existant flownote folder.</string>
+      <string>Please select a valid existant noteflow folder.</string>
      </property>
     </widget>
    </item>
