@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tab">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="widget_2">
       <attribute name="title">
@@ -26,22 +26,22 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QGroupBox" name="groupBox_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
          <property name="title">
           <string>General</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="chkAutoSave">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Auto save</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="checkBox_2">
+           <widget class="QCheckBox" name="chkOpenLast">
             <property name="text">
              <string>Open last notebooks on startup</string>
             </property>

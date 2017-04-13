@@ -201,15 +201,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tblList.setCustomTags(self.tags)
 
         # Bullshit notebooks
-        #self.bullshitNoteBook("My Bullshit Notebook", "my bullshit notebook")
-        path = "/home/olivier/Dropbox/Documents/Travail/Geekeries/Python/PyCharmProjects/flownote/tests/my bullshit notebook/"
-        self.openNotebook(path)
-        #self.notebooks.append(self.bullshitNoteBook("My serious Notebook", "serious"))
-        #self.notebooks.append(self.bullshitNoteBook("An other one", "AnOtHer"))
-
-        #self.setupFilters()
-        #self.filterNotes()
-
+        self.openPreviousNotebooks()
+        
     def message(self, message, t=2000):
         self.statusBar().showMessage(message, t)
 
@@ -437,6 +430,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         nb = Notebook(path=path)
         self.notebooks.append(nb)
+        print("Notebook opened: {}".format(nb.name))
         self.setupNotebook(nb)
 
     def newNotebook(self):
@@ -546,6 +540,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def openRecentNotebook(self):
         path = self.sender().data()
         self.openNotebook(path)
+        
+    def openPreviousNotebooks(self):
+        if F.settings("OpenLast", Qt.Checked, int):
+            last = F.settings("OpenLastNotebooks", "", str).split("\n")
+            for path in last:
+                if not path:
+                    continue
+                self.openNotebook(path)
+        # We call that in case no notebooks were openend
+        self.setupNotebooks()
+            
+    def closeEvent(self, event):
+        # Save openned notebooks
+        p = []
+        for nb in self.notebooks:
+            p.append(nb.path)
+        F.settings().setValue("OpenLastNotebooks", "\n".join(p))
+        
+        QWidget.closeEvent(self, event)
 
 #==============================GTK================================================
 #   BULLSHIT (delete me)

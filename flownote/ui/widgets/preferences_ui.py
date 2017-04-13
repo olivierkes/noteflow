@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/widgets/preferences_ui.ui'
 #
-# Created: Thu Apr 13 00:11:29 2017
+# Created: Thu Apr 13 12:11:33 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -22,16 +22,16 @@ class Ui_Preferences(object):
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.widget_2)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.groupBox_2 = QtWidgets.QGroupBox(self.widget_2)
-        self.groupBox_2.setEnabled(False)
         self.groupBox_2.setObjectName("groupBox_2")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox_2)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.checkBox = QtWidgets.QCheckBox(self.groupBox_2)
-        self.checkBox.setObjectName("checkBox")
-        self.verticalLayout_2.addWidget(self.checkBox)
-        self.checkBox_2 = QtWidgets.QCheckBox(self.groupBox_2)
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.verticalLayout_2.addWidget(self.checkBox_2)
+        self.chkAutoSave = QtWidgets.QCheckBox(self.groupBox_2)
+        self.chkAutoSave.setEnabled(False)
+        self.chkAutoSave.setObjectName("chkAutoSave")
+        self.verticalLayout_2.addWidget(self.chkAutoSave)
+        self.chkOpenLast = QtWidgets.QCheckBox(self.groupBox_2)
+        self.chkOpenLast.setObjectName("chkOpenLast")
+        self.verticalLayout_2.addWidget(self.chkOpenLast)
         self.verticalLayout_3.addWidget(self.groupBox_2)
         self.groupBox = QtWidgets.QGroupBox(self.widget_2)
         self.groupBox.setObjectName("groupBox")
@@ -135,15 +135,15 @@ class Ui_Preferences(object):
         self.verticalLayout.addWidget(self.tab)
 
         self.retranslateUi(Preferences)
-        self.tab.setCurrentIndex(1)
+        self.tab.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(Preferences)
 
     def retranslateUi(self, Preferences):
         _translate = QtCore.QCoreApplication.translate
         Preferences.setWindowTitle(_translate("Preferences", "Preferences"))
         self.groupBox_2.setTitle(_translate("Preferences", "General"))
-        self.checkBox.setText(_translate("Preferences", "Auto save"))
-        self.checkBox_2.setText(_translate("Preferences", "Open last notebooks on startup"))
+        self.chkAutoSave.setText(_translate("Preferences", "Auto save"))
+        self.chkOpenLast.setText(_translate("Preferences", "Open last notebooks on startup"))
         self.groupBox.setTitle(_translate("Preferences", "Clouds"))
         self.label.setText(_translate("Preferences", "Minimum size words:"))
         self.label_2.setText(_translate("Preferences", "Exclude those words (coma speparated):"))

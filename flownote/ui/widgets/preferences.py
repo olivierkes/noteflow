@@ -13,10 +13,15 @@ class Preferences(QDialog, Ui_Preferences):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
-        # Make connections
+        ## Connections
+        # General
+        self.chkOpenLast.stateChanged.connect(
+            lambda: F.settings().setValue("OpenLast", self.chkOpenLast.checkState()))
+
+        #Words
         self.spnWordsMinSize.valueChanged.connect(MW.setMinWordSize)
         self.txtWordsExclude.editingFinished.connect(self.setWordsExclude)
-        
+
         # Tags
         self.tags = MW.tags
         self.btnColor.clicked.connect(lambda: self.setColor("color", -1))
@@ -47,6 +52,9 @@ class Preferences(QDialog, Ui_Preferences):
 
     def loadValues(self):
         from flownote import MW
+
+        # General
+        self.chkOpenLast.setCheckState(F.settings("OpenLast", Qt.Checked, int))
 
         # Clouds
         self.spnWordsMinSize.setValue(MW.minWordSize)

@@ -27,9 +27,16 @@ def countWords(words):
             r[w] = 1
     return r
     
-def settings():
-    #/home/olivier/.config/flownote/flownote.conf
-    return QSettings(qApp.organizationName(), qApp.applicationName())
+def settings(key=None, default=None, type=None):
+    #~/.config/flownote/flownote.conf on my systems
+    s = QSettings(qApp.organizationName(), qApp.applicationName())
+    if key is None:
+        return s
+    else:
+        if type:
+            return type(s.value(key, default))
+        else:
+            return s.value(key, default)
     
 def countDicts(dicts):
     r = {}
