@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/widgets/preferences_ui.ui'
 #
-# Created: Thu Apr 13 12:11:33 2017
+# Created: Thu Apr 13 15:59:31 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!

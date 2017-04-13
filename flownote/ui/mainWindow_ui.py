@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'flownote/ui/mainWindow_ui.ui'
 #
-# Created: Wed Apr 12 22:11:45 2017
+# Created: Thu Apr 13 15:59:31 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -473,8 +473,8 @@ class Ui_MainWindow(object):
         self.actFormatSubScript.setShortcut(_translate("MainWindow", "Ctrl+-"))
 
 from PyQt5 import QtWebKitWidgets
-from flownote.ui.views.noteEdit import noteEdit
-from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.tableView import tableView
 from flownote.ui.views.scrollView import scrollView
+from flownote.ui.views.noteEdit import noteEdit
+from PyQt5.QtWidgets import QTabBar
 from flownote.ui.views.cloudView import cloudView
