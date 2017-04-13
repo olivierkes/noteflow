@@ -211,6 +211,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         activeNotebook = len(self.notebooks) > 1 and self.tab.currentIndex() == 0
         self.actNoteNew.setEnabled(not activeNotebook)
         self.actCloseCurrent.setEnabled(not activeNotebook)
+        
+        nb = self.currentNotebook()
+        if nb:
+            self.setWindowTitle("Flownote — {}".format(nb.name))
+        else:
+            self.setWindowTitle("Flownote")
 
 #==============================================================================
 #   SETTINGS
