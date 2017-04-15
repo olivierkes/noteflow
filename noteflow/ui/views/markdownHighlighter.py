@@ -122,7 +122,15 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 f.setFamily("Monospace")
                 fmt.setFont(f)
                 self.setFormat(0, len(text), fmt)
-                
+            
+            # Monospace the blank chars
+            i = 0
+            while i <= len(text)-1 and text[i] in [" ", "\t"]:
+                fmt = self.format(i)
+                fmt.setFontFamily("Monospace")
+                self.setFormat(i, 1, fmt)
+                i += 1
+            
             #if self.currentBlockState() == MS.MarkdownStateBlockquote:
                 #fmt = QTextCharFormat(self.defaultFormat)
                 #fmt.setForeground(Qt.lightGray)
@@ -313,7 +321,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     
     def applyFormattingForToken(self, token, text):
         if token.type != MTT.TokenUnknown:
-            format = self.format(token.position)
+            format = self.format(token.position + token.openingMarkupLength)
             markupFormat = self.format(token.position)
             if self.theme.get("markup"):
                 markupFormat.setForeground(self.theme["markup"])

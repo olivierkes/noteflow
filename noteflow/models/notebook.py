@@ -21,7 +21,7 @@ class Notebook(QObject):
     noteAdded = pyqtSignal(int)
     noteRemoved = pyqtSignal(int)
     
-    def __init__(self, name=None, path=None, create=False):
+    def __init__(self, name=None, path=None, create=False, MW=None):
         QObject.__init__(self)
         self.notes = []
         
@@ -39,6 +39,23 @@ class Notebook(QObject):
             s = QSettings(ini, QSettings.IniFormat)
             self.name = s.value("Name")
             self.path = path
+            
+            # Read Settings
+            tags = s.value("Tags")
+            if tags and MW:
+                for t in tags.split("\n"):
+                    n, c1, c2, c3 = t.split(",")
+                    if not MW.tags.find(n):
+                        MW.tags.addTag(
+                            n, 
+                            color=c1 if c1 else None, 
+                            background=c2 if c2 else None, 
+                            border=c3 if c3 else None)
+            hidden = s.value("Exclude")
+            if hidden and MW:
+                for w in hidden.split(","):
+                    if not w.strip() in MW.hiddenWords:
+                        MW.hiddenWords.append(w)
             
             self.load(path)
         
@@ -102,7 +119,7 @@ class Notebook(QObject):
         
 
     def load(self, path):
-        
+        # Read content
         content = {}
         for root, dirs, files in os.walk(path):
             for f in files:
@@ -112,10 +129,10 @@ class Notebook(QObject):
                     content[p] = F.loadTextFile(filename)
                     
         self._content = content
-        
+
+        # Add content as note
         for p in content:
             self.addNote(Note(fromText=content[p]))
-            
 
     def save(self):
         print("Saving in: {}".format(self.path))
@@ -158,6 +175,25 @@ class Notebook(QObject):
         s = QSettings(filename, QSettings.IniFormat)
         s.setValue("Format", "1")
         s.setValue("Name", self.name)
-        
+        s.setValue("Tags", self.saveTags())
+        s.setValue("Exclude", self.saveWords())
             
         self._content = content
+        
+    def saveTags(self):
+        from noteflow import MW
+        tags = []
+        for t in MW.tags:
+            n = [n for n in self.notes if t.text.lower() in n.tags()]
+            if len(n):
+                tags.append(t.toString())
+        return "\n".join(tags)
+    
+    def saveWords(self):
+        from noteflow import MW
+        words = []
+        for w in MW.hiddenWords:
+            n = [n for n in self.notes if w.lower() in n.words()]
+            if len(n):
+                words.append(w)
+        return ",".join(words)

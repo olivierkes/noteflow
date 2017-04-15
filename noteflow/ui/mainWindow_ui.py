@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'noteflow/ui/mainWindow_ui.ui'
 #
-# Created: Thu Apr 13 16:50:51 2017
+# Created: Fri Apr 14 17:10:02 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -159,6 +159,15 @@ class Ui_MainWindow(object):
         self.web.setObjectName("web")
         self.verticalLayout_8.addWidget(self.web)
         self.editor.addWidget(self.previewPage)
+        self.page = QtWidgets.QWidget()
+        self.page.setObjectName("page")
+        self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.page)
+        self.verticalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.html = QtWidgets.QTextBrowser(self.page)
+        self.html.setObjectName("html")
+        self.verticalLayout_9.addWidget(self.html)
+        self.editor.addWidget(self.page)
         self.scrollPage = QtWidgets.QWidget()
         self.scrollPage.setObjectName("scrollPage")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.scrollPage)
@@ -392,7 +401,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actNoteNext)
 
         self.retranslateUi(MainWindow)
-        self.editor.setCurrentIndex(1)
+        self.editor.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -474,7 +483,7 @@ class Ui_MainWindow(object):
 
 from PyQt5 import QtWebKitWidgets
 from noteflow.ui.views.cloudView import cloudView
-from PyQt5.QtWidgets import QTabBar
-from noteflow.ui.views.scrollView import scrollView
-from noteflow.ui.views.noteEdit import noteEdit
 from noteflow.ui.views.tableView import tableView
+from PyQt5.QtWidgets import QTabBar
+from noteflow.ui.views.noteEdit import noteEdit
+from noteflow.ui.views.scrollView import scrollView

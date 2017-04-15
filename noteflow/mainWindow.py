@@ -176,6 +176,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         settings = self.web.settings()
 #        settings.setFontFamily(QtWebKit.QWebSettings.StandardFont, 'Times New Roman')
         settings.setFontSize(settings.DefaultFontSize, 13)
+        self.html.anchorClicked.connect(self.previewNavigateLink)
+        self.web.linkClicked.connect(self.previewNavigateLink)
+        self.html.setOpenLinks(False)
 
         # NOTEBOOKS AND NOTES
         self.notebooks = []
@@ -185,10 +188,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # CUSTOM TAGS & WORDS
         self.tags = TagCollector()
-        self.tags.addTag("TODO", color="#00F", background="#FF0") # border="#00F"
-        self.tags.addTag("ut", color="#F00")
-        self.tags.addTag("doLorem", background="#0F0", border="#F0F")
-        self.tags.addTag("TEMporA", border="#F00")
+        # FIXME: load tags from settings or what
+        # FIXME: and save them then.
+        #self.tags.addTag("TODO", background="#FF0") # border="#00F"
+        #self.tags.addTag("ut", color="#F00")
+        #self.tags.addTag("doLorem", background="#0F0", border="#F0F")
+        #self.tags.addTag("TEMporA", border="#F00")
         self.tags.tagsChanged.connect(self.tagsChanged)
         
         self.minWordSize = 3
@@ -200,7 +205,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lstTags.setCustomTags(self.tags)
         self.tblList.setCustomTags(self.tags)
 
-        # Bullshit notebooks
+        # Debug
+        self.text.cursorPositionChanged.connect(lambda: self.message(
+            "Block state: {}".format(self.text.textCursor().block().userState())))
+
+        # Previous notebooks
         self.openPreviousNotebooks()
         
     def message(self, message, t=2000):
@@ -298,14 +307,47 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.updateUIforNoteOpen(True)
 
     def previewNote(self, preview):
-        if preview:
-            self.web.setStyleSheet("QWebView{{background:{}; font-size:12px;}}".format(
-                S.window))
+        
+        def syncScrollBars(barSrc, barTgt):
+            r = barSrc.value() / barSrc.maximum()
+            barTgt.setValue(r * barTgt.maximum())
+        
+        import random
+        #FIXME: which one to chose?
+        if preview and random.random() > .8:
+            self.web.setStyleSheet(S.webViewSS())
             source = MD.render(self.text.note.toText())
             self.web.setHtml(source)
             self.editor.setCurrentIndex(1)
+        elif preview:
+            source = MD.render(self.text.note.toText())
+            self.html.setStyleSheet("""QTextBrowser{{
+                background:{};
+                font-size: 16px;
+                border: 0px;}}""".format(S.window) )
+            self.html.setHtml(source)
+            self.editor.setCurrentIndex(2)
+            syncScrollBars(self.text.verticalScrollBar(),
+                           self.html.verticalScrollBar())
         else:
             self.editor.setCurrentIndex(0)
+            
+    def previewNavigateLink(self, link):
+        url = link.toString()
+        if link.isLocalFile():
+            if os.path.exists(link.toString(QUrl.RemoveScheme)):
+                QDesktopServices.openUrl(link)
+            else:
+                self.message("The following path does not exist: {}".format(
+                    link.toString(QUrl.RemoveScheme)))
+
+        else:
+            # We correct absence of http://
+            if QRegExp("\w+\.\w+\.\w+\.?\w*").indexIn(url) >= 0:
+                link = QUrl("http://{}".format(url))
+                QDesktopServices.openUrl(link)
+            else:
+                QDesktopServices.openUrl(link)
 
     def closeNote(self):
         self.text.setNote(None)
@@ -440,7 +482,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.message("Notebook is already open.")
                 return
 
-        nb = Notebook(path=path)
+        nb = Notebook(path=path, MW=self)
         self.notebooks.append(nb)
         print("Notebook opened: {}".format(nb.name))
         self.setupNotebook(nb)

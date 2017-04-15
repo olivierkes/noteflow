@@ -52,6 +52,7 @@ class Preferences(QDialog, Ui_Preferences):
 
     def loadValues(self):
         from noteflow import MW
+        if not MW: return  # Called during constructor of mainWindow
 
         # General
         self.chkOpenLast.setCheckState(F.settings("OpenLast", Qt.Checked, int))

@@ -33,6 +33,9 @@ def mainWindowSS():
             QStatusBar::item {border: 0px;}
             """
 
+def webViewSS():
+    return "QWebView{{background:{}; }}".format(window)
+
 def tableSS():
     return "background:transparent;"
 

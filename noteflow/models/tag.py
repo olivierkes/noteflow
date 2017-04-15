@@ -64,4 +64,13 @@ class Tag(QObject):
     def match(self, note):
         return self.text.lower() in note.text.lower()
     
+    def toString(self):
+        return "{},{},{},{}".format(
+            self.text,
+            self.color.name() if self.color else "",
+            self.background.name() if self.background else "",
+            self.border.name() if self.border else "",
+            )
+            
+    
         
