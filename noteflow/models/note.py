@@ -30,6 +30,10 @@ class Note(QObject):
         self._tags = None
         self._filename = None
         
+        # Temp var, not saved
+        self._posInNoteScroll = 0  # Used by noteEdit to remember the ratio of the vertical scrollbar
+        self._posInNoteCursor = 0 # Position of the cursor
+        
     def tags(self):
         "Returns all tags within the note."
         if not self._tags:

@@ -202,7 +202,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def defaultTheme(self):
 
         markup = qApp.palette().color(QPalette.Mid)
+        if markup == Qt.black:
+            markup = Qt.lightGray
         dark = qApp.palette().color(QPalette.Dark)
+        if dark == Qt.black:
+            dark = QColor(Qt.gray)
         darker = dark.darker(150)
         
         # Text background
@@ -243,8 +247,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         
         # Beautifiers
         theme[MTT.TokenEmphasis] = {
-                "italic":True, 
-                "underline":True}
+                "italic":True,}
         theme[MTT.TokenStrong] = {
                 "bold":True}
         theme[MTT.TokenStrikethrough] = {

@@ -435,6 +435,20 @@ class noteEdit(QPlainTextEdit):
 # ==============================================================================
 
     def setNote(self, note):
+        
+        # Remember the position in the note
+        if self.note is not None:
+        # Ratio of scrollbar
+            bar = self.verticalScrollBar()
+            try:
+                r = bar.value() / bar.maximum()
+                self.note._posInNoteScroll = r
+            except ZeroDivisionError:
+                self.note._posInNoteScroll = 0
+
+            # Cursor
+            self.note._posInNoteCursor = self.textCursor().position()
+
         if note is not None:
             self.note = note
             self.setPlainText(note.wholeText())
@@ -443,7 +457,18 @@ class noteEdit(QPlainTextEdit):
             self.note = None
             self.setEnabled(False)
             self.setPlainText("")
-            
+        
+        # Restores the position of the scrollbar
+        # FIXME: does not restore the proper position exactly
+        #        because bar.maximum() is not the same (?!?)
+        if self.note and self.note._posInNoteScroll:
+            bar = self.verticalScrollBar()
+            bar.setValue(self.note._posInNoteScroll * bar.maximum())
+        if self.note and self.note._posInNoteCursor:
+            c = self.textCursor()
+            c.setPosition(self.note._posInNoteCursor)
+            self.setTextCursor(c)
+
     def updateNote(self):
         if self.note:
             self.note.setWholeText(self.toPlainText())

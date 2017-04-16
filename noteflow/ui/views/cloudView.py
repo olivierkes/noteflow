@@ -169,7 +169,8 @@ class cloudView(QListWidget):
                     w2[k] = w[k]
 
         words = w2
-        minCount, maxCount = min(words.values()), max(words.values())
+        minCount = min(words.values())
+        maxCount = max(words.values())
         if minCount == maxCount:
             minCount -= 1
         minFont, maxFont = 6, 13

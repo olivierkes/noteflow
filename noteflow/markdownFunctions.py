@@ -17,10 +17,10 @@
 # Python-Markdown
 #==============================================================================
 
-import markdown
+#import markdown
 
-def render(text):
-    return markdown.markdown(text)
+#def render(text):
+    #return markdown.markdown(text)
 
 #==============================================================================
 # Pypandoc

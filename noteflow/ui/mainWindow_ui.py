@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'noteflow/ui/mainWindow_ui.ui'
 #
-# Created: Fri Apr 14 17:10:02 2017
+# Created: Sat Apr 15 21:23:23 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -430,9 +430,9 @@ class Ui_MainWindow(object):
         self.actNoteNew.setText(_translate("MainWindow", "New Note"))
         self.actNoteNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
         self.actNotePrevious.setText(_translate("MainWindow", "Previous"))
-        self.actNotePrevious.setShortcut(_translate("MainWindow", "Ctrl+Left"))
+        self.actNotePrevious.setShortcut(_translate("MainWindow", "Alt+Left"))
         self.actNoteNext.setText(_translate("MainWindow", "Next"))
-        self.actNoteNext.setShortcut(_translate("MainWindow", "Ctrl+Right"))
+        self.actNoteNext.setShortcut(_translate("MainWindow", "Alt+Right"))
         self.actNoteDelete.setText(_translate("MainWindow", "Delete Note"))
         self.actNoteDelete.setShortcut(_translate("MainWindow", "Del"))
         self.actViewFilterPanel.setText(_translate("MainWindow", "Filter panel"))
@@ -442,9 +442,9 @@ class Ui_MainWindow(object):
         self.actToggleWords.setText(_translate("MainWindow", "Words Cloud"))
         self.actToggleList.setText(_translate("MainWindow", "List"))
         self.actNoteUp.setText(_translate("MainWindow", "Up"))
-        self.actNoteUp.setShortcut(_translate("MainWindow", "Ctrl+Up"))
+        self.actNoteUp.setShortcut(_translate("MainWindow", "Alt+Up"))
         self.actNoteDown.setText(_translate("MainWindow", "Down"))
-        self.actNoteDown.setShortcut(_translate("MainWindow", "Ctrl+Down"))
+        self.actNoteDown.setShortcut(_translate("MainWindow", "Alt+Down"))
         self.actThemes.setText(_translate("MainWindow", "Themes"))
         self.actViewToolbar.setText(_translate("MainWindow", "Toolbar"))
         self.actNotePreview.setText(_translate("MainWindow", "Preview"))
@@ -482,8 +482,8 @@ class Ui_MainWindow(object):
         self.actFormatSubScript.setShortcut(_translate("MainWindow", "Ctrl+-"))
 
 from PyQt5 import QtWebKitWidgets
-from noteflow.ui.views.cloudView import cloudView
-from noteflow.ui.views.tableView import tableView
 from PyQt5.QtWidgets import QTabBar
-from noteflow.ui.views.noteEdit import noteEdit
 from noteflow.ui.views.scrollView import scrollView
+from noteflow.ui.views.tableView import tableView
+from noteflow.ui.views.noteEdit import noteEdit
+from noteflow.ui.views.cloudView import cloudView

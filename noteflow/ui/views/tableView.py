@@ -81,24 +81,23 @@ class customDelegate(QStyledItemDelegate):
             if t.match(note):
                 tags.append(t)
 
-        if not tags:
-            # No tag match
-            QStyledItemDelegate.paint(self, painter, option, index)
+        color = [t for t in tags if t.color]
+        if color:
+            index.model().setData(index, QBrush(color[0].color), Qt.ForegroundRole)
+        else:
             index.model().setData(index, QBrush(), Qt.ForegroundRole)
-            return
-
+            
         tagsWithBackgrounds = [t for t in tags if t.background or t.border]
-
+        if len(tagsWithBackgrounds) == 0:
+            QStyledItemDelegate.paint(self, painter, option, index)
+            return
+        
         M = 4
         h = option.rect.height()
 
         # We reduce the rect for the text
         w = len(tagsWithBackgrounds) * ( h - M + 1)
         option.rect.setRight(option.rect.right() - w)
-
-        color = [t for t in tags if t.color]
-        if color:
-            index.model().setData(index, QBrush(color[0].color), Qt.ForegroundRole)
 
         # Call the native painter, easier
         QStyledItemDelegate.paint(self, painter, option, index)

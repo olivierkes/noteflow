@@ -628,7 +628,7 @@
     <string>Previous</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Left</string>
+    <string>Alt+Left</string>
    </property>
   </action>
   <action name="actNoteNext">
@@ -640,7 +640,7 @@
     <string>Next</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Right</string>
+    <string>Alt+Right</string>
    </property>
   </action>
   <action name="actNoteDelete">
@@ -715,7 +715,7 @@
     <string>Up</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Up</string>
+    <string>Alt+Up</string>
    </property>
   </action>
   <action name="actNoteDown">
@@ -727,7 +727,7 @@
     <string>Down</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Down</string>
+    <string>Alt+Down</string>
    </property>
   </action>
   <action name="actThemes">

@@ -307,7 +307,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.updateUIforNoteOpen(True)
 
     def previewNote(self, preview):
-        
         def syncScrollBars(barSrc, barTgt):
             r = barSrc.value() / barSrc.maximum()
             barTgt.setValue(r * barTgt.maximum())
@@ -683,6 +682,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.lstWords.setWords(words)
         self.lstTags.setWords(tags)
+        self.updateTagsAndWords()
 
     def setupTblNotes(self):
         notes = self.allNotes()
@@ -803,11 +803,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def updateFiltersUI(self):
         self.updateCalendar()
         self.updateTblNotes()
-
-        notes = self.notes
-        self.lstWords.setVisibleWords(F.countDicts([n.words() for n in notes]))
-        self.lstTags.setVisibleWords(F.countDicts([n.tags() for n in notes]))
-
+        self.updateTagsAndWords()
+        
         #if self.text.note is None:
         #    self.editor.setCurrentIndex(1)
         #    self.scroll.setNotes(self.notes)
@@ -816,6 +813,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text.setHighlighted(
             words=[i.text() for i in self.lstWords.selectedItems()] + [self.txtFilter.text()],
             tags=[i.text() for i in self.lstTags.selectedItems()])
+
+    def updateTagsAndWords(self):
+        notes = self.notes
+        self.lstWords.setVisibleWords(F.countDicts([n.words() for n in notes]))
+        self.lstTags.setVisibleWords(F.countDicts([n.tags() for n in notes]))
 
     def updateTblNotes(self):
         UIDs = [n.UID for n in self.notes]
