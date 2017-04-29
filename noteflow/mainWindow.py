@@ -198,7 +198,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # Filter visibily
         fv = s.value("filterVisible", "").split(",")
-        print(fv)
         for t, w in [
             ("filter", self.actViewFilterPanel), ("toolbar", self.actViewToolbar),
             ("calendar", self.actToggleCalendar), ("tags", self.actToggleTags),
@@ -537,6 +536,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         nb.noteChanged.connect(self.updateSingleTblNote)
         nb.dateChanged.connect(self.updateSingleTblNote)
         nb.dateChanged.connect(self.updateCalendar)
+        nb.tagsAndWordsChanged.connect(self.filterNotes)
         nb.tagsAndWordsChanged.connect(self.setupTagsAndWords)
         nb.noteAdded.connect(self.noteAdded)
         nb.noteRemoved.connect(self.noteRemoved)
