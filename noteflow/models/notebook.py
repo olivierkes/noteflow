@@ -139,6 +139,7 @@ class Notebook(QObject):
         
         content = self.notesToDisk()
         oldContent = self._content
+        changed = 0
         
         # Writing content
         for path in content:
@@ -153,6 +154,7 @@ class Notebook(QObject):
             else:
                 # The content of the file changed, or the file is new. We write.
                 print("Writing:", path)
+                changed += 1
                 with open(filename, "w", encoding='utf8') as f:
                     f.write(content[path])
                 
@@ -179,6 +181,7 @@ class Notebook(QObject):
         s.setValue("Exclude", self.saveWords())
             
         self._content = content
+        return changed
         
     def saveTags(self):
         from noteflow import MW

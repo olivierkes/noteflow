@@ -180,6 +180,7 @@ class cloudView(QListWidget):
             i = QListWidgetItem(w)
             i.setData(Qt.UserRole, words[w])
             i.setData(Qt.UserRole+1, True)  # Enabled
+            i.setToolTip("×{}".format(words[w]))
             f = i.font()
             f.setPointSizeF(minFont + (words[w] - minCount) / (maxCount - minCount) * (maxFont - minFont))
             i.setFont(f)

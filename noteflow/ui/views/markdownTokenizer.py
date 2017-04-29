@@ -311,7 +311,7 @@ class MarkdownTokenizer(HighlightTokenizer):
                 token.type = MTT.TokenNumberedList
                 token.position = 0
                 token.length = len(text)
-                token.openingMarkupLength = index + 1
+                token.openingMarkupLength = index + 2
                 self.addToken(token)
                 self.setState(MS.MarkdownStateNumberedList)
                 return True
@@ -399,7 +399,7 @@ class MarkdownTokenizer(HighlightTokenizer):
             token.type = MTT.TokenBulletPointList
             token.position = 0
             token.length = len(text)
-            token.openingMarkupLength = bulletCharIndex + 1
+            token.openingMarkupLength = bulletCharIndex + 2
             self.addToken(token)
             self.setState(MS.MarkdownStateBulletPointList)
             return True

@@ -88,15 +88,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.statusBar().addPermanentWidget(self.lblNoteDate)
         self.lblNoteDate.hide()
 
-        # Hiding
-        self.actViewFilterPanel.setChecked(True)
-        self.actViewToolbar.setChecked(True)
-        self.actToggleCalendar.setChecked(True)
-        self.actToggleTags.setChecked(True)
-        self.actToggleWords.setChecked(True)
-#        self.actToggleWords.toggled.emit(False)
-        self.actToggleList.setChecked(True)
-
         # Connections
         self.txtFilter.textChanged.connect(self.filterNotes)
         self.tab.currentChanged.connect(self.setupFilters)
@@ -188,12 +179,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # CUSTOM TAGS & WORDS
         self.tags = TagCollector()
-        # FIXME: load tags from settings or what
-        # FIXME: and save them then.
-        #self.tags.addTag("TODO", background="#FF0") # border="#00F"
-        #self.tags.addTag("ut", color="#F00")
-        #self.tags.addTag("doLorem", background="#0F0", border="#F0F")
-        #self.tags.addTag("TEMporA", border="#F00")
         self.tags.tagsChanged.connect(self.tagsChanged)
         
         self.minWordSize = 3
@@ -204,7 +189,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.lstTags.setCustomTags(self.tags)
         self.tblList.setCustomTags(self.tags)
-
+        
+        # Load settings
+        s = F.settings()
+        if s.value("geometry"):
+            self.restoreGeometry(s.value("geometry"))
+            self.restoreState(s.value("windowState"))
+        
+        # Filter visibily
+        fv = s.value("filterVisible", "").split(",")
+        print(fv)
+        for t, w in [
+            ("filter", self.actViewFilterPanel), ("toolbar", self.actViewToolbar),
+            ("calendar", self.actToggleCalendar), ("tags", self.actToggleTags),
+            ("words", self.actToggleWords), ("list", self.actToggleList),
+        ]:
+            if t in fv:
+                w.setChecked(True)
+                w.toggled.emit(True)
+            else:
+                w.setChecked(False)
+                w.toggled.emit(False)
+        
         # Debug
         self.text.cursorPositionChanged.connect(lambda: self.message(
             "Block state: {}".format(self.text.textCursor().block().userState())))
@@ -458,8 +464,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #==============================================================================
 
     def save(self):
+        i = 0
         for nb in self.notebooks:
-            nb.save()
+            i += nb.save()
+        self.message("Notebooks saved ({} item changed).".format(i))
 
     def openNotebookDialog(self):
         #QFileDialog.getExistingDirectory(options=QFileDialog.DontUseNativeDialog)
@@ -606,6 +614,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupNotebooks()
             
     def closeEvent(self, event):
+        # Save notebooks
+        self.save()
+        
+        # Save state and geometries
+        s = F.settings()
+        s.setValue("geometry", self.saveGeometry())
+        s.setValue("windowState", self.saveState())
+        
+        # Save filter visibily
+        fv = []
+        for t, w in [
+            ("filter", self.actViewFilterPanel), ("toolbar", self.actViewToolbar),
+            ("calendar", self.actToggleCalendar), ("tags", self.actToggleTags),
+            ("words", self.actToggleWords), ("list", self.actToggleList),
+        ]:
+            if w.isChecked(): fv.append(t)
+        s.setValue("filterVisible", ",".join(fv))
+        
         # Save openned notebooks
         p = []
         for nb in self.notebooks:
