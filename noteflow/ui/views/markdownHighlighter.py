@@ -49,7 +49,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         #self.headingFound.connect(self.editor.headingFound)
         #self.headingRemoved.connect(self.editor.headingRemoved)
         
-        self.highlightBlockAtPosition.connect(self.onHighlightBlockAtPosition, Qt.QueuedConnection)
+        # FIXME: removed becaused it caused many laggs. Is it useful?
+        # self.highlightBlockAtPosition.connect(self.onHighlightBlockAtPosition, Qt.QueuedConnection)
+        
         # self.editor.document().textBlockRemoved.connect(self.onTextBlockRemoved)
         
         # font = QFont("Monospace", 12, QFont.Normal, False)
@@ -485,10 +487,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.typingPaused = True
         block = self.document().findBlock(self.editor.textCursor().position())
         self.rehighlightBlock(block)
-        
-    def onHighlightBlockAtPosition(self, position):
-        block = self.document().findBlock(position)
-        self.rehighlightBlock(block)
+    
+    # FIXME: removed because caused many laggs...
+    #def onHighlightBlockAtPosition(self, position):
+        #block = self.document().findBlock(position)
+        #self.rehighlightBlock(block)
         
     def onTextBlockRemoved(self, block):
         if self.isHeadingBlockState(block.userState):

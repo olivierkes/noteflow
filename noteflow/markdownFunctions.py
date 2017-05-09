@@ -27,6 +27,7 @@
 #==============================================================================
 
 import pypandoc
+import re
 
 def render(text):
     args = [
@@ -34,4 +35,8 @@ def render(text):
       "--smart",  # typographically correct output
       ]
     r = pypandoc.convert_text(text, "html", format="md", extra_args=args)
+    
+    # FIXME: add custom rules
+    r = re.sub("°(.*?)°", '<span style="background:#FF0;">\\1</span>', r)
+    
     return r

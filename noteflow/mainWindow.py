@@ -55,6 +55,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Toggle filters
         self.actViewFilterPanel.toggled.connect(self.filter.setVisible)
+        #self.actViewFilterPanel.toggled.connect(self.wdgTab.setVisible)
         self.actToggleCalendar.toggled.connect(self.wdgCalendar.setVisible)
         self.actToggleTags.toggled.connect(self.lstTags.setVisible)
         self.actToggleWords.toggled.connect(self.lstWords.setVisible)
@@ -209,13 +210,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 w.setChecked(False)
                 w.toggled.emit(False)
+            
+        # Previous notebooks
+        self.openPreviousNotebooks()
         
         # Debug
         self.text.cursorPositionChanged.connect(lambda: self.message(
             "Block state: {}".format(self.text.textCursor().block().userState())))
-
-        # Previous notebooks
-        self.openPreviousNotebooks()
         
     def message(self, message, t=2000):
         self.statusBar().showMessage(message, t)
@@ -545,6 +546,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupNotebooks()
 
     def closeCurrentNotebook(self):
+        
+        # Saving first
+        self.save()
+        
         nb = self.currentNotebook()
         if self.text.note in nb.notes:
             self.closeNote()

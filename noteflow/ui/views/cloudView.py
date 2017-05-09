@@ -22,7 +22,7 @@ class cloudView(QListWidget):
         self.customTags = None
         self._customTagsOnly = False
         self._customTagsAlways = False
-        self._maxWords = 20
+        self._maxWords = 50
         self._minValue = None
         self._minLength = None
 
@@ -174,9 +174,9 @@ class cloudView(QListWidget):
         if minCount == maxCount:
             minCount -= 1
         minFont, maxFont = 6, 13
-
+        
         # Add words to list
-        for w in words:
+        for w in sorted(words):
             i = QListWidgetItem(w)
             i.setData(Qt.UserRole, words[w])
             i.setData(Qt.UserRole+1, True)  # Enabled
