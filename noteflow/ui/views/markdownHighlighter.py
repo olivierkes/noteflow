@@ -16,6 +16,7 @@ GW_FADE_ALPHA = 140
 # Highlighter based on GhostWriter (http://wereturtle.github.io/ghostwriter/).
 # GPLV3+.
 
+#FIXME: Setext heading don't work anymore
 
 class MarkdownHighlighter(QSyntaxHighlighter):
     
@@ -49,8 +50,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         #self.headingFound.connect(self.editor.headingFound)
         #self.headingRemoved.connect(self.editor.headingRemoved)
         
-        # FIXME: removed becaused it caused many laggs. Is it useful?
-        # self.highlightBlockAtPosition.connect(self.onHighlightBlockAtPosition, Qt.QueuedConnection)
+        self.highlightBlockAtPosition.connect(self.onHighlightBlockAtPosition, Qt.QueuedConnection)
         
         # self.editor.document().textBlockRemoved.connect(self.onTextBlockRemoved)
         
@@ -64,7 +64,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.theme = self.defaultTheme()
         self.setupHeadingFontSize(True)
         
-        self.highlihtedWords = []
+        self.highlightedWords = []
         self.highlightedTags = []
         
         #f = self.document().defaultFont()
@@ -411,9 +411,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 # ==============================================================================
             
     def setHighlighted(self, words, tags):
+        rehighlight = self.highlightedWords != words or self.highlightedTags != tags
         self.highlightedWords = words
         self.highlightedTags = tags
-        self.rehighlight()
+        if rehighlight:
+            self.rehighlight()
     
     def setDictionary(self, dictionary):
         self.dictionary = dictionary
@@ -488,10 +490,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         block = self.document().findBlock(self.editor.textCursor().position())
         self.rehighlightBlock(block)
     
-    # FIXME: removed because caused many laggs...
-    #def onHighlightBlockAtPosition(self, position):
-        #block = self.document().findBlock(position)
-        #self.rehighlightBlock(block)
+    def onHighlightBlockAtPosition(self, position):
+        block = self.document().findBlock(position)
+        self.rehighlightBlock(block)
         
     def onTextBlockRemoved(self, block):
         if self.isHeadingBlockState(block.userState):

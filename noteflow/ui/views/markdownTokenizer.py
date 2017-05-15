@@ -115,7 +115,7 @@ class MarkdownTokenizer(HighlightTokenizer):
     
     def __init__(self):
         HighlightTokenizer.__init__(self)
-
+    
     def tokenize(self, text, currentState, previousState, nextState):
         self.currentState = currentState
         self.previousState = previousState
@@ -872,13 +872,16 @@ class MarkdownTokenizer(HighlightTokenizer):
         during parsing.  Returns a copy of the input text string
         with the escaped characters replaced with a dummy character.
         """
-        escape = False
-        escapedText = text
         
-        for i in range(len(text)):
-            if escape:
-                escapedText = escapedText[:i] + self.DUMMY_CHAR + escapedText[i+1:]
-                escape = False
-            elif text[i] == "\\":
-                escape = True
-        return escapedText
+        return re.sub("\\\\.", "\$", text)
+        
+        #escape = False
+        #escapedText = text
+        
+        #for i in range(len(text)):
+            #if escape:
+                #escapedText = escapedText[:i] + self.DUMMY_CHAR + escapedText[i+1:]
+                #escape = False
+            #elif text[i] == "\\":
+                #escape = True
+        #return escapedText
