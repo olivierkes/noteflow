@@ -67,6 +67,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.highlightedWords = []
         self.highlightedTags = []
         
+        self.customRules = [
+            ("(°).*?(°)", {"background": Qt.yellow,
+                           "markupColor":Qt.lightGray}),
+            ]
+        
         #f = self.document().defaultFont()
         #f.setFamily("monospace")
         #self.document().setDefaultFont(f)
@@ -187,6 +192,23 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                     f.setBackground(QBrush(QColor("#ff0")))
                     self.setFormat(i, 1, f)
                 pos = text.lower().find(w.lower(), pos+1)
+                
+        # Custom rules 
+        for rule, theme in self.customRules:
+            for m in re.finditer(rule, text):
+                
+                if len(m.groups()) == 0:  # No groups, therefore no markup
+                    f = self.format(m.start())
+                    f, garbage = self.formatsFromTheme(theme, f)
+                    self.setFormat(m.start(), len(m.group()), f)
+                
+                else:
+                    mf = self.format(m.start())
+                    f = self.format(m.start() + len(m.group(1)))
+                    f, mf = self.formatsFromTheme(theme, f, mf)
+                    self.setFormat(m.start(1), len(m.group(1)), mf)
+                    self.setFormat(m.start(2), len(m.group(2)), mf)
+                    self.setFormat(m.start(1) + len(m.group(1)), len(m.group()) - len(m.group(1)) - len(m.group(2)), f)
         
         # If the block has transitioned from previously being a heading to now
         # being a non-heading, signal that the position in the document no longer
@@ -347,43 +369,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             
             theme = self.theme.get(token.type)
             if theme:
-                # Token
-                if theme.get("color"):
-                    format.setForeground(theme["color"])
-                if theme.get("deltaSize"):
-                    format.setFontPointSize(format.fontPointSize() + theme["deltaSize"])
-                if theme.get("background"):
-                    format.setBackground(theme["background"])
-                if theme.get("monospace"):
-                    format.setFontFamily("Monospace")
-                if theme.get("bold"):
-                    format.setFontWeight(QFont.Bold)
-                if theme.get("italic"):
-                    format.setFontItalic(theme["italic"])
-                if theme.get("underline"):
-                    format.setFontUnderline(theme["underline"])
-                if theme.get("overline"):
-                    format.setFontOverline(theme["overline"])
-                if theme.get("strike"):
-                    format.setFontStrikeOut(theme["strike"])
-                if theme.get("super"):
-                    format.setVerticalAlignment(QTextCharFormat.AlignSuperScript)
-                if theme.get("sub"):
-                    format.setVerticalAlignment(QTextCharFormat.AlignSubScript)
-                
-                # Markup
-                if theme.get("formatMarkup"):
-                    c = markupFormat.foreground()
-                    markupFormat = QTextCharFormat(format)
-                    markupFormat.setForeground(c)
-                if theme.get("markupBold"):
-                    markupFormat.setFontWeight(QFont.Bold)
-                if theme.get("markupColor"):
-                    markupFormat.setForeground(theme["markupColor"])
-                if theme.get("markupBackground"):
-                    markupFormat.setBackground(theme["markupBackground"])
-                if theme.get("markupMonospace"):
-                    markupFormat.setFontFamily("Monospace")
+                format, markupFormat = self.formatsFromTheme(theme, format, markupFormat)
             
             # Format openning Markup
             self.setFormat(token.position, token.openingMarkupLength, 
@@ -405,7 +391,48 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         else:
             qWarning("MarkdownHighlighter.applyFormattingForToken() was passed in a "
                      "token of unknown type.")
+    
+    def formatsFromTheme(self, theme, format=QTextCharFormat(), markupFormat=QTextCharFormat()):
+        # Token
+        if theme.get("color"):
+            format.setForeground(theme["color"])
+        if theme.get("deltaSize"):
+            format.setFontPointSize(format.fontPointSize() + theme["deltaSize"])
+        if theme.get("background"):
+            format.setBackground(theme["background"])
+        if theme.get("monospace"):
+            format.setFontFamily("Monospace")
+        if theme.get("bold"):
+            format.setFontWeight(QFont.Bold)
+        if theme.get("italic"):
+            format.setFontItalic(theme["italic"])
+        if theme.get("underline"):
+            format.setFontUnderline(theme["underline"])
+        if theme.get("overline"):
+            format.setFontOverline(theme["overline"])
+        if theme.get("strike"):
+            format.setFontStrikeOut(theme["strike"])
+        if theme.get("super"):
+            format.setVerticalAlignment(QTextCharFormat.AlignSuperScript)
+        if theme.get("sub"):
+            format.setVerticalAlignment(QTextCharFormat.AlignSubScript)
+        
+        # Markup
+        if theme.get("formatMarkup"):
+            c = markupFormat.foreground()
+            markupFormat = QTextCharFormat(format)
+            markupFormat.setForeground(c)
+        if theme.get("markupBold"):
+            markupFormat.setFontWeight(QFont.Bold)
+        if theme.get("markupColor"):
+            markupFormat.setForeground(theme["markupColor"])
+        if theme.get("markupBackground"):
+            markupFormat.setBackground(theme["markupBackground"])
+        if theme.get("markupMonospace"):
+            markupFormat.setFontFamily("Monospace")
             
+        return format, markupFormat
+    
 # ==============================================================================
 #   SETTINGS
 # ==============================================================================
