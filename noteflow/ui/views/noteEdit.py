@@ -22,7 +22,6 @@ class noteEdit(QPlainTextEdit):
     def __init__(self, parent=None, highlighting=True):
         QPlainTextEdit.__init__(self, parent)
         self.note = None
-        self.textChanged.connect(self.updateNote)
         self.setEnabled(False)
         
         f = QFont("Sans", 11)
@@ -48,6 +47,12 @@ class noteEdit(QPlainTextEdit):
         self.document().contentsChanged.connect(self.statsTimer.start)
         self.selectionChanged.connect(self.onSelChanged)
         
+        # Update Note Timer
+        self.updateTimer = QTimer()
+        self.updateTimer.setInterval(300)
+        self.updateTimer.setSingleShot(True)
+        self.updateTimer.timeout.connect(self.updateNote)
+        self.textChanged.connect(self.updateTimer.start)
 
 # ==============================================================================
 #   KEYS
