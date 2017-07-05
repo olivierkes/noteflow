@@ -13,7 +13,7 @@ from noteflow.ui.views.markdownEnums import MarkdownState as MS
 class noteEdit(QPlainTextEdit):
     
     blockquoteRegex = QRegExp("^ {0,3}(>\\s*)+")
-    listRegex = QRegExp("^(\\s*)([+*-]|([0-9a-z])+([.\)]))(\\s+)")
+    listRegex = QRegExp("^(\\s*)([+*-]|([0-9a-z]*)+([.\)]))(\\s+)")
     taskListRegex = QRegExp("^\\s*[-*+] \\[([x ])\\]\\s+")
     
     statsChanged = pyqtSignal(int, int, int, bool)
