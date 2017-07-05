@@ -39,6 +39,17 @@ class noteEdit(QPlainTextEdit):
                 QColor(Qt.red)
             )
             
+        self.completer = QCompleter()
+        self.tagModel = QStringListModel()
+        self.updateCompleterWords(["#Bonsoir", "#Tag", "#Test", "#TODO", "#toto"])
+        self.completer.setModel(self.tagModel)
+        self.completer.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
+        self.completer.setWrapAround(False)
+        self.completer.setWidget(self)
+        self.completer.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.activated.connect(self.insertCompletion)
+            
         # Statistics
         self.statsTimer = QTimer()
         self.statsTimer.setInterval(300)
@@ -55,6 +66,32 @@ class noteEdit(QPlainTextEdit):
         self.textChanged.connect(self.updateTimer.start)
 
 # ==============================================================================
+#   COMPLETER
+# ==============================================================================
+
+    def updateCompleterWords(self, words):
+        ##FIXME: call me baby
+        self.tagModel.setStringList(words)
+        
+    def textUnderCursor(self):
+        tc = self.textCursor()
+        tc.select(QTextCursor.WordUnderCursor)
+        a, b = tc.anchor(), tc.position()
+        tc.setPosition(max(0, a-1))
+        tc.setPosition(b, tc.KeepAnchor)
+        return tc.selectedText()
+        
+    def insertCompletion(self, completion):
+        if self.completer.widget() != self:
+            return;
+        tc = self.textCursor()
+        extra = len(completion) - len(self.completer.completionPrefix())
+        tc.movePosition(QTextCursor.Left)
+        tc.movePosition(QTextCursor.EndOfWord)
+        tc.insertText(completion[-extra:])
+        self.setTextCursor(tc)
+    
+# ==============================================================================
 #   KEYS
 # ==============================================================================
 
@@ -63,6 +100,14 @@ class noteEdit(QPlainTextEdit):
         m = event.modifiers()
         cursor = self.textCursor()
         #QPlainTextEdit.keyPressEvent(self, event)
+        
+        if self.completer and self.completer.popup().isVisible():
+            # The following keys are forwarded by the completer to the widget
+            if event.key() in [Qt.Key_Enter, Qt.Key_Return, 
+                               Qt.Key_Escape, Qt.Key_Tab, Qt.Key_Backtab]:
+                event.ignore()
+                # Let the completer do default behavior
+                return
         
         if k == Qt.Key_Return:
             if not cursor.hasSelection():
@@ -87,6 +132,26 @@ class noteEdit(QPlainTextEdit):
             
         else:
             QPlainTextEdit.keyPressEvent(self, event)
+        
+        # Text under cursor
+        completionPrefix = self.textUnderCursor()
+        print("Prefix:", completionPrefix)
+        
+        if completionPrefix and completionPrefix[0] == "#":
+            
+            # Popup completer
+            if completionPrefix != self.completer.completionPrefix():
+                self.completer.setCompletionPrefix(completionPrefix)
+                self.completer.popup().setCurrentIndex(
+                    self.completer.completionModel().index(0, 0))
+    
+            cr = QRect(self.cursorRect())
+            cr.setWidth(self.completer.popup().sizeHintForColumn(0)
+                        + self.completer.popup().verticalScrollBar().sizeHint().width())
+            self.completer.complete(cr)
+            
+        else:
+            self.completer.popup().hide()
     
     # Again, thanks to GhostWriter, mainly
     def handleCarriageReturn(self):
