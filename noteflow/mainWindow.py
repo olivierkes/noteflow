@@ -314,7 +314,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def previewNote(self, preview):
         def syncScrollBars(barSrc, barTgt):
-            r = barSrc.value() / barSrc.maximum()
+            r = barSrc.value() / barSrc.maximum() if barSrc.maximum() else 0
             barTgt.setValue(r * barTgt.maximum())
         
         import random
