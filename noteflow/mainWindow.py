@@ -90,7 +90,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.lblNoteDate.hide()
 
         # Connections
-        self.txtFilter.textChanged.connect(self.filterNotes)
+        self.txtFilterTimer = QTimer()
+        self.txtFilterTimer.setSingleShot(True)
+        self.txtFilterTimer.setInterval(200)
+        self.txtFilterTimer.timeout.connect(self.filterNotes)
+        self.txtFilter.textChanged.connect(self.txtFilterTimer.start)
         self.tab.currentChanged.connect(self.setupFilters)
         #self.tab.currentChanged.connect(self.filterNotes)
         self.tab.currentChanged.connect(self.updateUI)
@@ -774,8 +778,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Text filter
         if self.txtFilter.text():
-            notes = [n for n in notes if self.txtFilter.text().lower() in n.wholeText().lower()]
-
+            #notes = [n for n in notes if self.txtFilter.text().lower() in n.wholeText().lower()]
+            for w in self.txtFilter.text().split(" "):
+                notes = [n for n in notes if w.lower() in n.wholeText().lower()]
+            
         # Tag filter
         sel = [i.text() for i in self.lstTags.selectedItems()]
         if sel:
@@ -846,7 +852,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # TextEdit Highlight
         self.text.setHighlighted(
-            words=[i.text() for i in self.lstWords.selectedItems()] + [self.txtFilter.text()],
+            words=[i.text() for i in self.lstWords.selectedItems()] + self.txtFilter.text().split(" "),
             tags=[i.text() for i in self.lstTags.selectedItems()])
 
     def updateTagsAndWords(self):
