@@ -702,15 +702,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.filterNotes()
 
+    def allTags(self):
+        notes = self.notebookNotes()
+        tags = F.countDicts([n.tags() for n in notes])
+        tags = {t:tags[t] for t in tags if not t.lower() in self.hiddenWords}
+        return tags
+
     def setupTagsAndWords(self):
         notes = self.notebookNotes()
         words = F.countDicts([n.words() for n in notes])
 
         words = {w:words[w] for w in words if not w.lower() in self.hiddenWords and
                                               len(w) >= self.minWordSize}
-        tags = F.countDicts([n.tags() for n in notes])
-        tags = {t:tags[t] for t in tags if not t.lower() in self.hiddenWords}
-
+        tags = self.allTags()
         self.lstWords.setWords(words)
         self.lstTags.setWords(tags)
         self.updateTagsAndWords()

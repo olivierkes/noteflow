@@ -41,13 +41,13 @@ class noteEdit(QPlainTextEdit):
             
         self.completer = QCompleter()
         self.tagModel = QStringListModel()
-        self.updateCompleterWords(["#Bonsoir", "#Tag", "#Test", "#TODO", "#toto"])
         self.completer.setModel(self.tagModel)
         self.completer.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
         self.completer.setWrapAround(False)
         self.completer.setWidget(self)
         self.completer.setCompletionMode(QCompleter.PopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setFilterMode(Qt.MatchContains)
         self.completer.activated.connect(self.insertCompletion)
             
         # Statistics
@@ -69,8 +69,11 @@ class noteEdit(QPlainTextEdit):
 #   COMPLETER
 # ==============================================================================
 
-    def updateCompleterWords(self, words):
-        ##FIXME: call me baby
+    def updateCompleterWords(self):
+        from noteflow import MW
+        tags = MW.allTags()
+        words = sorted(tags.keys(), key=lambda k: tags[k], reverse=True)
+        words = ["{} ({}×)".format(w, tags[w]) for w in words]
         self.tagModel.setStringList(words)
         
     def textUnderCursor(self):
@@ -82,13 +85,20 @@ class noteEdit(QPlainTextEdit):
         return tc.selectedText()
         
     def insertCompletion(self, completion):
+        # Remove the parenthesis (42×) at the end
+        completion = re.sub(r"^(#.*) \(.*\)$", "\\1", completion)
+
         if self.completer.widget() != self:
             return;
         tc = self.textCursor()
-        extra = len(completion) - len(self.completer.completionPrefix())
-        tc.movePosition(QTextCursor.Left)
+        #extra = len(completion) - len(self.completer.completionPrefix())
+        #tc.movePosition(QTextCursor.Left)
+        #tc.movePosition(QTextCursor.EndOfWord)
+        #tc.insertText(completion[-extra:])
         tc.movePosition(QTextCursor.EndOfWord)
-        tc.insertText(completion[-extra:])
+        tc.movePosition(QTextCursor.StartOfWord, QTextCursor.KeepAnchor)
+        tc.movePosition(QTextCursor.Left, QTextCursor.KeepAnchor)
+        tc.insertText(completion)
         self.setTextCursor(tc)
     
 # ==============================================================================
@@ -135,13 +145,13 @@ class noteEdit(QPlainTextEdit):
         
         # Text under cursor
         completionPrefix = self.textUnderCursor()
-        print("Prefix:", completionPrefix)
-        
-        if completionPrefix and completionPrefix[0] == "#":
+        pos = self.textCursor().position() - self.textCursor().block().position() - len(completionPrefix)
+        if pos != 0 and completionPrefix and completionPrefix[0] == "#":
             
             # Popup completer
             if completionPrefix != self.completer.completionPrefix():
-                self.completer.setCompletionPrefix(completionPrefix)
+                self.updateCompleterWords()
+                self.completer.setCompletionPrefix(completionPrefix[1:])
                 self.completer.popup().setCurrentIndex(
                     self.completer.completionModel().index(0, 0))
     
