@@ -22,6 +22,9 @@ class TagCollector(QObject):
         t.changed.connect(self.tagsChanged)
         self.tagsChanged.emit()
 
+    def toList(self):
+        return [t.text for t in self._tags]
+    
     def toListLower(self):
         return [t.text.lower() for t in self._tags]
 
