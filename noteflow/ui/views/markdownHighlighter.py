@@ -189,7 +189,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             while pos >= 0:
                 for i in range(pos, pos + len(w)):             
                     f = self.format(i)
-                    f.setBackground(QBrush(QColor("#ff0")))
+                    f.setBackground(QBrush(QColor("#f0f")))
                     self.setFormat(i, 1, f)
                 pos = text.lower().find(w.lower(), pos+1)
                 

@@ -770,6 +770,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             return self.allNotes()
 
+    def splittedSearchWords(self):
+        """
+        Returns a list a search words, form the txtFilter, splitting by spaces
+        but keeping sequences when in double quotes, as in 'search "two words"'.
+        """
+        
+        # Replace every space within quotes
+        # ('word "many words" word' → 'word "many###words" word')
+        t = self.txtFilter.text()
+        n = 1
+        while n:
+            t, n =re.subn('"(.*) (.*)"', '"\\1-*SPACE*-\\2"', t)
+        
+        l = t.split(" ")
+        l = [w.replace("-*SPACE*-", " ") for w in l]
+        l = [re.sub('"(.*?)"', '\\1', w) for w in l]
+        
+        return l
+
     def filterNotes(self):
         notes = []
 
@@ -779,8 +798,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Text filter
         if self.txtFilter.text():
             #notes = [n for n in notes if self.txtFilter.text().lower() in n.wholeText().lower()]
-            for w in self.txtFilter.text().split(" "):
-                notes = [n for n in notes if w.lower() in n.wholeText().lower()]
+            
+            for w in self.splittedSearchWords():
+                # Filter
+                
+                if w[:2] == "t:":
+                    notes = [n for n in notes if w[2:].lower() in n.title.lower()]
+                else:
+                    notes = [n for n in notes if w.lower() in n.wholeText().lower()]
             
         # Tag filter
         sel = [i.text() for i in self.lstTags.selectedItems()]
@@ -852,7 +877,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # TextEdit Highlight
         self.text.setHighlighted(
-            words=[i.text() for i in self.lstWords.selectedItems()] + self.txtFilter.text().split(" "),
+            words=[i.text() for i in self.lstWords.selectedItems()] + self.splittedSearchWords(),
             tags=[i.text() for i in self.lstTags.selectedItems()])
 
     def updateTagsAndWords(self):
