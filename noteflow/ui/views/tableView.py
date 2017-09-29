@@ -3,7 +3,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
+import noteflow.functions as F
 
 class tableView(QTableWidget):
     def __init__(self, parent=None):
@@ -76,6 +76,26 @@ class customDelegate(QStyledItemDelegate):
         UID = index.sibling(index.row(), 0).data(Qt.UserRole)
         note = [n for n in self.parent.notes if n.UID == UID][0]
 
+        # Mark today with a red line
+        # Get the previous note
+        try:
+            UID2 = index.sibling(index.row()+1, 0).data(Qt.UserRole)
+            note2 = [n for n in self.parent.notes if n.UID == UID2][0]
+        except:
+            note2 = False
+        
+        # Draw a red line
+        if F.strToDate(note.date) < QDate.currentDate() and \
+           F.strToDate(note2.date) >= QDate.currentDate() or \
+           F.strToDate(note.date) == QDate.currentDate() and \
+           F.strToDate(note2.date) > QDate.currentDate():
+            painter.save()
+            painter.setPen(Qt.red)
+            r = option.rect
+            painter.drawLine(r.bottomLeft(), r.bottomRight())
+            painter.restore()
+
+        # List tags
         tags = []
         for t in ct:
             if t.match(note):
