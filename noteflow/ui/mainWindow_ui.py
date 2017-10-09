@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'noteflow/ui/mainWindow_ui.ui'
 #
-# Created: Fri Sep 29 18:51:22 2017
+# Created: Mon Oct  9 08:33:10 2017
 #      by: PyQt5 UI code generator 5.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -407,7 +407,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Noteflow"))
-        self.txtDate.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt; font-weight:600;\">Search bar</span></p><p><br/></p><p><span style=\" font-weight:600;\">Multi-words search:</span> separate with space.</p><p><span style=\" font-style:italic;\">Ex: word1 word2 word3</span></p><p><br/></p><p><span style=\" font-weight:600;\">Phrase searh:</span> wrap in double quotes</p><p><span style=\" font-style:italic;\">Ex: word1 &quot;word2 word3&quot;</span></p><p><br/></p><p><span style=\" font-weight:600;\">Filters:</span></p><p> *  &quot;t:word&quot; searches for &quot;word&quot; in note title</p></body></html>"))
+        self.txtDate.setToolTip(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:11pt; font-weight:600;\">Search bar</span></p><p><br/></p><p><span style=\" font-weight:600;\">Multi-words search:</span> separate with space.</p><p><span style=\" font-style:italic;\">Ex: word1 word2 word3</span></p><p><br/></p><p><span style=\" font-weight:600;\">Phrase searh:</span> wrap in double quotes</p><p><span style=\" font-style:italic;\">Ex: word1 &quot;word2 word3&quot;</span></p><p><br/></p><p><span style=\" font-weight:600;\">Filters:</span></p><p>* &quot;t:word&quot; searches for &quot;word&quot; in note title</p><p>* &quot;#:word&quot; filters hashtags cloud for tags matching &quot;word&quot;</p></body></html>"))
         self.tblList.setSortingEnabled(True)
         self.menu_File.setTitle(_translate("MainWindow", "&File"))
         self.menuNote.setTitle(_translate("MainWindow", "Note"))
@@ -483,8 +483,8 @@ class Ui_MainWindow(object):
         self.actFormatSubScript.setShortcut(_translate("MainWindow", "Ctrl+-"))
 
 from PyQt5 import QtWebKitWidgets
-from noteflow.ui.views.noteEdit import noteEdit
-from PyQt5.QtWidgets import QTabBar
 from noteflow.ui.views.tableView import tableView
-from noteflow.ui.views.scrollView import scrollView
+from PyQt5.QtWidgets import QTabBar
+from noteflow.ui.views.noteEdit import noteEdit
 from noteflow.ui.views.cloudView import cloudView
+from noteflow.ui.views.scrollView import scrollView

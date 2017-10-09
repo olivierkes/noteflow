@@ -796,6 +796,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         notes = self.notebookNotes()
 
         # Text filter
+        hasTagSearch = False
         if self.txtFilter.text():
             #notes = [n for n in notes if self.txtFilter.text().lower() in n.wholeText().lower()]
             
@@ -804,8 +805,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 
                 if w[:2] == "t:":
                     notes = [n for n in notes if w[2:].lower() in n.title.lower()]
+                elif w[:2] == "#:":
+                    # FIXME: will only search for the latest
+                    self.lstTags.filterRows(w[2:])
+                    hasTagSearch = True
                 else:
                     notes = [n for n in notes if w.lower() in n.wholeText().lower()]
+            
+        if not hasTagSearch:
+            self.lstTags.filterRows("")
             
         # Tag filter
         sel = [i.text() for i in self.lstTags.selectedItems()]

@@ -213,6 +213,8 @@ class cloudView(QListWidget):
         for k in range(self.count()):
             i = self.item(k)
             i.setHidden(text not in i.text().lower())
+            
+        self.updateGeometry()
 
 from noteflow.ui.views.cloudViewPopup_ui import Ui_CloudViewPopup
 
