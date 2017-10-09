@@ -128,6 +128,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actNoteDelete.setEnabled(False)
         self.actNotePreview.triggered.connect(self.previewNote)
         self.actNotePreview.setEnabled(False)
+        self.actNoteSearch.triggered.connect(self.showSearchWidget)
+        self.actNoteSearch.setEnabled(False)
+        self.actNoteReplace.triggered.connect(self.showReplaceWidget)
+        self.actNoteReplace.setEnabled(False)
+        self.btnSearchClose.clicked.connect(self.wdgSearch.hide)
+        self.btnSearchOptions.toggled.connect(self.wdgSearchOptions.setVisible)
+        self.wdgSearch.hide()
+        self.btnSearchNext.clicked.connect(self.searchNext)
+        self.btnSearchPrevious.clicked.connect(self.searchPrevious)
+        self.txtSearchTimer = QTimer()
+        self.txtSearchTimer.setSingleShot(True)
+        self.txtSearchTimer.setInterval(200)
+        self.txtSearchTimer.timeout.connect(self.searchInNote)
+        self.txtSearch.textChanged.connect(self.txtSearchTimer.start)
+        self.cmbSearchMode.currentIndexChanged.connect(self.txtSearchTimer.start)
+        self.btnSearchReplace.clicked.connect(self.replaceInNote)
+        self.btnSearchReplaceAll.clicked.connect(self.replaceAllInNote)
 
         self.actFormatBold.triggered.connect(self.text.bold)
         self.actFormatItalic.triggered.connect(self.text.italic)
@@ -378,6 +395,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def updateUIforNoteOpen(self, isOpen):
         self.actNoteDelete.setEnabled(isOpen)
         self.actNotePreview.setEnabled(isOpen)
+        self.actNoteSearch.setEnabled(isOpen)
+        self.actNoteReplace.setEnabled(isOpen)
         self.actFormatBold.setEnabled(isOpen)
         self.actFormatItalic.setEnabled(isOpen)
         self.actFormatStrike.setEnabled(isOpen)
@@ -955,3 +974,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             self.calendar.setDateTextFormat(qd, cf)
 
+#==============================================================================
+#   SEARCH / REPLACE
+#==============================================================================
+
+    def showSearchWidget(self):
+        self.wdgSearch.show()
+        self.wdgSearchOptions.hide()
+        self.btnSearchOptions.setChecked(False)
+        self.wdgSearchReplace.hide()
+        self.txtSearch.setFocus()
+        #FIXME: set text = selected text
+    
+    def showReplaceWidget(self):
+        self.wdgSearch.show()
+        self.btnSearchOptions.setChecked(True)
+        #self.wdgSearchOptions.hide()
+        self.wdgSearchReplace.show()
+        self.txtSearch.setFocus()
+    
+    def searchNext(self):
+        pass
+        #FIXME
+    
+    def searchPrevious(self):
+        pass
+        #FIXME
+    
+    def searchInNote(self):
+        text = self.txtSearch.text()
+        regExp = self.cmbSearchMode.isVisible() and self.cmbSearchMode.currentIndex() > 0
+        
+        self.text.setSearched(text, regExp)
+        
+    def replaceInNote(self):
+        pass
+        #FIXME
+        
+    def replaceAllInNote(self):
+        pass
+        #FIXME

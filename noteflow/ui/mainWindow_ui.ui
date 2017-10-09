@@ -308,7 +308,7 @@
       </widget>
       <widget class="QStackedWidget" name="editor">
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="textPage">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -329,6 +329,188 @@
          </property>
          <item>
           <widget class="noteEdit" name="text"/>
+         </item>
+         <item>
+          <widget class="QWidget" name="wdgSearch" native="true">
+           <layout class="QGridLayout" name="gridLayout">
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
+             <number>3</number>
+            </property>
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <item row="0" column="4">
+             <widget class="QPushButton" name="btnSearchPrevious">
+              <property name="text">
+               <string>Previous</string>
+              </property>
+              <property name="icon">
+               <iconset theme="go-previous"/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLineEdit" name="txtSearch">
+              <property name="placeholderText">
+               <string>Search</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QPushButton" name="btnSearchNext">
+              <property name="text">
+               <string>Next</string>
+              </property>
+              <property name="icon">
+               <iconset theme="go-next"/>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QPushButton" name="btnSearchClose">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset theme="window-close"/>
+              </property>
+              <property name="flat">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" colspan="4">
+             <widget class="QWidget" name="wdgSearchOptions" native="true">
+              <layout class="QGridLayout" name="gridLayout_3">
+               <property name="spacing">
+                <number>2</number>
+               </property>
+               <item row="1" column="3">
+                <widget class="QCheckBox" name="chkSearchSelection">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Selection only</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="cmbSearchMode">
+                 <property name="frame">
+                  <bool>false</bool>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Plain text</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>RegExp</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QCheckBox" name="chkSearchCase">
+                 <property name="text">
+                  <string>Match case</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>Mode:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" colspan="4">
+                <widget class="Line" name="line">
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
+                 <property name="midLineWidth">
+                  <number>1</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="5">
+             <widget class="QWidget" name="wdgSearchReplace" native="true">
+              <layout class="QGridLayout" name="gridLayout_2">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>2</number>
+               </property>
+               <item row="1" column="4">
+                <widget class="QPushButton" name="btnSearchReplace">
+                 <property name="text">
+                  <string>Replace</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QLineEdit" name="txtSearchReplace">
+                 <property name="placeholderText">
+                  <string>Replace</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="5">
+                <widget class="QPushButton" name="btnSearchReplaceAll">
+                 <property name="text">
+                  <string>Replace all</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QPushButton" name="btnSearchOptions">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset theme="list-add"/>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="flat">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -425,7 +607,7 @@
    </property>
    <widget class="QMenu" name="menu_File">
     <property name="title">
-     <string>&amp;File</string>
+     <string>&amp;Notebook</string>
     </property>
     <addaction name="actNewNotebook"/>
     <addaction name="separator"/>
@@ -451,6 +633,8 @@
     <addaction name="actNoteDelete"/>
     <addaction name="separator"/>
     <addaction name="actNotePreview"/>
+    <addaction name="actNoteSearch"/>
+    <addaction name="actNoteReplace"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -923,6 +1107,25 @@
     <string>Ctrl+-</string>
    </property>
   </action>
+  <action name="actNoteSearch">
+   <property name="icon">
+    <iconset theme="edit-find"/>
+   </property>
+   <property name="text">
+    <string>&amp;Find…</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actNoteReplace">
+   <property name="text">
+    <string>&amp;Replace…</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -958,6 +1161,29 @@
    <header>noteflow.ui.views.tableView.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>txtDate</tabstop>
+  <tabstop>btnDateClear</tabstop>
+  <tabstop>lstTags</tabstop>
+  <tabstop>lstWords</tabstop>
+  <tabstop>txtFilter</tabstop>
+  <tabstop>tblList</tabstop>
+  <tabstop>text</tabstop>
+  <tabstop>scroll</tabstop>
+  <tabstop>txtSearch</tabstop>
+  <tabstop>txtSearchReplace</tabstop>
+  <tabstop>btnSearchNext</tabstop>
+  <tabstop>btnSearchPrevious</tabstop>
+  <tabstop>btnSearchReplace</tabstop>
+  <tabstop>btnSearchReplaceAll</tabstop>
+  <tabstop>cmbSearchMode</tabstop>
+  <tabstop>chkSearchCase</tabstop>
+  <tabstop>chkSearchSelection</tabstop>
+  <tabstop>calendar</tabstop>
+  <tabstop>html</tabstop>
+  <tabstop>btnSearchClose</tabstop>
+  <tabstop>btnSearchOptions</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

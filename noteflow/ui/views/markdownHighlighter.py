@@ -66,6 +66,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         
         self.highlightedWords = []
         self.highlightedTags = []
+        self.searchExpression = ""
+        self.searchExpressionRegExp = False
         
         self.customRules = [
             ("(°).*?(°)", {"background": Qt.yellow,
@@ -192,6 +194,30 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                     f.setBackground(QBrush(QColor("#f0f")))
                     self.setFormat(i, 1, f)
                 pos = text.lower().find(w.lower(), pos+1)
+                
+        # Searched
+        #FIXME: consider searchExpressionRegExp
+        if self.searchExpression:
+            s = self.searchExpression
+            
+            if not self.searchExpressionRegExp:
+                pos = text.lower().find(s.lower())
+                while pos >= 0:
+                    for i in range(pos, pos + len(s)):             
+                        f = self.format(i)
+                        f.setBackground(QBrush(QColor("#0ff")))
+                        self.setFormat(i, 1, f)
+                    pos = text.lower().find(s.lower(), pos+1)
+                    
+            else:
+                try:
+                    for m in re.finditer(s, text):
+                        f = self.format(m.start())
+                        f.setBackground(QBrush(QColor("#0ff")))
+                        self.setFormat(m.start(), len(m.group()), f)
+                except:
+                    # Probably malformed regExp
+                    pass
                 
         # Custom rules 
         for rule, theme in self.customRules:
@@ -441,6 +467,18 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         rehighlight = self.highlightedWords != words or self.highlightedTags != tags
         self.highlightedWords = words
         self.highlightedTags = tags
+        if rehighlight:
+            self.rehighlight()
+            
+    def setSearched(self, expression, regExp=False):
+        """
+        Define an expression currently searched, to be highlighted.
+        Can be regExp.
+        """
+        rehighlight = self.searchExpression != expression or \
+                      self.searchExpressionRegExp != regExp
+        self.searchExpression = expression
+        self.searchExpressionRegExp = regExp
         if rehighlight:
             self.rehighlight()
     
