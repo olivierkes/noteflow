@@ -136,6 +136,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSearchOptions.toggled.connect(self.wdgSearchOptions.setVisible)
         self.wdgSearch.hide()
         self.btnSearchNext.clicked.connect(self.searchNext)
+        self.txtSearch.returnPressed.connect(self.searchNext)
         self.btnSearchPrevious.clicked.connect(self.searchPrevious)
         self.txtSearchTimer = QTimer()
         self.txtSearchTimer.setSingleShot(True)
@@ -143,6 +144,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.txtSearchTimer.timeout.connect(self.searchInNote)
         self.txtSearch.textChanged.connect(self.txtSearchTimer.start)
         self.cmbSearchMode.currentIndexChanged.connect(self.txtSearchTimer.start)
+        self.chkSearchCase.stateChanged.connect(self.txtSearchTimer.start)
         self.btnSearchReplace.clicked.connect(self.replaceInNote)
         self.btnSearchReplaceAll.clicked.connect(self.replaceAllInNote)
 
@@ -984,7 +986,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSearchOptions.setChecked(False)
         self.wdgSearchReplace.hide()
         self.txtSearch.setFocus()
-        #FIXME: set text = selected text
+        
+        # copy selected text
+        txt = self.text.textCursor().selectedText()
+        self.txtSearch.setText(txt)
+        self.txtSearch.selectAll()
     
     def showReplaceWidget(self):
         self.wdgSearch.show()
@@ -993,24 +999,83 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.wdgSearchReplace.show()
         self.txtSearch.setFocus()
     
-    def searchNext(self):
-        pass
-        #FIXME
+    def searchIsRegExp(self):
+        return self.cmbSearchMode.isVisible() and self.cmbSearchMode.currentIndex() > 0
     
+    def searchNext(self, backward=False):
+        #c = self.text.textCursor()
+        #pos = c.position()
+        search = self.txtSearch.text()
+        if self.searchIsRegExp():
+            search = QRegExp(search)
+        
+        flags = QTextDocument.FindFlags()
+        if self.chkSearchCase.isChecked():
+            flags = flags | QTextDocument.FindCaseSensitively
+        if backward:
+            flags = flags | QTextDocument.FindBackward
+        
+        cursor = self.text.textCursor()
+        r = self.text.document().find(search, cursor, flags)
+        
+        if r:
+            self.text.setTextCursor(r)
+        
+        if not r:
+            if not backward:
+                self.message("Bottom of file reached.")
+            else:
+                self.message("Beginning of file reached.")
+        #FIXME: start from top if not found?
+        
     def searchPrevious(self):
-        pass
-        #FIXME
+        return self.searchNext(backward=True)
     
     def searchInNote(self):
         text = self.txtSearch.text()
-        regExp = self.cmbSearchMode.isVisible() and self.cmbSearchMode.currentIndex() > 0
+        regExp = self.searchIsRegExp()
+        cs = self.chkSearchCase.isChecked()
         
-        self.text.setSearched(text, regExp)
+        self.text.setSearched(text, regExp, cs)
         
     def replaceInNote(self):
         pass
         #FIXME
         
     def replaceAllInNote(self):
-        pass
-        #FIXME
+        """
+        Replace all occurences without interaction
+        Based on https://ralsina.me/posts/BB870.html and 
+        https://stackoverflow.com/questions/33379527/qtextedit-find-and-replace-performance
+        """
+        
+        if not self.searchIsRegExp():  # plain text mode
+            old = self.txtSearch.text()
+        else:                                       # regexp mode
+            old = QRegExp(self.txtSearch.text())
+        new = self.txtSearchReplace.text()
+
+        # Beginning of undo block
+        cursor = self.text.textCursor().beginEditBlock()
+
+        # Use flags for case match
+        flags = QTextDocument.FindFlags()
+        if self.chkSearchCase.isChecked():
+            flags = flags | QTextDocument.FindCaseSensitively
+        else: 
+            if self.searchIsRegExp():
+                old.setCaseSensitivity(Qt.CaseInsensitive)
+
+        doc = self.text.document()
+        cursor = QTextCursor(doc)
+        
+        while True:
+            cursor = doc.find(old, cursor, flags)
+            if cursor.isNull():
+                break
+            cursor.insertText(new)
+            #FIXME: regExp substitution don't work.
+
+        # Mark end of undo block
+        self.text.textCursor().endEditBlock()
+        

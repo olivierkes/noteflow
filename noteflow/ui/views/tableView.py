@@ -106,11 +106,8 @@ class customDelegate(QStyledItemDelegate):
             index.model().setData(index, QBrush(color[0].color), Qt.ForegroundRole)
         else:
             index.model().setData(index, QBrush(), Qt.ForegroundRole)
-            
+        
         tagsWithBackgrounds = [t for t in tags if t.background or t.border]
-        if len(tagsWithBackgrounds) == 0:
-            QStyledItemDelegate.paint(self, painter, option, index)
-            return
         
         M = 4
         h = option.rect.height()
@@ -118,6 +115,11 @@ class customDelegate(QStyledItemDelegate):
         # We reduce the rect for the text
         w = len(tagsWithBackgrounds) * ( h - M + 1)
         option.rect.setRight(option.rect.right() - w)
+        option.rect.setBottom(option.rect.bottom() - 1)
+
+        if len(tagsWithBackgrounds) == 0:
+            QStyledItemDelegate.paint(self, painter, option, index)
+            return
 
         # Call the native painter, easier
         QStyledItemDelegate.paint(self, painter, option, index)

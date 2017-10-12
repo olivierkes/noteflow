@@ -68,6 +68,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.highlightedTags = []
         self.searchExpression = ""
         self.searchExpressionRegExp = False
+        self.searchExpressionCase = False
         
         self.customRules = [
             ("(°).*?(°)", {"background": Qt.yellow,
@@ -201,7 +202,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             s = self.searchExpression
             
             if not self.searchExpressionRegExp:
-                pos = text.lower().find(s.lower())
+                if self.searchExpressionCase:
+                    pos = text.find(s)
+                else:
+                    pos = text.lower().find(s.lower())
                 while pos >= 0:
                     for i in range(pos, pos + len(s)):             
                         f = self.format(i)
@@ -210,14 +214,26 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                     pos = text.lower().find(s.lower(), pos+1)
                     
             else:
-                try:
-                    for m in re.finditer(s, text):
-                        f = self.format(m.start())
-                        f.setBackground(QBrush(QColor("#0ff")))
-                        self.setFormat(m.start(), len(m.group()), f)
-                except:
-                    # Probably malformed regExp
-                    pass
+                # Using QRegExp
+                rx = QRegExp(s)
+                if not self.searchExpressionCase:
+                    rx.setCaseSensitivity(Qt.CaseInsensitive)
+                p = rx.indexIn(text)
+                while p != -1:
+                    f = self.format(p)
+                    f.setBackground(QBrush(QColor("#0ff")))
+                    self.setFormat(p, rx.matchedLength(), f)
+                    p = rx.indexIn(text, p + 1)
+                    
+                # Using python re
+                #try:
+                    #for m in re.finditer(s, text):
+                        #f = self.format(m.start())
+                        #f.setBackground(QBrush(QColor("#0ff")))
+                        #self.setFormat(m.start(), len(m.group()), f)
+                #except:
+                    ## Probably malformed regExp
+                    #pass
                 
         # Custom rules 
         for rule, theme in self.customRules:
@@ -289,7 +305,19 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             theme[i] = {
                 "formatMarkup":True,
                 "bold": True,
-                "monospace": True}
+                "monospace": True,
+                #"color": Qt.darkBlue if i % 2 == 1 else Qt.darkMagenta,
+            }
+        b = 100
+        d = 50
+        color = QColor(Qt.darkBlue)
+        theme[MTT.TokenAtxHeading1]["color"] = color
+        theme[MTT.TokenAtxHeading2]["color"] = color.lighter(b + d)
+        theme[MTT.TokenAtxHeading3]["color"] = color.lighter(b + 2*d)
+        theme[MTT.TokenAtxHeading4]["color"] = color.lighter(b + 3*d)
+        theme[MTT.TokenAtxHeading5]["color"] = color.lighter(b + 4*d)
+        theme[MTT.TokenAtxHeading6]["color"] = color.lighter(b + 5*d)
+        
         for i in [MTT.TokenSetextHeading1Line2, MTT.TokenSetextHeading2Line2]:
             theme[i] = {
                 "color": markup,
@@ -470,15 +498,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         if rehighlight:
             self.rehighlight()
             
-    def setSearched(self, expression, regExp=False):
+    def setSearched(self, expression, regExp=False, caseSensitivity=False):
         """
         Define an expression currently searched, to be highlighted.
         Can be regExp.
         """
         rehighlight = self.searchExpression != expression or \
-                      self.searchExpressionRegExp != regExp
+                      self.searchExpressionRegExp != regExp or \
+                      self.searchExpressionCase != caseSensitivity
         self.searchExpression = expression
         self.searchExpressionRegExp = regExp
+        self.searchExpressionCase = caseSensitivity
         if rehighlight:
             self.rehighlight()
     
@@ -501,16 +531,16 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         
     def setupHeadingFontSize(self, useLargeHeadings):
         if useLargeHeadings:
-            self.theme[MTT.TokenSetextHeading1Line1]["deltaSize"] = 6
+            self.theme[MTT.TokenSetextHeading1Line1]["deltaSize"] = 7
             self.theme[MTT.TokenSetextHeading2Line1]["deltaSize"] = 5
-            self.theme[MTT.TokenSetextHeading1Line2]["deltaSize"] = 6
+            self.theme[MTT.TokenSetextHeading1Line2]["deltaSize"] = 7
             self.theme[MTT.TokenSetextHeading2Line2]["deltaSize"] = 5
-            self.theme[MTT.TokenAtxHeading1]["deltaSize"] = 6
+            self.theme[MTT.TokenAtxHeading1]["deltaSize"] = 7
             self.theme[MTT.TokenAtxHeading2]["deltaSize"] = 5
-            self.theme[MTT.TokenAtxHeading3]["deltaSize"] = 4
-            self.theme[MTT.TokenAtxHeading4]["deltaSize"] = 3
-            self.theme[MTT.TokenAtxHeading5]["deltaSize"] = 2
-            self.theme[MTT.TokenAtxHeading6]["deltaSize"] = 1
+            self.theme[MTT.TokenAtxHeading3]["deltaSize"] = 3
+            self.theme[MTT.TokenAtxHeading4]["deltaSize"] = 2
+            self.theme[MTT.TokenAtxHeading5]["deltaSize"] = 1
+            self.theme[MTT.TokenAtxHeading6]["deltaSize"] = 0
             
         else:
             for i in MTT.TITLES:

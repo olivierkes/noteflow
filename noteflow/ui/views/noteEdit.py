@@ -563,9 +563,9 @@ class noteEdit(QPlainTextEdit):
                 [w for w in words if len(w) >= 2],
                 tags)
             
-    def setSearched(self, expression, regExp):
+    def setSearched(self, expression, regExp, caseSensitivity=False):
         if self.highlighter:
-            self.highlighter.setSearched(expression, regExp)
+            self.highlighter.setSearched(expression, regExp, caseSensitivity)
 
 
 class UserData(QTextBlockUserData):
