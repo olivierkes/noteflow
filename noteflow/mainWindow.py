@@ -1038,15 +1038,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.text.setSearched(text, regExp, cs)
         
-    def replaceInNote(self):
-        pass
-        #FIXME
-        
-    def replaceAllInNote(self):
+    def replaceNInNote(self, n=1):
         """
-        Replace all occurences without interaction
+        Replaces `n` occurences without interaction.
         Based on https://ralsina.me/posts/BB870.html and 
         https://stackoverflow.com/questions/33379527/qtextedit-find-and-replace-performance
+        
+        if n==0, replaces all.
         """
         
         if not self.searchIsRegExp():  # plain text mode
@@ -1069,13 +1067,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         doc = self.text.document()
         cursor = QTextCursor(doc)
         
-        while True:
+        k = 0
+        while k < n or n == 0:
             cursor = doc.find(old, cursor, flags)
             if cursor.isNull():
                 break
+            
             cursor.insertText(new)
+            
+            k += 1
+            
             #FIXME: regExp substitution don't work.
+
+        # Select the next occurence (in case we replace only once)
+        cursor = doc.find(old, cursor, flags)
+        if not cursor.isNull():
+            self.text.setTextCursor(cursor)
 
         # Mark end of undo block
         self.text.textCursor().endEditBlock()
+        
+    def replaceInNote(self):
+        """
+        Replace one occurence without interaction.
+        """
+        self.replaceNInNote(n=1)
+        
+    def replaceAllInNote(self):
+        """
+        Replace all occurences without interaction.
+        """
+        self.replaceNInNote(n=0)
+        
         
