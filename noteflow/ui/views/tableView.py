@@ -78,17 +78,24 @@ class customDelegate(QStyledItemDelegate):
 
         # Mark today with a red line
         # Get the previous note
+        from noteflow import MW
         try:
-            UID2 = index.sibling(index.row()+1, 0).data(Qt.UserRole)
-            note2 = [n for n in self.parent.notes if n.UID == UID2][0]
+            k = 1
+            note2 = False
+            while note2 not in MW.notes:
+                UID2 = index.sibling(index.row()+k, 0).data(Qt.UserRole)
+                note2 = [n for n in self.parent.notes if n.UID == UID2][0]
+                k += 1
         except:
             note2 = False
         
         # Draw a red line
-        if F.strToDate(note.date) < QDate.currentDate() and \
-           F.strToDate(note2.date) >= QDate.currentDate() or \
-           F.strToDate(note.date) == QDate.currentDate() and \
-           F.strToDate(note2.date) > QDate.currentDate():
+        if note2 and \
+               F.strToDate(note.date) < QDate.currentDate() and \
+               F.strToDate(note2.date) >= QDate.currentDate() or \
+           note2 and \
+               F.strToDate(note.date) == QDate.currentDate() and \
+               F.strToDate(note2.date) > QDate.currentDate():
             painter.save()
             painter.setPen(Qt.red)
             r = option.rect
