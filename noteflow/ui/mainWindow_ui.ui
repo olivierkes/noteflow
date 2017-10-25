@@ -308,7 +308,7 @@
       </widget>
       <widget class="QStackedWidget" name="editor">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="textPage">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -354,7 +354,9 @@
                <string>Previous</string>
               </property>
               <property name="icon">
-               <iconset theme="go-previous"/>
+               <iconset theme="go-previous">
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -371,7 +373,9 @@
                <string>Next</string>
               </property>
               <property name="icon">
-               <iconset theme="go-next"/>
+               <iconset theme="go-next">
+                <normaloff/>
+               </iconset>
               </property>
              </widget>
             </item>
@@ -381,7 +385,9 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="window-close"/>
+               <iconset theme="window-close">
+                <normaloff/>
+               </iconset>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -496,7 +502,9 @@
                   <string/>
                  </property>
                  <property name="icon">
-                  <iconset theme="list-add"/>
+                  <iconset theme="list-add">
+                   <normaloff/>
+                  </iconset>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -528,15 +536,6 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QWebView" name="web" native="true">
-           <property name="url" stdset="0">
-            <url>
-             <string>about:blank</string>
-            </url>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page">
@@ -582,8 +581,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>462</width>
+              <height>677</height>
              </rect>
             </property>
            </widget>
@@ -1109,7 +1108,9 @@
   </action>
   <action name="actNoteSearch">
    <property name="icon">
-    <iconset theme="edit-find"/>
+    <iconset theme="edit-find">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>&amp;Find…</string>
@@ -1128,11 +1129,6 @@
   </action>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
   <customwidget>
    <class>cloudView</class>
    <extends>QListWidget</extends>

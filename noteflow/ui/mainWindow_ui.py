@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'noteflow/ui/mainWindow_ui.ui'
 #
-# Created: Mon Oct  9 22:50:06 2017
-#      by: PyQt5 UI code generator 5.2.1
+# Created by: PyQt5 UI code generator 5.9
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -16,14 +15,14 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.centralwidget)
-        self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.wdgTab = QtWidgets.QWidget(self.centralwidget)
         self.wdgTab.setObjectName("wdgTab")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.wdgTab)
-        self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.tab = QTabBar(self.wdgTab)
         self.tab.setObjectName("tab")
@@ -38,14 +37,14 @@ class Ui_MainWindow(object):
         self.filter = QtWidgets.QWidget(self.splitter)
         self.filter.setObjectName("filter")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.filter)
-        self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setContentsMargins(6, 0, 0, 0)
+        self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.wdgCalendar = QtWidgets.QWidget(self.filter)
         self.wdgCalendar.setObjectName("wdgCalendar")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.wdgCalendar)
-        self.verticalLayout_7.setSpacing(0)
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 6)
+        self.verticalLayout_7.setSpacing(0)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.calendar = QtWidgets.QCalendarWidget(self.wdgCalendar)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
@@ -62,8 +61,8 @@ class Ui_MainWindow(object):
         self.wdgDateInfos = QtWidgets.QWidget(self.wdgCalendar)
         self.wdgDateInfos.setObjectName("wdgDateInfos")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.wdgDateInfos)
-        self.horizontalLayout_4.setSpacing(0)
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_4.setSpacing(0)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.txtDate = QtWidgets.QLineEdit(self.wdgDateInfos)
         self.txtDate.setFrame(False)
@@ -142,8 +141,8 @@ class Ui_MainWindow(object):
         self.textPage = QtWidgets.QWidget()
         self.textPage.setObjectName("textPage")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.textPage)
-        self.verticalLayout.setSpacing(0)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.text = noteEdit(self.textPage)
         self.text.setObjectName("text")
@@ -151,8 +150,8 @@ class Ui_MainWindow(object):
         self.wdgSearch = QtWidgets.QWidget(self.textPage)
         self.wdgSearch.setObjectName("wdgSearch")
         self.gridLayout = QtWidgets.QGridLayout(self.wdgSearch)
-        self.gridLayout.setSpacing(2)
         self.gridLayout.setContentsMargins(3, 3, 3, 3)
+        self.gridLayout.setSpacing(2)
         self.gridLayout.setObjectName("gridLayout")
         self.btnSearchPrevious = QtWidgets.QPushButton(self.wdgSearch)
         icon = QtGui.QIcon.fromTheme("go-previous")
@@ -177,8 +176,8 @@ class Ui_MainWindow(object):
         self.wdgSearchOptions = QtWidgets.QWidget(self.wdgSearch)
         self.wdgSearchOptions.setObjectName("wdgSearchOptions")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.wdgSearchOptions)
-        self.gridLayout_3.setSpacing(2)
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_3.setSpacing(2)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.chkSearchSelection = QtWidgets.QCheckBox(self.wdgSearchOptions)
         self.chkSearchSelection.setEnabled(False)
@@ -207,8 +206,8 @@ class Ui_MainWindow(object):
         self.wdgSearchReplace = QtWidgets.QWidget(self.wdgSearch)
         self.wdgSearchReplace.setObjectName("wdgSearchReplace")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.wdgSearchReplace)
-        self.gridLayout_2.setSpacing(2)
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_2.setSpacing(2)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.btnSearchReplace = QtWidgets.QPushButton(self.wdgSearchReplace)
         self.btnSearchReplace.setObjectName("btnSearchReplace")
@@ -235,10 +234,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.previewPage)
         self.verticalLayout_8.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_8.setObjectName("verticalLayout_8")
-        self.web = QtWebKitWidgets.QWebView(self.previewPage)
-        self.web.setProperty("url", QtCore.QUrl("about:blank"))
-        self.web.setObjectName("web")
-        self.verticalLayout_8.addWidget(self.web)
         self.editor.addWidget(self.previewPage)
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
@@ -258,7 +253,7 @@ class Ui_MainWindow(object):
         self.scroll.setWidgetResizable(True)
         self.scroll.setObjectName("scroll")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 98, 28))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 462, 677))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scroll.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout_6.addWidget(self.scroll)
@@ -490,7 +485,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actNoteNext)
 
         self.retranslateUi(MainWindow)
-        self.editor.setCurrentIndex(0)
+        self.editor.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.txtDate, self.btnDateClear)
         MainWindow.setTabOrder(self.btnDateClear, self.lstTags)
@@ -606,9 +601,8 @@ class Ui_MainWindow(object):
         self.actNoteReplace.setText(_translate("MainWindow", "&Replace…"))
         self.actNoteReplace.setShortcut(_translate("MainWindow", "Ctrl+R"))
 
-from PyQt5 import QtWebKitWidgets
 from PyQt5.QtWidgets import QTabBar
-from noteflow.ui.views.tableView import tableView
-from noteflow.ui.views.noteEdit import noteEdit
 from noteflow.ui.views.cloudView import cloudView
+from noteflow.ui.views.noteEdit import noteEdit
 from noteflow.ui.views.scrollView import scrollView
+from noteflow.ui.views.tableView import tableView

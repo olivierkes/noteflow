@@ -133,6 +133,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actNoteReplace.triggered.connect(self.showReplaceWidget)
         self.actNoteReplace.setEnabled(False)
         self.btnSearchClose.clicked.connect(self.wdgSearch.hide)
+        # Clear the search words if widget is hidden by calling setSearched empty
+        self.btnSearchClose.clicked.connect(self.text.setSearched)
         self.btnSearchOptions.toggled.connect(self.wdgSearchOptions.setVisible)
         self.wdgSearch.hide()
         self.btnSearchNext.clicked.connect(self.searchNext)
@@ -188,11 +190,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.editor.setCurrentIndex(0)
 
         # PREVIEW
-        settings = self.web.settings()
+        #settings = self.web.settings()
 #        settings.setFontFamily(QtWebKit.QWebSettings.StandardFont, 'Times New Roman')
-        settings.setFontSize(settings.DefaultFontSize, 13)
+        #settings.setFontSize(settings.DefaultFontSize, 13)
         self.html.anchorClicked.connect(self.previewNavigateLink)
-        self.web.linkClicked.connect(self.previewNavigateLink)
+        #self.web.linkClicked.connect(self.previewNavigateLink)
         self.html.setOpenLinks(False)
 
         # NOTEBOOKS AND NOTES
@@ -204,7 +206,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # CUSTOM TAGS & WORDS
         self.tags = TagCollector()
         self.tags.tagsChanged.connect(self.tagsChanged)
-        
+
         self.minWordSize = 3
         self.hiddenWords = []
         self.preferences = Preferences(self)  # Dialog
@@ -213,13 +215,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.lstTags.setCustomTags(self.tags)
         self.tblList.setCustomTags(self.tags)
-        
+
         # Load settings
         s = F.settings()
         if s.value("geometry"):
             self.restoreGeometry(s.value("geometry"))
             self.restoreState(s.value("windowState"))
-        
+
         # Filter visibily
         fv = s.value("filterVisible", "").split(",")
         for t, w in [
@@ -233,14 +235,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 w.setChecked(False)
                 w.toggled.emit(False)
-            
+
         # Previous notebooks
         self.openPreviousNotebooks()
-        
+
         # Debug
         self.text.cursorPositionChanged.connect(lambda: self.message(
             "Block state: {}".format(self.text.textCursor().block().userState())))
-        
+
     def message(self, message, t=2000):
         self.statusBar().showMessage(message, t)
 
@@ -249,7 +251,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         activeNotebook = len(self.notebooks) > 1 and self.tab.currentIndex() == 0
         self.actNoteNew.setEnabled(not activeNotebook)
         self.actCloseCurrent.setEnabled(not activeNotebook)
-        
+
         nb = self.currentNotebook()
         if nb:
             self.setWindowTitle("Noteflow — {}".format(nb.name))
@@ -339,10 +341,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         def syncScrollBars(barSrc, barTgt):
             r = barSrc.value() / barSrc.maximum()
             barTgt.setValue(r * barTgt.maximum())
-        
+
         import random
         #FIXME: which one to chose?
-        if preview and random.random() > .8:
+        if preview and random.random() > .8 and False:
             self.web.setStyleSheet(S.webViewSS())
             source = MD.render(self.text.note.toText())
             self.web.setHtml(source)
@@ -359,7 +361,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                            self.html.verticalScrollBar())
         else:
             self.editor.setCurrentIndex(0)
-            
+
     def previewNavigateLink(self, link):
         url = link.toString()
         if link.isLocalFile():
@@ -503,12 +505,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def openNotebook(self, path):
         # We check that the notebook is not open
-        
+
         if not os.path.exists(path):
             print("Error: the given path does not exist.")
             print("       {}".format(path))
             return
-        
+
         for nb in self.notebooks:
             if os.path.abspath(path) == os.path.abspath(nb.path):
                 self.message("Notebook is already open.")
@@ -571,10 +573,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupNotebooks()
 
     def closeCurrentNotebook(self):
-        
+
         # Saving first
         self.save()
-        
+
         nb = self.currentNotebook()
         if self.text.note in nb.notes:
             self.closeNote()
@@ -632,7 +634,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def openRecentNotebook(self):
         path = self.sender().data()
         self.openNotebook(path)
-        
+
     def openPreviousNotebooks(self):
         if F.settings("OpenLast", Qt.Checked, int):
             last = F.settings("OpenLastNotebooks", "", str).split("\n")
@@ -642,16 +644,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.openNotebook(path)
         # We call that in case no notebooks were openend
         self.setupNotebooks()
-            
+
     def closeEvent(self, event):
         # Save notebooks
         self.save()
-        
+
         # Save state and geometries
         s = F.settings()
         s.setValue("geometry", self.saveGeometry())
         s.setValue("windowState", self.saveState())
-        
+
         # Save filter visibily
         fv = []
         for t, w in [
@@ -661,13 +663,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ]:
             if w.isChecked(): fv.append(t)
         s.setValue("filterVisible", ",".join(fv))
-        
+
         # Save openned notebooks
         p = []
         for nb in self.notebooks:
             p.append(nb.path)
         F.settings().setValue("OpenLastNotebooks", "\n".join(p))
-        
+
         QWidget.closeEvent(self, event)
 
 #==============================GTK================================================
@@ -796,18 +798,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Returns a list a search words, form the txtFilter, splitting by spaces
         but keeping sequences when in double quotes, as in 'search "two words"'.
         """
-        
+
         # Replace every space within quotes
         # ('word "many words" word' → 'word "many###words" word')
         t = self.txtFilter.text()
         n = 1
         while n:
             t, n =re.subn('"(.*) (.*)"', '"\\1-*SPACE*-\\2"', t)
-        
+
         l = t.split(" ")
         l = [w.replace("-*SPACE*-", " ") for w in l]
         l = [re.sub('"(.*?)"', '\\1', w) for w in l]
-        
+
         return l
 
     def filterNotes(self):
@@ -820,10 +822,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         hasTagSearch = False
         if self.txtFilter.text():
             #notes = [n for n in notes if self.txtFilter.text().lower() in n.wholeText().lower()]
-            
+
             for w in self.splittedSearchWords():
                 # Filter
-                
+
                 if w[:2] == "t:":
                     notes = [n for n in notes if w[2:].lower() in n.title.lower()]
                 elif w[:2] == "#:":
@@ -832,10 +834,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     hasTagSearch = True
                 else:
                     notes = [n for n in notes if w.lower() in n.wholeText().lower()]
-            
+
         if not hasTagSearch:
             self.lstTags.filterRows("")
-            
+
         # Tag filter
         sel = [i.text() for i in self.lstTags.selectedItems()]
         if sel:
@@ -899,7 +901,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.updateCalendar()
         self.updateTblNotes()
         self.updateTagsAndWords()
-        
+
         #if self.text.note is None:
         #    self.editor.setCurrentIndex(1)
         #    self.scroll.setNotes(self.notes)
@@ -986,67 +988,67 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.btnSearchOptions.setChecked(False)
         self.wdgSearchReplace.hide()
         self.txtSearch.setFocus()
-        
+
         # copy selected text
         txt = self.text.textCursor().selectedText()
         self.txtSearch.setText(txt)
         self.txtSearch.selectAll()
-    
+
     def showReplaceWidget(self):
         self.wdgSearch.show()
         self.btnSearchOptions.setChecked(True)
         #self.wdgSearchOptions.hide()
         self.wdgSearchReplace.show()
         self.txtSearch.setFocus()
-    
+
     def searchIsRegExp(self):
         return self.cmbSearchMode.isVisible() and self.cmbSearchMode.currentIndex() > 0
-    
+
     def searchNext(self, backward=False):
         #c = self.text.textCursor()
         #pos = c.position()
         search = self.txtSearch.text()
         if self.searchIsRegExp():
             search = QRegExp(search)
-        
+
         flags = QTextDocument.FindFlags()
         if self.chkSearchCase.isChecked():
             flags = flags | QTextDocument.FindCaseSensitively
         if backward:
             flags = flags | QTextDocument.FindBackward
-        
+
         cursor = self.text.textCursor()
         r = self.text.document().find(search, cursor, flags)
-        
+
         if r:
             self.text.setTextCursor(r)
-        
+
         if not r:
             if not backward:
                 self.message("Bottom of file reached.")
             else:
                 self.message("Beginning of file reached.")
         #FIXME: start from top if not found?
-        
+
     def searchPrevious(self):
         return self.searchNext(backward=True)
-    
+
     def searchInNote(self):
         text = self.txtSearch.text()
         regExp = self.searchIsRegExp()
         cs = self.chkSearchCase.isChecked()
-        
+
         self.text.setSearched(text, regExp, cs)
-        
+
     def replaceNInNote(self, n=1):
         """
         Replaces `n` occurences without interaction.
-        Based on https://ralsina.me/posts/BB870.html and 
+        Based on https://ralsina.me/posts/BB870.html and
         https://stackoverflow.com/questions/33379527/qtextedit-find-and-replace-performance
-        
+
         if n==0, replaces all.
         """
-        
+
         if not self.searchIsRegExp():  # plain text mode
             old = self.txtSearch.text()
         else:                                       # regexp mode
@@ -1060,23 +1062,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         flags = QTextDocument.FindFlags()
         if self.chkSearchCase.isChecked():
             flags = flags | QTextDocument.FindCaseSensitively
-        else: 
+        else:
             if self.searchIsRegExp():
                 old.setCaseSensitivity(Qt.CaseInsensitive)
 
         doc = self.text.document()
         cursor = QTextCursor(doc)
-        
+
         k = 0
         while k < n or n == 0:
             cursor = doc.find(old, cursor, flags)
             if cursor.isNull():
                 break
-            
+
             cursor.insertText(new)
-            
+
             k += 1
-            
+
             #FIXME: regExp substitution don't work.
 
         # Select the next occurence (in case we replace only once)
@@ -1086,17 +1088,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Mark end of undo block
         self.text.textCursor().endEditBlock()
-        
+
     def replaceInNote(self):
         """
         Replace one occurence without interaction.
         """
         self.replaceNInNote(n=1)
-        
+
     def replaceAllInNote(self):
         """
         Replace all occurences without interaction.
         """
         self.replaceNInNote(n=0)
-        
-        
+
