@@ -339,8 +339,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def previewNote(self, preview):
         def syncScrollBars(barSrc, barTgt):
-            r = barSrc.value() / barSrc.maximum()
-            barTgt.setValue(r * barTgt.maximum())
+            try:
+                r = barSrc.value() / barSrc.maximum()
+                barTgt.setValue(r * barTgt.maximum())
+            except ZeroDivisionError:
+                pass
 
         import random
         #FIXME: which one to chose?
