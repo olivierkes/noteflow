@@ -17,6 +17,10 @@ class noteEdit(QPlainTextEdit):
     taskListRegex = QRegExp("^\\s*[-*+] \\[([x ])\\]\\s+")
 
     statsChanged = pyqtSignal(int, int, int, bool)
+    noteChanged = pyqtSignal(int)
+    structureChanged = pyqtSignal()
+    headingFound = pyqtSignal(int, str, QTextBlock)
+    headingRemoved = pyqtSignal(int)
     # word, chars, chars no spaces, selection
 
     def __init__(self, parent=None, highlighting=True):
@@ -557,6 +561,8 @@ class noteEdit(QPlainTextEdit):
             c.setPosition(self.note._posInNoteCursor)
             self.setTextCursor(c)
 
+        self.noteChanged.emit(note)
+
     def updateNote(self):
         if self.note:
             self.note.setWholeText(self.toPlainText())
@@ -574,6 +580,16 @@ class noteEdit(QPlainTextEdit):
     def setSearched(self, expression, regExp=False, caseSensitivity=False):
         if self.highlighter:
             self.highlighter.setSearched(expression, regExp, caseSensitivity)
+
+# ==============================================================================
+#   LINKS
+# ==============================================================================
+
+    def setCursorPosition(self, position):
+        t = self.textCursor()
+        t.setPosition(position)
+        self.setTextCursor(t)
+        self.centerCursor()
 
 # ==============================================================================
 #   LINKS
@@ -692,14 +708,14 @@ class noteEdit(QPlainTextEdit):
             F.openURL(url)
             qApp.restoreOverrideCursor()
 
-    def paintEvent(self, event):
-        QPlainTextEdit.paintEvent(self, event)
-
-        # Debug: paint rects
-        painter = QPainter(self.viewport())
-        painter.setPen(Qt.gray)
-        for r in self.clickRects:
-            painter.drawRect(r.rect)
+    # def paintEvent(self, event):
+    #     QPlainTextEdit.paintEvent(self, event)
+    #
+    #     # Debug: paint rects
+    #     painter = QPainter(self.viewport())
+    #     painter.setPen(Qt.gray)
+    #     for r in self.clickRects:
+    #         painter.drawRect(r.rect)
 
 class ClickThing:
     def __init__(self, rect, regex, texts):

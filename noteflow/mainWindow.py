@@ -35,6 +35,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 12)
+        self.splitter.setStretchFactor(2, 0)
 
         for w in [
             self.lstTags,
@@ -61,8 +62,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actToggleWords.toggled.connect(self.lstWords.setVisible)
         self.actToggleList.toggled.connect(self.grpNotes.setVisible)
         self.actViewToolbar.toggled.connect(self.toolBar.setVisible)
+        self.actViewStructure.toggled.connect(self.structure.setVisible)
         self.toolBar.visibilityChanged.connect(self.actViewToolbar.setChecked)
-
+        self.text.structureChanged.connect(self.structure.updateStructure)
+        self.text.noteChanged.connect(self.structure.setNote)
+        self.structure.navigateToPosition.connect(self.text.setCursorPosition)
+        self.structure.navigateToPosition.connect(self.text.setFocus)
         ## Buttons widget in status bar...
         #w = QWidget()
         #l = QHBoxLayout(w)
@@ -228,6 +233,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ("filter", self.actViewFilterPanel), ("toolbar", self.actViewToolbar),
             ("calendar", self.actToggleCalendar), ("tags", self.actToggleTags),
             ("words", self.actToggleWords), ("list", self.actToggleList),
+            ("structure", self.actViewStructure),
         ]:
             if t in fv:
                 w.setChecked(True)
@@ -663,6 +669,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ("filter", self.actViewFilterPanel), ("toolbar", self.actViewToolbar),
             ("calendar", self.actToggleCalendar), ("tags", self.actToggleTags),
             ("words", self.actToggleWords), ("list", self.actToggleList),
+            ("structure", self.actViewStructure),
         ]:
             if w.isChecked(): fv.append(t)
         s.setValue("filterVisible", ",".join(fv))
@@ -1103,4 +1110,3 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Replace all occurences without interaction.
         """
         self.replaceNInNote(n=0)
-

@@ -47,8 +47,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         #self.editor.typingResumed.connect(self.onTypingResumed)
         #self.editor.typingPaused.connect(self.onTypingPaused)
-        #self.headingFound.connect(self.editor.headingFound)
-        #self.headingRemoved.connect(self.editor.headingRemoved)
+        self.headingFound.connect(self.editor.headingFound)
+        self.headingRemoved.connect(self.editor.headingRemoved)
+        self.headingFound.connect(self.editor.structureChanged)
+        self.headingRemoved.connect(self.editor.structureChanged)
 
         self.highlightBlockAtPosition.connect(self.onHighlightBlockAtPosition, Qt.QueuedConnection)
 
@@ -622,7 +624,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             startIndex += length
             misspelledWord = dictionary.check(text, startIndex)
 
-    def storeHeadingData(self, token, text):
+    @staticmethod
+    def getHeadingData(token, text):
         if token.type in [
                 MTT.TokenAtxHeading1,
                 MTT.TokenAtxHeading2,
@@ -647,16 +650,20 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             qWarning("MarkdownHighlighter.storeHeadingData() encountered" +
                      " unexpected token:".format(token.getType()))
             return
+        return level, headingText
 
+    def storeHeadingData(self, token, text):
         # FIXME: TypeError: could not convert 'TextBlockData' to 'QTextBlockUserData'
         # blockData = self.currentBlockUserData()
         # if blockData is None:
         #     blockData = TextBlockData(self.document(), self.currentBlock())
         #
         # self.setCurrentBlockUserData(blockData)
+        level, headingText = self.getHeadingData(token, text)
         self.headingFound.emit(level, headingText, self.currentBlock())
 
-    def isHeadingBlockState(self, state):
+    @staticmethod
+    def isHeadingBlockState(state):
         return state in [
             MS.MarkdownStateAtxHeading1,
             MS.MarkdownStateAtxHeading2,

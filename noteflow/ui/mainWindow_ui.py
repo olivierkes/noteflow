@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'noteflow/ui/mainWindow_ui.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,13 +11,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(806, 779)
+        MainWindow.resize(844, 780)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.centralwidget)
-        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_5.setSpacing(0)
-        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
         self.wdgTab = QtWidgets.QWidget(self.centralwidget)
         self.wdgTab.setObjectName("wdgTab")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.wdgTab)
@@ -29,10 +29,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.addWidget(self.tab)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_5.addItem(spacerItem)
-        self.horizontalLayout_5.addWidget(self.wdgTab)
+        self.horizontalLayout.addWidget(self.wdgTab)
         self.splitter = QtWidgets.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
-        self.splitter.setHandleWidth(6)
         self.splitter.setObjectName("splitter")
         self.filter = QtWidgets.QWidget(self.splitter)
         self.filter.setObjectName("filter")
@@ -176,7 +175,6 @@ class Ui_MainWindow(object):
         self.wdgSearchOptions = QtWidgets.QWidget(self.wdgSearch)
         self.wdgSearchOptions.setObjectName("wdgSearchOptions")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.wdgSearchOptions)
-        self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setSpacing(2)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.chkSearchSelection = QtWidgets.QCheckBox(self.wdgSearchOptions)
@@ -253,15 +251,19 @@ class Ui_MainWindow(object):
         self.scroll.setWidgetResizable(True)
         self.scroll.setObjectName("scroll")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 462, 677))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 98, 28))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scroll.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout_6.addWidget(self.scroll)
         self.editor.addWidget(self.scrollPage)
-        self.horizontalLayout_5.addWidget(self.splitter)
+        self.structure = structureView(self.splitter)
+        self.structure.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.structure.setObjectName("structure")
+        self.structure.headerItem().setText(0, "1")
+        self.horizontalLayout.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 806, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 844, 30))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -416,6 +418,9 @@ class Ui_MainWindow(object):
         self.actNoteSearch.setObjectName("actNoteSearch")
         self.actNoteReplace = QtWidgets.QAction(MainWindow)
         self.actNoteReplace.setObjectName("actNoteReplace")
+        self.actViewStructure = QtWidgets.QAction(MainWindow)
+        self.actViewStructure.setCheckable(True)
+        self.actViewStructure.setObjectName("actViewStructure")
         self.menu_File.addAction(self.actNewNotebook)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.actOpenNotebook)
@@ -439,6 +444,7 @@ class Ui_MainWindow(object):
         self.menuNote.addAction(self.actNoteReplace)
         self.menuView.addAction(self.actViewToolbar)
         self.menuView.addAction(self.actViewFilterPanel)
+        self.menuView.addAction(self.actViewStructure)
         self.menuView.addSeparator()
         self.menuView.addAction(self.actToggleCalendar)
         self.menuView.addAction(self.actToggleTags)
@@ -485,7 +491,7 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actNoteNext)
 
         self.retranslateUi(MainWindow)
-        self.editor.setCurrentIndex(1)
+        self.editor.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.txtDate, self.btnDateClear)
         MainWindow.setTabOrder(self.btnDateClear, self.lstTags)
@@ -600,9 +606,12 @@ class Ui_MainWindow(object):
         self.actNoteSearch.setShortcut(_translate("MainWindow", "Ctrl+F"))
         self.actNoteReplace.setText(_translate("MainWindow", "&Replace…"))
         self.actNoteReplace.setShortcut(_translate("MainWindow", "Ctrl+R"))
+        self.actViewStructure.setText(_translate("MainWindow", "Structure"))
+        self.actViewStructure.setShortcut(_translate("MainWindow", "F4"))
 
 from PyQt5.QtWidgets import QTabBar
 from noteflow.ui.views.cloudView import cloudView
 from noteflow.ui.views.noteEdit import noteEdit
 from noteflow.ui.views.scrollView import scrollView
+from noteflow.ui.views.structureView import structureView
 from noteflow.ui.views.tableView import tableView

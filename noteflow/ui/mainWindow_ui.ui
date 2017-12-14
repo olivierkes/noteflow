@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>806</width>
-    <height>779</height>
+    <width>844</width>
+    <height>780</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Noteflow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_5">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -71,9 +71,6 @@
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="handleWidth">
-       <number>6</number>
       </property>
       <widget class="QWidget" name="filter" native="true">
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -308,7 +305,7 @@
       </widget>
       <widget class="QStackedWidget" name="editor">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="textPage">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -355,8 +352,7 @@
               </property>
               <property name="icon">
                <iconset theme="go-previous">
-                <normaloff/>
-               </iconset>
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </widget>
             </item>
@@ -374,8 +370,7 @@
               </property>
               <property name="icon">
                <iconset theme="go-next">
-                <normaloff/>
-               </iconset>
+                <normaloff>.</normaloff>.</iconset>
               </property>
              </widget>
             </item>
@@ -386,8 +381,7 @@
               </property>
               <property name="icon">
                <iconset theme="window-close">
-                <normaloff/>
-               </iconset>
+                <normaloff>.</normaloff>.</iconset>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -503,8 +497,7 @@
                  </property>
                  <property name="icon">
                   <iconset theme="list-add">
-                   <normaloff/>
-                  </iconset>
+                   <normaloff>.</normaloff>.</iconset>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -581,8 +574,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>462</width>
-              <height>677</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
            </widget>
@@ -590,6 +583,16 @@
          </item>
         </layout>
        </widget>
+      </widget>
+      <widget class="structureView" name="structure">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
       </widget>
      </widget>
     </item>
@@ -600,8 +603,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>806</width>
-     <height>20</height>
+     <width>844</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -641,6 +644,7 @@
     </property>
     <addaction name="actViewToolbar"/>
     <addaction name="actViewFilterPanel"/>
+    <addaction name="actViewStructure"/>
     <addaction name="separator"/>
     <addaction name="actToggleCalendar"/>
     <addaction name="actToggleTags"/>
@@ -947,8 +951,7 @@
   <action name="actFormatBold">
    <property name="icon">
     <iconset theme="format-text-bold">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Bold</string>
@@ -960,8 +963,7 @@
   <action name="actFormatItalic">
    <property name="icon">
     <iconset theme="format-text-italic">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Italic</string>
@@ -973,8 +975,7 @@
   <action name="actFormatStrike">
    <property name="icon">
     <iconset theme="format-text-strikethrough">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Strike</string>
@@ -983,8 +984,7 @@
   <action name="actFormatVerbatim">
    <property name="icon">
     <iconset theme="text-x-script">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Verbatim</string>
@@ -1009,8 +1009,7 @@
   <action name="actFormatClear">
    <property name="icon">
     <iconset theme="edit-clear">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Clear</string>
@@ -1083,8 +1082,7 @@
   <action name="actFormatSuperScript">
    <property name="icon">
     <iconset theme="format-text-superscript">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Superscript</string>
@@ -1096,8 +1094,7 @@
   <action name="actFormatSubScript">
    <property name="icon">
     <iconset theme="format-text-subscript">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Subscript</string>
@@ -1109,8 +1106,7 @@
   <action name="actNoteSearch">
    <property name="icon">
     <iconset theme="edit-find">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Find…</string>
@@ -1125,6 +1121,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actViewStructure">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Structure</string>
+   </property>
+   <property name="shortcut">
+    <string>F4</string>
    </property>
   </action>
  </widget>
@@ -1155,6 +1162,11 @@
    <class>tableView</class>
    <extends>QTableWidget</extends>
    <header>noteflow.ui.views.tableView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>structureView</class>
+   <extends>QTreeWidget</extends>
+   <header>noteflow.ui.views.structureView.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
