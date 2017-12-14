@@ -15,12 +15,20 @@ class noteEdit(QPlainTextEdit):
     blockquoteRegex = QRegExp("^ {0,3}(>\\s*)+")
     listRegex = QRegExp("^(\\s*)([+*-]|([0-9a-z])+([.\)]))(\\s+)")
     taskListRegex = QRegExp("^\\s*[-*+] \\[([x ])\\]\\s+")
+    noteRef = QRegExp(r"(\d{4}-\d{2}-\d{2})/(.+)")
+    inlineLinkRegex = QRegExp("\\[([^\n]+)\\]\\(([^\n]+)\\)")
+    inlineLinkRegex.setMinimal(True)
+    imageRegex = QRegExp("!\\[([^\n]*)\\]\\(([^\n]+)\\)")
+    imageRegex.setMinimal(True)
+    automaticLinkRegex = QRegExp("(<([a-zA-Z]+\\:[^\n]+)>)|(<([^\n]+@[^\n]+)>)")
+    automaticLinkRegex.setMinimal(True)
 
     statsChanged = pyqtSignal(int, int, int, bool)
     noteChanged = pyqtSignal(int)
     structureChanged = pyqtSignal()
     headingFound = pyqtSignal(int, str, QTextBlock)
     headingRemoved = pyqtSignal(int)
+    openRef = pyqtSignal(str, str)
     # word, chars, chars no spaces, selection
 
     def __init__(self, parent=None, highlighting=True):
@@ -612,9 +620,9 @@ class noteEdit(QPlainTextEdit):
         refs = []
         text = self.toPlainText()
         for rx in [
-                MT.imageRegex,
-                MT.automaticLinkRegex,
-                MT.inlineLinkRegex,
+                self.imageRegex,
+                self.automaticLinkRegex,
+                self.inlineLinkRegex,
             ]:
             pos = 0
             while rx.indexIn(text, pos) != -1:
@@ -660,20 +668,21 @@ class noteEdit(QPlainTextEdit):
         if not qApp.overrideCursor():
             qApp.setOverrideCursor(Qt.PointingHandCursor)
 
-        if ct.regex == MT.automaticLinkRegex:
+        if ct.regex == self.automaticLinkRegex:
             tooltip = ct.texts[2] or ct.texts[4]
 
-        elif ct.regex == MT.imageRegex:
+        elif ct.regex == self.imageRegex:
             # tooltip = ct.texts[1] or ct.texts[2]
             # tooltip = "<p><b>{}</b></p><p><img src='{}'></p>".format(ct.texts[1], ct.texts[2])
             tt = "<p><b>"+ct.texts[1]+"</b></p><p><img src='data:image/png;base64,{}'></p>"
             tooltip = None
             F.getImage(ct.texts[2], self.tooltipImage, [ct, event.pos()])
 
-        elif ct.regex == MT.inlineLinkRegex:
+        elif ct.regex == self.inlineLinkRegex:
             tooltip = ct.texts[1] or ct.texts[2]
 
         if tooltip:
+            tooltip = "{} (CTRL+click to open)".format(tooltip)
             QToolTip.showText(self.mapToGlobal(event.pos()), tooltip)
 
     def tooltipImage(self, success, reply, savedVars):
@@ -698,15 +707,51 @@ class noteEdit(QPlainTextEdit):
         if onRect and event.modifiers() & Qt.ControlModifier:
             ct = onRect[0]
 
-            if ct.regex == MT.automaticLinkRegex:
+            if ct.regex == self.automaticLinkRegex:
                 url = ct.texts[2] or ct.texts[4]
-            elif ct.regex == MT.imageRegex:
+            elif ct.regex == self.imageRegex:
                 url = ct.texts[2]
-            elif ct.regex == MT.inlineLinkRegex:
+            elif ct.regex == self.inlineLinkRegex:
                 url = ct.texts[2]
 
-            F.openURL(url)
-            qApp.restoreOverrideCursor()
+            # Check if it's a note reference
+            from noteflow import MW
+            allNotes = MW.allNotes()
+            match = False
+            title = ct.texts[1]
+
+            if [n for n in allNotes if title.lower() in n.title.lower()
+                and n.date == url]:
+                # [title](date) → date, and title in note's title
+                n = [n for n in allNotes if title.lower() in n.title.lower()
+                     and n.date == url][0]
+                MW.openNote(n.UID)
+
+            elif [n for n in allNotes if n.date in url
+                  and "/" in url
+                  and url.split("/")[1].lower() in n.title.lower()]:
+                # [](2017-12-18/Title) → 2018-12-18/Something with Title in it
+                n = [n for n in allNotes if n.date in url
+                     and "/" in url
+                     and url.split("/")[1].lower() in n.title.lower()][0]
+                MW.openNote(n.UID)
+
+            elif [n for n in allNotes
+                  if url.lower() == n.title[:len(url)].lower()]:
+                # [](Title) → first note whose title start with "Title"
+                n = [n for n in allNotes
+                     if url.lower() == n.title[:len(url)].lower()][0]
+                MW.openNote(n.UID)
+
+            elif self.noteRef.exactMatch(url):
+                # [](data/title) exact match
+                date = self.noteRef.capturedTexts()[1]
+                title = self.noteRef.capturedTexts()[2]
+                self.openRef.emit(date, title)
+
+            else:
+                F.openURL(url)
+                qApp.restoreOverrideCursor()
 
     # def paintEvent(self, event):
     #     QPlainTextEdit.paintEvent(self, event)

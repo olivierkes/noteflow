@@ -175,6 +175,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actFormatHeaderATX4.triggered.connect(lambda: self.text.titleATX(4))
         self.actFormatHeaderATX5.triggered.connect(lambda: self.text.titleATX(5))
         self.actFormatHeaderATX6.triggered.connect(lambda: self.text.titleATX(6))
+        self.text.openRef.connect(self.openNoteFromRef)
 
         # Add some status tips
         self.tab.setStatusTip("CTRL+Tab to cycle through open notebooks. (CTRL+Shift+Tab to cycle backward)")
@@ -309,6 +310,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         item = self.tblList.currentItem()
         UID = self.tblList.item(item.row(), 0).data(Qt.UserRole)
         self.openNote(UID)
+
+    def openNoteFromRef(self, date, title):
+        notes = [n for n in self.allNotes()
+                 if n.date == date and n.title == title]
+        if notes:
+            self.openNote(notes[0].UID)
 
     def openNote(self, UID, noHistory=False):
         note = self.noteFromUID(UID)
