@@ -7,7 +7,7 @@ import re
 from noteflow import functions as F
 from noteflow.ui.views.markdownHighlighter import MarkdownHighlighter
 from noteflow.ui.views.markdownEnums import MarkdownState as MS
-#from noteflow.ui.views.markdownTokenizer import MarkdownTokenizer as MT
+from noteflow.ui.views.markdownTokenizer import MarkdownTokenizer as MT
 
 
 class noteEdit(QPlainTextEdit):
@@ -65,6 +65,12 @@ class noteEdit(QPlainTextEdit):
         self.updateTimer.timeout.connect(self.updateNote)
         self.textChanged.connect(self.updateTimer.start)
 
+        # Clickable things
+        self.clickRects = []
+        self.textChanged.connect(self.getClickRects)
+        self.document().documentLayoutChanged.connect(self.getClickRects)
+        self.setMouseTracking(True)
+
 # ==============================================================================
 #   COMPLETER
 # ==============================================================================
@@ -82,7 +88,7 @@ class noteEdit(QPlainTextEdit):
         a, b = tc.anchor(), tc.position()
         tc.setPosition(max(0, a-1))
         tc.setPosition(b, tc.KeepAnchor)
-        return tc.selectedText()
+        return tc.selectedText(), a-1
 
     def insertCompletion(self, completion):
         # Remove the parenthesis (42×) at the end
@@ -144,9 +150,11 @@ class noteEdit(QPlainTextEdit):
             QPlainTextEdit.keyPressEvent(self, event)
 
         # Text under cursor
-        completionPrefix = self.textUnderCursor()
+        completionPrefix, start = self.textUnderCursor()
+        start -= self.textCursor().block().position()
         pos = self.textCursor().position() - self.textCursor().block().position() - len(completionPrefix)
-        if pos != 0 and completionPrefix and completionPrefix[0] == "#":
+        if (pos != 0 and completionPrefix and completionPrefix[0] == "#"
+            and start == pos):
 
             # Popup completer
             if completionPrefix != self.completer.completionPrefix():
@@ -567,6 +575,137 @@ class noteEdit(QPlainTextEdit):
         if self.highlighter:
             self.highlighter.setSearched(expression, regExp, caseSensitivity)
 
+# ==============================================================================
+#   LINKS
+# ==============================================================================
+
+    def resizeEvent(self, event):
+        QPlainTextEdit.resizeEvent(self, event)
+        self.getClickRects()
+
+    def scrollContentsBy(self, dx, dy):
+        QPlainTextEdit.scrollContentsBy(self, dx, dy)
+        self.getClickRects()
+
+    def getClickRects(self):
+        cursor = self.textCursor()
+        f = self.font()
+        # f.setFixedPitch(True)
+        # f.setWeight(QFont.DemiBold)
+        fm = QFontMetrics(f)
+        refs = []
+        text = self.toPlainText()
+        for rx in [
+                MT.imageRegex,
+                MT.automaticLinkRegex,
+                MT.inlineLinkRegex,
+            ]:
+            pos = 0
+            while rx.indexIn(text, pos) != -1:
+                cursor.setPosition(rx.pos())
+                r1 = self.cursorRect(cursor)
+                pos = rx.pos() + rx.matchedLength()
+                cursor.setPosition(pos)
+                r2 = self.cursorRect(cursor)
+                if r1.top() == r2.top():
+                    ct = ClickThing(
+                            QRect(r1.topLeft(), r2.bottomRight()),
+                            rx,
+                            rx.capturedTexts())
+                    refs.append(ct)
+                else:
+                    r1.setRight(self.viewport().geometry().right())
+                    refs.append(ClickThing(r1, rx, rx.capturedTexts()))
+                    r2.setLeft(self.viewport().geometry().left())
+                    refs.append(ClickThing(r2, rx, rx.capturedTexts()))
+                    # We check for middle lines
+                    cursor.setPosition(rx.pos())
+                    cursor.movePosition(cursor.Down)
+                    while self.cursorRect(cursor).top() != r2.top():
+                        r3 = self.cursorRect(cursor)
+                        r3.setLeft(self.viewport().geometry().left())
+                        r3.setRight(self.viewport().geometry().right())
+                        refs.append(ClickThing(r3, rx, rx.capturedTexts()))
+                        cursor.movePosition(cursor.Down)
+
+        self.clickRects = refs
+
+    def mouseMoveEvent(self, event):
+        QPlainTextEdit.mouseMoveEvent(self, event)
+
+        onRect = [r for r in self.clickRects if r.rect.contains(event.pos())]
+
+        if not onRect:
+            qApp.restoreOverrideCursor()
+            QToolTip.hideText()
+            return
+
+        ct = onRect[0]
+        if not qApp.overrideCursor():
+            qApp.setOverrideCursor(Qt.PointingHandCursor)
+
+        if ct.regex == MT.automaticLinkRegex:
+            tooltip = ct.texts[2] or ct.texts[4]
+
+        elif ct.regex == MT.imageRegex:
+            # tooltip = ct.texts[1] or ct.texts[2]
+            # tooltip = "<p><b>{}</b></p><p><img src='{}'></p>".format(ct.texts[1], ct.texts[2])
+            tt = "<p><b>"+ct.texts[1]+"</b></p><p><img src='data:image/png;base64,{}'></p>"
+            tooltip = None
+            F.getImage(ct.texts[2], self.tooltipImage, [ct, event.pos()])
+
+        elif ct.regex == MT.inlineLinkRegex:
+            tooltip = ct.texts[1] or ct.texts[2]
+
+        if tooltip:
+            QToolTip.showText(self.mapToGlobal(event.pos()), tooltip)
+
+    def tooltipImage(self, success, reply, savedVars):
+        ct, pos = savedVars
+
+        if success:
+            px = reply
+            buffer = QBuffer()
+            buffer.open(QIODevice.WriteOnly)
+            px.save(buffer, "PNG", quality=100)
+            image = bytes(buffer.data().toBase64()).decode()
+            tt = "<p><img src='data:image/png;base64,{}'></p>".format(image)
+            QToolTip.showText(self.mapToGlobal(pos), tt)
+
+        else:
+            tt = "<p>Error: {}</p>".format(reply)
+            QToolTip.showText(self.mapToGlobal(pos), tt)
+
+    def mouseReleaseEvent(self, event):
+        QPlainTextEdit.mouseReleaseEvent(self, event)
+        onRect = [r for r in self.clickRects if r.rect.contains(event.pos())]
+        if onRect and event.modifiers() & Qt.ControlModifier:
+            ct = onRect[0]
+
+            if ct.regex == MT.automaticLinkRegex:
+                url = ct.texts[2] or ct.texts[4]
+            elif ct.regex == MT.imageRegex:
+                url = ct.texts[2]
+            elif ct.regex == MT.inlineLinkRegex:
+                url = ct.texts[2]
+
+            F.openURL(url)
+            qApp.restoreOverrideCursor()
+
+    def paintEvent(self, event):
+        QPlainTextEdit.paintEvent(self, event)
+
+        # Debug: paint rects
+        painter = QPainter(self.viewport())
+        painter.setPen(Qt.gray)
+        for r in self.clickRects:
+            painter.drawRect(r.rect)
+
+class ClickThing:
+    def __init__(self, rect, regex, texts):
+        self.rect = rect
+        self.regex = regex
+        self.texts = texts
 
 class UserData(QTextBlockUserData):
     def __init__(self, block, editor):

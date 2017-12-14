@@ -6,6 +6,7 @@ import os, re, json, string
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtNetwork import *
 
 
 def appPath(suffix=None):
@@ -15,7 +16,7 @@ def appPath(suffix=None):
     return p
 
 def loadJSON(path):
-    with open(appPath(path)) as f:    
+    with open(appPath(path)) as f:
         return json.load(f)
 
 def countWords(words):
@@ -26,7 +27,7 @@ def countWords(words):
         else:
             r[w] = 1
     return r
-    
+
 def settings(key=None, default=None, type=None):
     #~/.config/noteflow/noteflow.conf on my systems
     s = QSettings(qApp.organizationName(), qApp.applicationName())
@@ -37,7 +38,7 @@ def settings(key=None, default=None, type=None):
             return type(s.value(key, default))
         else:
             return s.value(key, default)
-    
+
 def countDicts(dicts):
     r = {}
     for d in dicts:
@@ -48,7 +49,7 @@ def countDicts(dicts):
                 r[w] = d[w]
     return r
 
-UID = 0    
+UID = 0
 def uniqueID():
     global UID
     UID += 1
@@ -60,14 +61,14 @@ def findRowByUserData(table, data):
                                   flags = Qt.MatchExactly)
     if matches:
         return table.item(matches[0].row(), matches[0].column())
-    
+
 def findNoteByUID(notebooks, UID):
     for nb in notebooks:
         for n in nb.notes:
             if n.UID == UID:
                 return n
     return None
-    
+
 def slugify(name):
     """
     A basic slug function, that escapes all spaces to "_" and all non letters/digits to "-".
@@ -88,7 +89,7 @@ def slugify(name):
 def loadTextFile(path):
     with open(path, "r", encoding="utf8") as f:
         return f.read()
-    
+
 def strToDate(date):
     return QDate(*[int(i) for i in date.split("-")])
 
@@ -97,5 +98,41 @@ def stats(text):
     text = text.replace("\n", "")
     c = len(text)
     c2 = len([c for c in text if c.strip()])
-    
+
     return w, c, c2
+
+def openURL(url):
+    """
+    Opens url (string) in browser using desktop default application.
+    """
+    QDesktopServices.openUrl(QUrl(url))
+
+nm = QNetworkAccessManager()
+nmCallback = None
+nmSavedVars = None
+nmUrl = None
+getImageCache = {}
+
+def getImage(url, callback, savedVars=None):
+    if url in getImageCache:
+        return callback(*getImageCache[url], savedVars)
+    request = QNetworkRequest(QUrl(url))
+    global nmCallback, nmSavedVars, nmUrl
+    nmUrl = url
+    nmCallback = callback
+    nmSavedVars = savedVars
+    nm.get(request)
+
+def nmFinished(reply):
+    global getImageCache
+    if reply.error() != QNetworkReply.NoError:
+        getImageCache[nmUrl] = (False, reply.errorString())
+        print(reply.errorString())
+        nmCallback(False, reply.errorString(), nmSavedVars)
+    else:
+        px = QPixmap()
+        px.loadFromData(reply.readAll())
+        px = px.scaled(800, 600, Qt.KeepAspectRatio)
+        getImageCache[nmUrl] = (True, px)
+        nmCallback(True, px, nmSavedVars)
+nm.finished.connect(nmFinished)
