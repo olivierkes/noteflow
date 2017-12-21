@@ -8,7 +8,7 @@ from noteflow import functions as F
 from noteflow.ui.views.markdownHighlighter import MarkdownHighlighter
 from noteflow.ui.views.markdownEnums import MarkdownState as MS
 from noteflow.ui.views.markdownTokenizer import MarkdownTokenizer as MT
-
+from noteflow.ui.views.noteCompleter import noteCompleter
 
 class noteEdit(QPlainTextEdit):
 
@@ -51,16 +51,21 @@ class noteEdit(QPlainTextEdit):
                 QColor(Qt.red)
             )
 
-        self.completer = QCompleter()
+        # Tag Completer
+        self.tagCompleter = QCompleter()
         self.tagModel = QStringListModel()
-        self.completer.setModel(self.tagModel)
-        self.completer.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
-        self.completer.setWrapAround(False)
-        self.completer.setWidget(self)
-        self.completer.setCompletionMode(QCompleter.PopupCompletion)
-        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.completer.setFilterMode(Qt.MatchContains)
-        self.completer.activated.connect(self.insertCompletion)
+        self.tagCompleter.setModel(self.tagModel)
+        self.tagCompleter.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
+        self.tagCompleter.setWrapAround(False)
+        self.tagCompleter.setWidget(self)
+        self.tagCompleter.setCompletionMode(QCompleter.PopupCompletion)
+        self.tagCompleter.setCaseSensitivity(Qt.CaseInsensitive)
+        self.tagCompleter.setFilterMode(Qt.MatchContains)
+        self.tagCompleter.activated.connect(self.insertTagCompletion)
+
+        # Note Completer
+        self.noteCompleter = noteCompleter(self)
+        self.noteCompleter.activated.connect(self.insertNoteCompletion)
 
         # Statistics
         self.statsTimer = QTimer()
@@ -84,7 +89,7 @@ class noteEdit(QPlainTextEdit):
         self.setMouseTracking(True)
 
 # ==============================================================================
-#   COMPLETER
+#   TAG COMPLETER
 # ==============================================================================
 
     def updateCompleterWords(self):
@@ -94,7 +99,7 @@ class noteEdit(QPlainTextEdit):
         words = ["{} ({}×)".format(w, tags[w]) for w in words]
         self.tagModel.setStringList(words)
 
-    def textUnderCursor(self):
+    def tagUnderCursor(self):
         tc = self.textCursor()
         tc.select(QTextCursor.WordUnderCursor)
         a, b = tc.anchor(), tc.position()
@@ -102,14 +107,14 @@ class noteEdit(QPlainTextEdit):
         tc.setPosition(b, tc.KeepAnchor)
         return tc.selectedText(), a-1
 
-    def insertCompletion(self, completion):
+    def insertTagCompletion(self, completion):
         # Remove the parenthesis (42×) at the end
         completion = re.sub(r"^(#.*) \(.*\)$", "\\1", completion)
 
-        if self.completer.widget() != self:
+        if self.tagCompleter.widget() != self:
             return;
         tc = self.textCursor()
-        #extra = len(completion) - len(self.completer.completionPrefix())
+        #extra = len(completion) - len(self.tagCompleter.completionPrefix())
         #tc.movePosition(QTextCursor.Left)
         #tc.movePosition(QTextCursor.EndOfWord)
         #tc.insertText(completion[-extra:])
@@ -120,6 +125,32 @@ class noteEdit(QPlainTextEdit):
         self.setTextCursor(tc)
 
 # ==============================================================================
+#   NOTECOMPLETER
+# ==============================================================================
+
+    def insertNoteCompletion(self, note):
+        tc = self.textCursor()
+        txt = "[{title}]({date}/{title})".format(title=note.title,
+                                                 date=note.date)
+        tc.insertText(txt)
+        self.setTextCursor(tc)
+
+    def popupNoteCompleter(self):
+        if self.noteCompleter:
+            cr = self.cursorRect()
+            cr.moveTopLeft(self.mapToGlobal(cr.bottomLeft()))
+            cr.setWidth(self.noteCompleter.sizeHint().width())
+            cr.setHeight(self.noteCompleter.sizeHint().height())
+            self.noteCompleter.setGeometry(cr)
+            self.noteCompleter.popup(self.textUnderCursor(select=True))
+
+    def textUnderCursor(self, select=False):
+        tc = self.textCursor()
+        tc.select(QTextCursor.WordUnderCursor)
+        if select:
+            self.setTextCursor(tc)
+        return tc.selectedText()
+# ==============================================================================
 #   KEYS
 # ==============================================================================
 
@@ -129,13 +160,23 @@ class noteEdit(QPlainTextEdit):
         cursor = self.textCursor()
         #QPlainTextEdit.keyPressEvent(self, event)
 
-        if self.completer and self.completer.popup().isVisible():
+        if (self.tagCompleter and self.tagCompleter.popup().isVisible()
+            or self.noteCompleter.isVisible()):
             # The following keys are forwarded by the completer to the widget
             if event.key() in [Qt.Key_Enter, Qt.Key_Return,
                                Qt.Key_Escape, Qt.Key_Tab, Qt.Key_Backtab]:
                 event.ignore()
                 # Let the completer do default behavior
                 return
+
+        # Note completer
+        isShortcut = (event.modifiers() == Qt.ControlModifier and \
+                      event.key() == Qt.Key_Space)
+
+        if self.noteCompleter and isShortcut:
+            self.popupNoteCompleter()
+        else:
+            self.noteCompleter.setVisible(False)
 
         if k == Qt.Key_Return:
             if not cursor.hasSelection():
@@ -162,26 +203,26 @@ class noteEdit(QPlainTextEdit):
             QPlainTextEdit.keyPressEvent(self, event)
 
         # Text under cursor
-        completionPrefix, start = self.textUnderCursor()
+        completionPrefix, start = self.tagUnderCursor()
         start -= self.textCursor().block().position()
         pos = self.textCursor().position() - self.textCursor().block().position() - len(completionPrefix)
         if (pos != 0 and completionPrefix and completionPrefix[0] == "#"
             and start == pos):
 
             # Popup completer
-            if completionPrefix != self.completer.completionPrefix():
+            if completionPrefix != self.tagCompleter.completionPrefix():
                 self.updateCompleterWords()
-                self.completer.setCompletionPrefix(completionPrefix[1:])
-                self.completer.popup().setCurrentIndex(
-                    self.completer.completionModel().index(0, 0))
+                self.tagCompleter.setCompletionPrefix(completionPrefix[1:])
+                self.tagCompleter.popup().setCurrentIndex(
+                    self.tagCompleter.completionModel().index(0, 0))
 
             cr = QRect(self.cursorRect())
-            cr.setWidth(self.completer.popup().sizeHintForColumn(0)
-                        + self.completer.popup().verticalScrollBar().sizeHint().width())
-            self.completer.complete(cr)
+            cr.setWidth(self.tagCompleter.popup().sizeHintForColumn(0)
+                        + self.tagCompleter.popup().verticalScrollBar().sizeHint().width())
+            self.tagCompleter.complete(cr)
 
         else:
-            self.completer.popup().hide()
+            self.tagCompleter.popup().hide()
 
     # Again, thanks to GhostWriter, mainly
     def handleCarriageReturn(self):

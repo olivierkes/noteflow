@@ -10,25 +10,25 @@ class tableView(QTableWidget):
         QTableWidget.__init__(self, parent)
         self.notes = []
         self.customTags = []
-        
+
         self.delegate = customDelegate(self)
         self.setItemDelegateForColumn(1, self.delegate)
-        
+
     def setCustomTags(self, tags):
         self.customTags = tags
         self.customTags.tagsChanged.connect(self.customTagsChanged)
-        
+
     def customTagsChanged(self):
         self.update()
-        
+
     def setupNotes(self, notes):
         if sorted(notes, key=lambda n:n.UID) == \
            sorted(self.notes, key=lambda n:n.UID):
             # Notes haven't changed
             return
-        
+
         self.notes = []
-        self.clearContents()    
+        self.clearContents()
         self.setRowCount(len(notes))
         y = 0
         self.setSortingEnabled(False)
@@ -37,15 +37,15 @@ class tableView(QTableWidget):
             y += 1
         self.setSortingEnabled(True)
         self.sortItems(0)
-        
+
     def addTblItem(self, note, y=None):
         f = qApp.font()
         f.setPointSize(f.pointSize() * .8)
-        
+
         if y is None:
             y = self.rowCount()
             self.setRowCount(y+1)
-        
+
         i = QTableWidgetItem(note.date)
         i.setData(Qt.UserRole, note.UID)
         i.setForeground(Qt.darkGray)
@@ -54,20 +54,20 @@ class tableView(QTableWidget):
         item = QTableWidgetItem(note.title or note.text[:50])
         self.setItem(y, 1, item)
         self.setItem(y, 2, QTableWidgetItem(str(note.UID)))
-                        
+
         self.notes.append(note)
-        
-    def addNote(self, note):        
+
+    def addNote(self, note):
         self.setSortingEnabled(False)
         self.addTblItem(note)
         self.setSortingEnabled(True)
         self.sortItems(0)
-        
+
 class customDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self)
         self.parent = parent
-        
+
     def paint(self, painter, option, index):
 #        return QStyledItemDelegate.paint(self, painter, option, index)
         self.initStyleOption(option, index)
@@ -88,7 +88,7 @@ class customDelegate(QStyledItemDelegate):
                 k += 1
         except:
             note2 = False
-        
+
         # Draw a red line
         if note2 and \
                F.strToDate(note.date) < QDate.currentDate() and \
@@ -113,9 +113,9 @@ class customDelegate(QStyledItemDelegate):
             index.model().setData(index, QBrush(color[0].color), Qt.ForegroundRole)
         else:
             index.model().setData(index, QBrush(), Qt.ForegroundRole)
-        
+
         tagsWithBackgrounds = [t for t in tags if t.background or t.border]
-        
+
         M = 4
         h = option.rect.height()
 
@@ -130,13 +130,13 @@ class customDelegate(QStyledItemDelegate):
 
         # Call the native painter, easier
         QStyledItemDelegate.paint(self, painter, option, index)
-        
+
         # Draw circles for tags with backgrounds
         r = QRect(0, 0, h - 2*M, h - 2*M)
         r.moveTop(option.rect.top() + M)
         r.moveLeft(option.rect.right() + M)
         for t in tagsWithBackgrounds:
-            background = t.background if t.background else Qt.transparent  
+            background = t.background if t.background else Qt.transparent
             border = t.border
             painter.save()
             painter.setBrush(QBrush(background))
@@ -144,5 +144,4 @@ class customDelegate(QStyledItemDelegate):
             #print(t.text, r)
             painter.drawEllipse(r)
             painter.restore()
-            r.moveLeft(r.right() + M + 1)   
-        
+            r.moveLeft(r.right() + M + 1)
