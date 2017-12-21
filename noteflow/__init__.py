@@ -6,6 +6,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PyQt5 import QtWebEngineWidgets
 
 _version = "0.1.0"
 
@@ -17,7 +18,7 @@ MW = None
 def run():
     global MW
 
-    app = QApplication(sys.argv)
+    app = QApplication(sys.argv + ["--disable-web-security"])
     app.setOrganizationName("noteflow")
     app.setOrganizationDomain("www.theologeek.ch")
     app.setApplicationName("noteflow")

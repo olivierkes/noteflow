@@ -136,3 +136,68 @@ def nmFinished(reply):
         getImageCache[nmUrl] = (True, px)
         nmCallback(True, px, nmSavedVars)
 nm.finished.connect(nmFinished)
+
+def linkMatchedNote(title, url):
+    from noteflow import MW
+    allNotes = MW.allNotes()
+
+    if url[:4] == "n://":
+        date = url[4:14]
+        title = url[15:]
+        search = [n for n in allNotes
+                  if n.date == date
+                  and n.title == title]
+        if search:
+            n = search[0]
+            return n
+
+    # [title](date) → date, and title in note's title
+    search = [n for n in allNotes
+              if title.lower() in n.title.lower()
+              and n.date == url]
+    if search:
+        n = search[0]
+        return n
+
+    # [](2017-12-18/Title) → 2018-12-18/Something with Title in it
+    search = [n for n in allNotes
+              if n.date in url
+              and "/" in url
+              and url.split("/")[1] != ""
+              and url.split("/")[1].lower() in n.title.lower()]
+    if search:
+        n = search[0]
+        return n
+
+    # [](Title) → first note whose title starts with "Title"
+    search = [n for n in allNotes
+              if url.lower() == n.title[:len(url)].lower()]
+    if search:
+        n = search[0]
+        return n
+
+def fixLocalLinks(text):
+
+    def repl(m):
+        if len(m.groups()) == 2:  # automatic link
+            title = m.groups()[0]
+            url = m.groups()[1]
+
+        else:
+            title = m.group(1)
+            url = m.group(2)
+        n = linkMatchedNote(title, url)
+        if n:
+            txt = "[{title}](n://{date}/{title})".format(title=n.title,
+                                                         date=n.date)
+            return txt
+        else:
+            return(m.group(0))
+
+    for rx in [
+            re.compile(r"(?!!)\[([^\n]+?)\]\(([^\n]+?)\)"),
+            re.compile(r"(<([a-zA-Z]+\:[^\n]+?)>)")
+        ]:
+        text = rx.sub(repl, text)
+
+    return text

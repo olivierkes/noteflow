@@ -26,7 +26,7 @@ def mainWindowSS():
             QScrollBar:horizontal{width: 6px;}
             QScrollBar:add-line{background:none;border:none;}
             QScrollBar:sub-line{background:none;border:none;}
-            
+
             QGroupBox{border:none; margin: 2ex 0 0 2ex; font-weight: bold;}
             QGroupBox:title{subcontrol-origin: margin;}
 
@@ -56,12 +56,12 @@ def lineEditSS_2():
                checked=bgChecked,
                hover=borderColor,
                blue=blue)
-    
-    
+
+
 def transparentSS():
     return """background: transparent;
               border:none;"""
-              
+
 def tabBarSS():
     return """
         QTabWidget::pane{{
@@ -96,7 +96,7 @@ def tabBarSS():
             background:#ddd;
         }}
         """.format()
-        
+
 def textEditorSS():
     return """
         QTextEdit {{
@@ -105,5 +105,5 @@ def textEditorSS():
         QTextEdit:disabled {{
             background: transparent;
         }}
-        
+
     """.format()

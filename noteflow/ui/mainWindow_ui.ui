@@ -305,7 +305,7 @@
       </widget>
       <widget class="QStackedWidget" name="editor">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="textPage">
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -529,6 +529,9 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
+         <item>
+          <widget class="webView" name="web" native="true"/>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page">
@@ -574,8 +577,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>96</width>
+              <height>26</height>
              </rect>
             </property>
            </widget>
@@ -640,7 +643,7 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>V&amp;iew</string>
     </property>
     <addaction name="actViewToolbar"/>
     <addaction name="actViewFilterPanel"/>
@@ -658,7 +661,7 @@
     </property>
     <widget class="QMenu" name="menuHeader">
      <property name="title">
-      <string>Header</string>
+      <string>&amp;Header</string>
      </property>
      <addaction name="actFormatHeaderSetext1"/>
      <addaction name="actFormatHeaderSetext2"/>
@@ -791,7 +794,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Save All</string>
+    <string>&amp;Save All</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -803,7 +806,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>New Note</string>
+    <string>N&amp;ew Note</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -815,7 +818,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Previous</string>
+    <string>&amp;Previous</string>
    </property>
    <property name="shortcut">
     <string>Alt+Left</string>
@@ -827,7 +830,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Next</string>
+    <string>&amp;Next</string>
    </property>
    <property name="shortcut">
     <string>Alt+Right</string>
@@ -839,7 +842,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Delete Note</string>
+    <string>De&amp;lete Note</string>
    </property>
    <property name="shortcut">
     <string>Del</string>
@@ -850,7 +853,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Filter panel</string>
+    <string>&amp;Filter panel</string>
    </property>
    <property name="shortcut">
     <string>F2</string>
@@ -865,7 +868,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Calendar</string>
+    <string>&amp;Calendar</string>
    </property>
   </action>
   <action name="actToggleTags">
@@ -873,7 +876,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Tags Cloud</string>
+    <string>Ta&amp;gs Cloud</string>
    </property>
   </action>
   <action name="actToggleWords">
@@ -881,7 +884,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Words Cloud</string>
+    <string>&amp;Words Cloud</string>
    </property>
   </action>
   <action name="actToggleList">
@@ -893,7 +896,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>List</string>
+    <string>&amp;List</string>
    </property>
   </action>
   <action name="actNoteUp">
@@ -902,7 +905,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Up</string>
+    <string>&amp;Up</string>
    </property>
    <property name="shortcut">
     <string>Alt+Up</string>
@@ -914,7 +917,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Down</string>
+    <string>&amp;Down</string>
    </property>
    <property name="shortcut">
     <string>Alt+Down</string>
@@ -930,7 +933,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Toolbar</string>
+    <string>&amp;Toolbar</string>
    </property>
   </action>
   <action name="actNotePreview">
@@ -942,7 +945,7 @@
      <normaloff>../../../../../../../../.designer/backup</normaloff>../../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>Preview</string>
+    <string>Pre&amp;view</string>
    </property>
    <property name="shortcut">
     <string>F3</string>
@@ -954,7 +957,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Bold</string>
+    <string>&amp;Bold</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
@@ -966,7 +969,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Italic</string>
+    <string>&amp;Italic</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
@@ -978,7 +981,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Strike</string>
+    <string>&amp;Strike</string>
    </property>
   </action>
   <action name="actFormatVerbatim">
@@ -987,12 +990,12 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Verbatim</string>
+    <string>&amp;Verbatim</string>
    </property>
   </action>
   <action name="actFormatComment">
    <property name="text">
-    <string>Comment</string>
+    <string>&amp;Comment</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
@@ -1000,7 +1003,7 @@
   </action>
   <action name="actFormatCommentLine">
    <property name="text">
-    <string>Comment Line</string>
+    <string>Comment &amp;Line</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
@@ -1012,7 +1015,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Clear</string>
+    <string>Cl&amp;ear</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+0</string>
@@ -1020,17 +1023,17 @@
   </action>
   <action name="actFormatHeaderSetext1">
    <property name="text">
-    <string>Level 1 (Setext)</string>
+    <string>&amp;Level 1 (Setext)</string>
    </property>
   </action>
   <action name="actFormatHeaderSetext2">
    <property name="text">
-    <string>Level 2 (Setext)</string>
+    <string>Level &amp;2 (Setext)</string>
    </property>
   </action>
   <action name="actFormatHeaderATX1">
    <property name="text">
-    <string>Level 1 (atx)</string>
+    <string>Level &amp;1 (atx)</string>
    </property>
    <property name="toolTip">
     <string>Level 1 (ATX)</string>
@@ -1041,7 +1044,7 @@
   </action>
   <action name="actFormatHeaderATX2">
    <property name="text">
-    <string>Level 2</string>
+    <string>L&amp;evel 2</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+2</string>
@@ -1049,7 +1052,7 @@
   </action>
   <action name="actFormatHeaderATX3">
    <property name="text">
-    <string>Level 3</string>
+    <string>Level &amp;3</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+3</string>
@@ -1057,7 +1060,7 @@
   </action>
   <action name="actFormatHeaderATX4">
    <property name="text">
-    <string>Level 4</string>
+    <string>Level &amp;4</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+4</string>
@@ -1065,7 +1068,7 @@
   </action>
   <action name="actFormatHeaderATX5">
    <property name="text">
-    <string>Level 5</string>
+    <string>Level &amp;5</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+5</string>
@@ -1073,7 +1076,7 @@
   </action>
   <action name="actFormatHeaderATX6">
    <property name="text">
-    <string>Level 6</string>
+    <string>Level &amp;6</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+6</string>
@@ -1085,7 +1088,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Superscript</string>
+    <string>S&amp;uperscript</string>
    </property>
    <property name="shortcut">
     <string>Ctrl++</string>
@@ -1097,7 +1100,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Subscript</string>
+    <string>Subsc&amp;ript</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
@@ -1128,7 +1131,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Structure</string>
+    <string>&amp;Structure</string>
    </property>
    <property name="shortcut">
     <string>F4</string>
@@ -1167,6 +1170,12 @@
    <class>structureView</class>
    <extends>QTreeWidget</extends>
    <header>noteflow.ui.views.structureView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>webView</class>
+   <extends>QWidget</extends>
+   <header>noteflow.ui.views.webView.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

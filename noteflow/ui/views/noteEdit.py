@@ -130,8 +130,8 @@ class noteEdit(QPlainTextEdit):
 
     def insertNoteCompletion(self, note):
         tc = self.textCursor()
-        txt = "[{title}]({date}/{title})".format(title=note.title,
-                                                 date=note.date)
+        txt = "[{title}](n://{date}/{title})".format(title=note.title,
+                                                     date=note.date)
         tc.insertText(txt)
         self.setTextCursor(tc)
 
@@ -759,40 +759,11 @@ class noteEdit(QPlainTextEdit):
                 url = ct.texts[2]
 
             # Check if it's a note reference
-            from noteflow import MW
-            allNotes = MW.allNotes()
-            match = False
             title = ct.texts[1]
-
-            if [n for n in allNotes if title.lower() in n.title.lower()
-                and n.date == url]:
-                # [title](date) → date, and title in note's title
-                n = [n for n in allNotes if title.lower() in n.title.lower()
-                     and n.date == url][0]
+            n = F.linkMatchedNote(title, url)
+            if n:
+                from noteflow import MW
                 MW.openNote(n.UID)
-
-            elif [n for n in allNotes if n.date in url
-                  and "/" in url
-                  and url.split("/")[1].lower() in n.title.lower()]:
-                # [](2017-12-18/Title) → 2018-12-18/Something with Title in it
-                n = [n for n in allNotes if n.date in url
-                     and "/" in url
-                     and url.split("/")[1].lower() in n.title.lower()][0]
-                MW.openNote(n.UID)
-
-            elif [n for n in allNotes
-                  if url.lower() == n.title[:len(url)].lower()]:
-                # [](Title) → first note whose title start with "Title"
-                n = [n for n in allNotes
-                     if url.lower() == n.title[:len(url)].lower()][0]
-                MW.openNote(n.UID)
-
-            elif self.noteRef.exactMatch(url):
-                # [](data/title) exact match
-                date = self.noteRef.capturedTexts()[1]
-                title = self.noteRef.capturedTexts()[2]
-                self.openRef.emit(date, title)
-
             else:
                 F.openURL(url)
                 qApp.restoreOverrideCursor()

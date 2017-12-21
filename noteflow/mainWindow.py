@@ -365,10 +365,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             except ZeroDivisionError:
                 pass
 
-        import random
-        #FIXME: which one to chose?
-        if preview and random.random() > .8 and False:
-            self.web.setStyleSheet(S.webViewSS())
+        # import random
+        # #FIXME: which one to chose?
+        if preview: # and False
             source = MD.render(self.text.note.toText())
             self.web.setHtml(source)
             self.editor.setCurrentIndex(1)
