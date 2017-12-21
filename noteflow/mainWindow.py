@@ -497,8 +497,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def newNote(self):
         nb = self.currentNotebook()
-        d = (self.dateA if self.dateA else QDate.currentDate()).toString(Qt.ISODate)
-        n = nb.newNote(date=d)
+        date = (self.dateA if self.dateA
+                else QDate.currentDate()).toString(Qt.ISODate)
+        if self.text.note and self.text.textCursor().selectedText():
+            title = self.text.textCursor().selectedText()
+            n = nb.newNote(date=date, title=title)
+            self.text.insertNoteCompletion(n)
+        else:
+            n = nb.newNote(date=date)
         self.openNote(n.UID)
 
     def deleteNote(self):

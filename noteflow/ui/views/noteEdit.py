@@ -590,6 +590,9 @@ class noteEdit(QPlainTextEdit):
             # Cursor
             self.note._posInNoteCursor = self.textCursor().position()
 
+            # Submit
+            self.updateNote()
+
         if note is not None:
             self.note = note
             self.setPlainText(note.wholeText())
