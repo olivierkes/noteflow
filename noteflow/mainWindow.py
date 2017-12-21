@@ -321,6 +321,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         note = self.noteFromUID(UID)
         if self.text.note == note:
             return
+
+        # Select correct tab
+        if (self.tab.currentIndex() != 0
+            and self.tab.tabData(self.tab.currentIndex()) != note._notebook.UID):
+            [self.tab.setCurrentIndex(i) for i in range(self.tab.count())
+             if self.tab.tabData(i) == note._notebook.UID]
+
         self.tblSelectRow(UID)
         self.calendar.blockSignals(True)
         self.calendar.setSelectedDate(F.strToDate(note.date))
