@@ -108,34 +108,45 @@ def openURL(url):
     QDesktopServices.openUrl(QUrl(url))
 
 nm = QNetworkAccessManager()
-nmCallback = None
-nmSavedVars = None
-nmUrl = None
 getImageCache = {}
+requestSettings = {}
 
 def getImage(url, callback, savedVars=None):
+    url = QUrl(url)
     if url in getImageCache:
-        return callback(*getImageCache[url], savedVars)
-    request = QNetworkRequest(QUrl(url))
-    global nmCallback, nmSavedVars, nmUrl
-    nmUrl = url
-    nmCallback = callback
-    nmSavedVars = savedVars
+        if getImageCache[url] is not None:
+            return callback(*getImageCache[url], savedVars)
+        else:
+            return
+
+    global getImageCache, requestSettings
+    getImageCache[url] = None
+    requestSettings[url] = (callback, savedVars)
+    request = QNetworkRequest(url)
     nm.get(request)
 
 def nmFinished(reply):
-    global getImageCache
+    global getImageCache, requestSettings
+    url = reply.url()
+    nmCallback, nmSavedVars = requestSettings[url]
     if reply.error() != QNetworkReply.NoError:
-        getImageCache[nmUrl] = (False, reply.errorString())
+        getImageCache[url] = (False, reply.errorString())
         print(reply.errorString())
         nmCallback(False, reply.errorString(), nmSavedVars)
     else:
         px = QPixmap()
         px.loadFromData(reply.readAll())
         px = px.scaled(800, 600, Qt.KeepAspectRatio)
-        getImageCache[nmUrl] = (True, px)
+        getImageCache[url] = (True, px)
         nmCallback(True, px, nmSavedVars)
 nm.finished.connect(nmFinished)
+
+def pixmapToTooltip(pixmap):
+    buffer = QBuffer()
+    buffer.open(QIODevice.WriteOnly)
+    pixmap.save(buffer, "PNG", quality=100)
+    image = bytes(buffer.data().toBase64()).decode()
+    return "<p><img src='data:image/png;base64,{}'></p>".format(image)
 
 def linkMatchedNote(title, url):
     from noteflow import MW

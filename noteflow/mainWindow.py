@@ -33,6 +33,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 #       UI Stuff
 #==============================================================================
 
+        # Preview Pixmap
+        self.initPreviewPixmap()
+
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 12)
         self.splitter.setStretchFactor(2, 0)
@@ -1006,6 +1009,80 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     cf.setBackground(selectedDateColor)
 
             self.calendar.setDateTextFormat(qd, cf)
+
+#==============================================================================
+#   PREVIEW IMAGES
+#==============================================================================
+
+    def initPreviewPixmap(self):
+        self.lblPreview = QLabel()
+        self.lblPreview.hide()
+        self.lblPreview.setStyleSheet("background:{};".format(S.window))
+        self.lblPreview.setWindowFlags(Qt.Tool|Qt.FramelessWindowHint)
+        self.lblPreview.installEventFilter(self)
+        self.lblPreview.setMouseTracking(True)
+
+        self.timerPreviewPixmap = QTimer()
+        self.timerPreviewPixmap.setSingleShot(True)
+        self.timerPreviewPixmap.setInterval(500)
+        self.timerPreviewPixmap.timeout.connect(self.lblPreview.hide)
+
+    def eventFilter(self, obj, event):
+        if obj == self.lblPreview and event.type() == QEvent.MouseMove:
+            self.lblPreview.hide()
+            qApp.restoreOverrideCursor()
+        return False
+
+    def previewPixmap(self, pixmap, pos=None):
+        MODE = 0
+        maxWidth = 400
+        deltaMouse = 15
+        tempToolTip = False
+
+        if MODE == 0 or pos is None:
+            r1 = r2 = None
+
+            if self.filter.isVisible():
+                r1 = QRect(self.wdgTab.mapToGlobal(self.wdgTab.geometry().topLeft()),
+                           self.filter.mapToGlobal(self.filter.geometry().bottomRight()))
+
+            if self.structure.isVisible():
+                r2 = QRect(self.structure.mapToGlobal(self.structure.geometry().topLeft()),
+                           self.structure.mapToGlobal(self.structure.geometry().bottomRight()))
+
+            if r1 and r2:
+                r = r1 if r1.width() > r2.width() else r2
+            elif r1 or r2:
+                r = r1 or r2
+            else:
+                tempToolTip = True
+
+            if not tempToolTip:
+                pixmap = pixmap.scaledToWidth(r.width())
+                # r.setHeight(pixmap.height())
+                self.lblPreview.setGeometry(r)
+                self.lblPreview.setPixmap(pixmap)
+                self.lblPreview.show()
+
+        if MODE == 1 or tempToolTip:
+            pixmap = pixmap.scaledToWidth(maxWidth)
+            # pos = self.mapFromGlobal(pos)
+            screen = QDesktopWidget().screenGeometry(self)
+            if pos.x() + pixmap.width() > screen.width():
+                x = pos.x() - pixmap.width() - deltaMouse
+                y = pos.y() - pixmap.height() - deltaMouse
+            else:
+                x = pos.x() + deltaMouse
+                y = pos.y() + deltaMouse
+
+            self.lblPreview.setGeometry(x, y, pixmap.width(), pixmap.height())
+            self.lblPreview.setPixmap(pixmap)
+            self.lblPreview.show()
+            self.timerPreviewPixmap.start()
+
+    def hidePreviewPixmap(self):
+        self.lblPreview.hide()
+
 
 #==============================================================================
 #   SEARCH / REPLACE

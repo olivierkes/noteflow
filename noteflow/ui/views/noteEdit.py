@@ -700,12 +700,16 @@ class noteEdit(QPlainTextEdit):
 
     def mouseMoveEvent(self, event):
         QPlainTextEdit.mouseMoveEvent(self, event)
+        self._lastMousePos = event.pos()
 
         onRect = [r for r in self.clickRects if r.rect.contains(event.pos())]
+        self._lastMousePos = event.pos()
 
         if not onRect:
+            from noteflow import MW
             qApp.restoreOverrideCursor()
             QToolTip.hideText()
+            MW.hidePreviewPixmap()
             return
 
         ct = onRect[0]
@@ -718,6 +722,8 @@ class noteEdit(QPlainTextEdit):
         elif ct.regex == self.imageRegex:
             # tooltip = ct.texts[1] or ct.texts[2]
             # tooltip = "<p><b>{}</b></p><p><img src='{}'></p>".format(ct.texts[1], ct.texts[2])
+            if not ct.rect.contains(self._lastMousePos):
+                return
             tt = "<p><b>"+ct.texts[1]+"</b></p><p><img src='data:image/png;base64,{}'></p>"
             tooltip = None
             F.getImage(ct.texts[2], self.tooltipImage, [ct, event.pos()])
@@ -732,14 +738,15 @@ class noteEdit(QPlainTextEdit):
     def tooltipImage(self, success, reply, savedVars):
         ct, pos = savedVars
 
+        if not ct.rect.contains(self._lastMousePos):
+            # Mouse hase moved out of rect
+            return
+
         if success:
-            px = reply
-            buffer = QBuffer()
-            buffer.open(QIODevice.WriteOnly)
-            px.save(buffer, "PNG", quality=100)
-            image = bytes(buffer.data().toBase64()).decode()
-            tt = "<p><img src='data:image/png;base64,{}'></p>".format(image)
-            QToolTip.showText(self.mapToGlobal(pos), tt)
+            from noteflow import MW
+            MW.previewPixmap(reply, self.mapToGlobal(pos))
+            # tooltip = F.pixmapToTooltip(reply)
+            # QToolTip.showText(self.mapToGlobal(pos), tooltip)
 
         else:
             tt = "<p>Error: {}</p>".format(reply)
