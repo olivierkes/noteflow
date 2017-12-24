@@ -282,6 +282,13 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         lightBackground = background.darker(130)
         veryLightBackground = background.darker(105)
 
+        link = qApp.palette().color(QPalette.Link)
+        linkMarkup = QColor(link)
+        linkMarkup.setAlpha(120)
+        image = QColor(Qt.green)
+        imageMarkup = QColor(image)
+        imageMarkup.setAlpha(120)
+
         theme = {
             "markup": markup}
 
@@ -346,11 +353,21 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         theme[MTT.TokenHtmlTag] = {"color":Qt.red}
         theme[MTT.TokenHtmlEntity] = {"color":Qt.red}
-        theme[MTT.TokenAutomaticLink] = {"color": qApp.palette().color(QPalette.Link)}
-        theme[MTT.TokenInlineLink] = {"color": qApp.palette().color(QPalette.Link)}
-        theme[MTT.TokenReferenceLink] = {"color": qApp.palette().color(QPalette.Link)}
-        theme[MTT.TokenReferenceDefinition] = {"color": qApp.palette().color(QPalette.Link)}
-        theme[MTT.TokenImage] = {"color": Qt.green}
+        theme[MTT.TokenAutomaticLink] = {
+                "color": link,
+                "markupColor": linkMarkup}
+        theme[MTT.TokenInlineLink] = {
+                "color": link,
+                "markupColor": linkMarkup}
+        theme[MTT.TokenReferenceLink] = {
+                "color": link,
+                "markupColor": linkMarkup}
+        theme[MTT.TokenReferenceDefinition] = {
+                "color": link,
+                "markupColor": linkMarkup}
+        theme[MTT.TokenImage] = {
+                "color": image,
+                "markupColor": imageMarkup}
         theme[MTT.TokenHtmlComment] = {
                 "color": dark}
         theme[MTT.TokenNumberedList] = {
@@ -404,7 +421,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def applyFormattingForToken(self, token, text):
         if token.type != MTT.TokenUnknown:
-            format = self.format(token.position + token.openingMarkupLength)
+            if [t for t in token.markup if t[1] == 0]:
+                start = [t for t in token.markup if t[1] == 0][0][1]
+                format = self.format(token.position + start)
+            else:
+                format = self.format(token.position)
             markupFormat = self.format(token.position)
             if self.theme.get("markup"):
                 markupFormat.setForeground(self.theme["markup"])
@@ -427,22 +448,32 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             if theme:
                 format, markupFormat = self.formatsFromTheme(theme, format, markupFormat)
 
-            # Format openning Markup
-            self.setFormat(token.position, token.openingMarkupLength,
-                                   markupFormat)
+            # # Format openning Markup
+            # self.setFormat(token.position, token.openingMarkupLength,
+            #                        markupFormat)
+
+            # # Format Text
+            # self.setFormat(
+            #     token.position + token.openingMarkupLength,
+            #     token.length - token.openingMarkupLength - token.closingMarkupLength,
+            #     format)
+
+            # # Format closing Markup
+            # if token.closingMarkupLength > 0:
+            #     self.setFormat(
+            #         token.position + token.length - token.closingMarkupLength,
+            #         token.closingMarkupLength,
+            #         markupFormat)
 
             # Format Text
-            self.setFormat(
-                token.position + token.openingMarkupLength,
-                token.length - token.openingMarkupLength - token.closingMarkupLength,
-                format)
+            mask = token.markupMask()
+            for i in range(token.length):
+                if mask[i] == " ":
+                    self.setFormat(token.position + i, 1, format)
 
-            # Format closing Markup
-            if token.closingMarkupLength > 0:
-                self.setFormat(
-                    token.position + token.length - token.closingMarkupLength,
-                    token.closingMarkupLength,
-                    markupFormat)
+            # Format markup
+            for s, l in token.markup:
+                self.setFormat(token.position + s, l, markupFormat)
 
         else:
             qWarning("MarkdownHighlighter.applyFormattingForToken() was passed in a "
@@ -634,8 +665,10 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 MTT.TokenAtxHeading5,
                 MTT.TokenAtxHeading6]:
             level = token.type - MTT.TokenAtxHeading1 + 1
-            s = token.position + token.openingMarkupLength
-            l = token.length - token.openingMarkupLength - token.closingMarkupLength
+            # s = token.position + token.openingMarkupLength
+            # l = token.length - token.openingMarkupLength - token.closingMarkupLength
+            s = [m for m in token.markup if m[0] == 0][0][1]
+            l = token.length - sum([m[1] for m in token.markup])
             headingText = text[s:s+l].strip()
 
         elif token.type == MTT.TokenSetextHeading1Line1:

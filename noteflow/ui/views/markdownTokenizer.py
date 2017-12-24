@@ -22,8 +22,14 @@ class Token:
         self.type = -1
         self.position = 0
         self.length = 0
-        self.openingMarkupLength = 0
-        self.closingMarkupLength = 0
+        self.markup = []  # will collect tupples (start, length)
+        # self.openingMarkupLength = 0
+        # self.closingMarkupLength = 0
+    def markupMask(self):
+        r = " " * self.length
+        for s, l in self.markup:
+            r = r[:s] + "*" * l + r[s+l:]
+        return r
 
 # ==============================================================================
 #   HIGHLIGHT TOKENIZER
@@ -276,8 +282,10 @@ class MarkdownTokenizer(HighlightTokenizer):
             token.position = 0
             token.length = len(text)
             token.type = MTT.TokenAtxHeading1 + level -1
-            token.openingMarkupLength = level
-            token.closingMarkupLength = trailingPoundCount
+            # token.openingMarkupLength = level
+            # token.closingMarkupLength = trailingPoundCount
+            token.markup.append((0, level))
+            token.markup.append((len(text)-trailingPoundCount, trailingPoundCount))
             self.addToken(token)
             self.setState(MS.MarkdownStateAtxHeading1 + level -1)
             return True
@@ -311,7 +319,8 @@ class MarkdownTokenizer(HighlightTokenizer):
                 token.type = MTT.TokenNumberedList
                 token.position = 0
                 token.length = len(text)
-                token.openingMarkupLength = index + 2
+                # token.openingMarkupLength = index + 2
+                token.markup.append((0, index + 2))
                 self.addToken(token)
                 self.setState(MS.MarkdownStateNumberedList)
                 return True
@@ -399,7 +408,8 @@ class MarkdownTokenizer(HighlightTokenizer):
             token.type = MTT.TokenBulletPointList
             token.position = 0
             token.length = len(text)
-            token.openingMarkupLength = bulletCharIndex + 2
+            # token.openingMarkupLength = bulletCharIndex + 2
+            token.markup.append((0, bulletCharIndex + 2))
             self.addToken(token)
             self.setState(MS.MarkdownStateBulletPointList)
             return True
@@ -472,7 +482,8 @@ class MarkdownTokenizer(HighlightTokenizer):
             token.length = len(text)
 
             if markupLength > 0:
-                token.openingMarkupLength = markupLength
+                # token.openingMarkupLength = markupLength
+                token.markup.append((0, markupLength))
 
             self.addToken(token)
             self.setState(MS.MarkdownStateBlockquote)
@@ -515,7 +526,8 @@ class MarkdownTokenizer(HighlightTokenizer):
             token.type = MTT.TokenCodeBlock
             token.position = 0
             token.length = len(text)
-            token.openingMarkupLength = len(text) - len(text.lstrip())
+            # token.openingMarkupLength = len(text) - len(text.lstrip())
+            token.markup.append((0, len(text) - len(text.lstrip())))
             self.addToken(token)
             self.setState(MS.MarkdownStateCodeBlock)
             return True
@@ -595,9 +607,9 @@ class MarkdownTokenizer(HighlightTokenizer):
         escapedText = self.tokenizeHtmlComments(escapedText)
         escapedText = self.tokenizeTableHeaderRow(escapedText)
         escapedText = self.tokenizeTableRow(escapedText)
-        escapedText = self.tokenizeMatches(MTT.TokenImage, escapedText, self.imageRegex, 0, 0, False, True)
-        escapedText = self.tokenizeMatches(MTT.TokenInlineLink, escapedText, self.inlineLinkRegex, 0, 0, False, True)
-        escapedText = self.tokenizeMatches(MTT.TokenReferenceLink, escapedText, self.referenceLinkRegex, 0, 0, False, True)
+        escapedText = self.tokenizeMatches(MTT.TokenImage, escapedText, self.imageRegex, 0, 0, False, True, [1])
+        escapedText = self.tokenizeMatches(MTT.TokenInlineLink, escapedText, self.inlineLinkRegex, 0, 0, False, True, [1])
+        escapedText = self.tokenizeMatches(MTT.TokenReferenceLink, escapedText, self.referenceLinkRegex, 0, 0, False, True, [1])
         escapedText = self.tokenizeMatches(MTT.TokenHtmlEntity, escapedText, self.htmlEntityRegex)
         escapedText = self.tokenizeMatches(MTT.TokenAutomaticLink, escapedText, self.automaticLinkRegex, 0, 0, False, True)
         escapedText = self.tokenizeMatches(MTT.TokenStrikethrough, escapedText, self.strikethroughRegex, 2, 2, True)
@@ -630,8 +642,10 @@ class MarkdownTokenizer(HighlightTokenizer):
                 token.type = MTT.TokenVerbatim
                 token.position = index
                 token.length = endIndex + count - index
-                token.openingMarkupLength = count
-                token.closingMarkupLength = count
+                # token.openingMarkupLength = count
+                token.markup.append((0, count))
+                # token.closingMarkupLength = count
+                token.markup.append((len(text) - count, count))
                 self.addToken(token)
 
                 # Fill out the token match in the string with the dummy
@@ -813,7 +827,8 @@ class MarkdownTokenizer(HighlightTokenizer):
 
     def tokenizeMatches(self, tokenType, text, regex,
                         markupStartCount=0, markupEndCount=0,
-                        replaceMarkupChars=False, replaceAllChars=False):
+                        replaceMarkupChars=False, replaceAllChars=False,
+                        markupButGroups=[]):
         """
         Tokenizes a block of text, searching for all occurrances of regex.
         Occurrances are set to the given token type and added to the list of
@@ -834,6 +849,9 @@ class MarkdownTokenizer(HighlightTokenizer):
         If replaceAllChars is true instead, then the entire matched text will
         be replaced with dummy characters--again, for ease in parsing the
         same line for other regular expression matches.
+
+        if escapeButGroup is given, all characters but those in the group whose
+        number is given are marked as markup.
         """
         index = regex.indexIn(text)
 
@@ -845,10 +863,12 @@ class MarkdownTokenizer(HighlightTokenizer):
             token.length = length
 
             if markupStartCount > 0:
-                token.openingMarkupLength = markupStartCount
+                # token.openingMarkupLength = markupStartCount
+                token.markup.append((0, markupStartCount))
 
             if markupEndCount > 0:
-                token.closingMarkupLength = markupEndCount
+                # token.closingMarkupLength = markupEndCount
+                token.markup.append((length - markupEndCount, markupEndCount))
 
             if replaceAllChars:
                 for i in range(index, index + length):
@@ -859,6 +879,15 @@ class MarkdownTokenizer(HighlightTokenizer):
                     text = text[:i] + self.DUMMY_CHAR + text[i+1:]
                 for i in range(index + length - markupEndCount, index + length):
                     text = text[:i] + self.DUMMY_CHAR + text[i+1:]
+
+            if markupButGroups:
+                s = 0
+                for g in sorted(markupButGroups):
+                    if regex.pos(g) > s:
+                        token.markup.append((s, regex.pos(g) - index - s))
+                        s = regex.pos(g) - index + len(regex.cap(g))
+                if s < length:
+                    token.markup.append((s, length - s))
 
             self.addToken(token)
             index = regex.indexIn(text, index + length)
