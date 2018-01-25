@@ -501,7 +501,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         nb = self.currentNotebook()
         date = (self.dateA if self.dateA
                 else QDate.currentDate()).toString(Qt.ISODate)
-        if self.text.note and self.text.textCursor().selectedText():
+        if (self.text.note
+            and self.text.textCursor().selectedText()
+            and not '\u2029' in self.text.textCursor().selectedText()):
             title = self.text.textCursor().selectedText()
             n = nb.newNote(date=date, title=title)
             self.text.insertNoteCompletion(n)
