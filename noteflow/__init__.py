@@ -58,8 +58,8 @@ def run():
         # qDebug(app.tr("Warning: failed to load translator for locale {}...").format(locale))
 
 #    print(QIcon.themeSearchPaths())
-    QIcon.setThemeSearchPaths(QIcon.themeSearchPaths() + [F.appPath("icons")])
-    QIcon.setThemeName("Mint-X")
+    # QIcon.setThemeSearchPaths(QIcon.themeSearchPaths() + [F.appPath("icons")])
+    # QIcon.setThemeName("Mint-X")
     # qApp.setWindowIcon(QIcon.fromTheme("im-aim"))
 
     # Seperating launch to avoid segfault, so it seem.

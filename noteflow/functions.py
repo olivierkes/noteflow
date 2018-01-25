@@ -112,6 +112,7 @@ getImageCache = {}
 requestSettings = {}
 
 def getImage(url, callback, savedVars=None):
+    global getImageCache, requestSettings
     url = QUrl(url)
     if url in getImageCache:
         if getImageCache[url] is not None:
@@ -119,7 +120,6 @@ def getImage(url, callback, savedVars=None):
         else:
             return
 
-    global getImageCache, requestSettings
     getImageCache[url] = None
     requestSettings[url] = (callback, savedVars)
     request = QNetworkRequest(url)

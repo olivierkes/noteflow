@@ -174,7 +174,7 @@ class cloudView(QListWidget):
         if minCount == maxCount:
             minCount -= 1
         minFont, maxFont = 6, 13
-        
+
         # Add words to list
         for w in sorted(words):
             i = QListWidgetItem(w)
@@ -213,7 +213,7 @@ class cloudView(QListWidget):
         for k in range(self.count()):
             i = self.item(k)
             i.setHidden(text not in i.text().lower())
-            
+
         self.updateGeometry()
 
 from noteflow.ui.views.cloudViewPopup_ui import Ui_CloudViewPopup
@@ -257,8 +257,8 @@ class customDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self)
         self.parent = parent
-        self.margin = 2
-        self.padding = 1
+        self.margin = 0
+        self.padding = 0
 
     def sizeHint(self, option, index):
         self.initStyleOption(option, index)
@@ -326,5 +326,3 @@ class customDelegate(QStyledItemDelegate):
 
         else:
             QStyledItemDelegate.paint(self, painter, option, index)
-
-
