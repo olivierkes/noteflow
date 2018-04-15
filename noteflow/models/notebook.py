@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # --!-- coding: utf8 --!--
 
-import json, os
+import json, os, re
 import noteflow.functions as F
 from noteflow.models.note import Note
 from PyQt5.QtCore import *
@@ -157,6 +157,20 @@ class Notebook(QObject):
                 changed += 1
                 with open(filename, "w", encoding='utf8') as f:
                     f.write(content[path])
+            
+                # Exporting to extra location
+                # Searches for something like `@noteflow: export "path"` and if found
+                # saves a copy at that location.
+                m = re.search(r'@noteflow:\s*export\s*("(.+)"|[^\s]+)',
+                            content[path], re.I)
+                if m:
+                    exportPath = m.group(1)
+                    if exportPath[0] == exportPath[-1] == '"':
+                        exportPath = exportPath[1:-1]
+                    print("+ exporting to:", exportPath)
+                    os.makedirs(os.path.dirname(exportPath), exist_ok=True)
+                    with open(exportPath, "w", encoding='utf8') as f:
+                        f.write(content[path])
 
         # Removing old content
         for path in oldContent:
