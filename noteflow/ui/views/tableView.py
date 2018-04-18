@@ -10,6 +10,7 @@ class tableView(QTableWidget):
         QTableWidget.__init__(self, parent)
         self.notes = []
         self.customTags = []
+        self.todaysNoteItem = None
 
         self.delegate = customDelegate(self)
         self.setItemDelegateForColumn(1, self.delegate)
@@ -31,12 +32,25 @@ class tableView(QTableWidget):
         self.clearContents()
         self.setRowCount(len(notes))
         y = 0
+        deltaToday = None
+        todaysNoteItem = None
         self.setSortingEnabled(False)
+
         for n in notes:
-            self.addTblItem(n, y)
+            i = self.addTblItem(n, y)
             y += 1
+            # Finding note closes to today
+            d = abs(QDate.currentDate().daysTo(F.strToDate(n.date)))
+            if deltaToday is None or deltaToday > d:
+                deltaToday = d
+                todaysNoteItem = i
+
         self.setSortingEnabled(True)
         self.sortItems(0)
+
+        # Storing date closest of today
+        self.todaysNoteItem = todaysNoteItem
+
 
     def addTblItem(self, note, y=None):
         f = qApp.font()
@@ -56,6 +70,7 @@ class tableView(QTableWidget):
         self.setItem(y, 2, QTableWidgetItem(str(note.UID)))
 
         self.notes.append(note)
+        return item
 
     def addNote(self, note):
         self.setSortingEnabled(False)

@@ -786,6 +786,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tblList.setupNotes(notes)
         self.tblList.blockSignals(False)
 
+        # Scrolling to the closest of today
+        if self.tblList.todaysNoteItem:
+            self.tblList.scrollToItem(self.tblList.todaysNoteItem,
+                                      self.tblList.PositionAtTop)
+
     def noteAdded(self, UID):
         note = self.noteFromUID(UID)
         self.tblList.addNote(note)
