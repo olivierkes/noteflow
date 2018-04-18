@@ -22,7 +22,7 @@ class cloudView(QListWidget):
         self.customTags = None
         self._customTagsOnly = False
         self._customTagsAlways = False
-        self._maxWords = 50
+        self._maxWords = 30
         self._minValue = None
         self._minLength = None
 
@@ -135,7 +135,7 @@ class cloudView(QListWidget):
         self.btnSettings.move(self.width() - 16, 0)
         self.updateGeometry()
 
-    def setWords(self, words):
+    def setWords(self, words, updateVisibleWords=True):
         if self._minValue:
             words = {w:words[w] for w in words if words[w] >= self._minValue}
 
@@ -161,12 +161,18 @@ class cloudView(QListWidget):
             # If there's a limit of number of words
             m = min(self._maxWords, len(self.words))
             w = self.words.copy()
-            s = sorted(w, key=w.get)
 
-            while len(w2) < m:
-                k = s.pop()
-                if not k in w2:
-                    w2[k] = w[k]
+            def addToW2(sortedList):
+                while sortedList and len(w2) < m:
+                    k = sortedList.pop()
+                    if not k in w2:
+                        w2[k] = w[k]
+
+            # We take first words in self._visibleWords
+            wUnsorted = [word for word in w if word in self._visibleWords]
+            addToW2(sorted(wUnsorted, key=w.get))
+            wUnsorted = [word for word in w if word not in self._visibleWords]
+            addToW2(sorted(wUnsorted, key=w.get))
 
         words = w2
         minCount = min(words.values())
@@ -186,7 +192,8 @@ class cloudView(QListWidget):
             i.setFont(f)
             self.addItem(i)
 
-        self.setVisibleWords(self._visibleWords)
+        if updateVisibleWords:
+            self.setVisibleWords(self._visibleWords)
 
         # Reselect items
         [self.item(r).setSelected(True) for r in range(self.count()) if self.item(r).text() in selected]
@@ -196,6 +203,7 @@ class cloudView(QListWidget):
 
     def setVisibleWords(self, words):
         self._visibleWords = words.copy()
+        self.setWords(self.words, updateVisibleWords=False)
         k = 0
         for k in range(self.count()):
             i = self.item(k)
