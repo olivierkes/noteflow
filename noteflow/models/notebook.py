@@ -24,6 +24,7 @@ class Notebook(QObject):
     def __init__(self, name=None, path=None, create=False, MW=None):
         QObject.__init__(self)
         self.notes = []
+        self._cmdTimers = []
 
         if create:
             assert(name)
@@ -157,13 +158,16 @@ class Notebook(QObject):
                 changed += 1
                 with open(filename, "w", encoding='utf8') as f:
                     f.write(content[path])
-            
-                # Exporting to extra location
-                # Searches for something like `@noteflow: export "path"` and if found
-                # saves a copy at that location.
-                m = re.search(r'@noteflow:\s*export\s*("(.+)"|[^\s]+)',
-                            content[path], re.I)
-                if m:
+
+                # MACRO COMMANDS
+                #---------------
+
+                # EXPORT TO EXTRA LOCATION
+                # Searches for something like `@noteflow: export "path"`
+                # and if found saves a copy at that location.
+
+                for m in re.finditer(r'@noteflow:\s*export\s*("(.+)"|[^\s]+)',
+                                     content[path], re.I):
                     exportPath = m.group(1)
                     if exportPath[0] == exportPath[-1] == '"':
                         exportPath = exportPath[1:-1]
@@ -171,6 +175,30 @@ class Notebook(QObject):
                     os.makedirs(os.path.dirname(exportPath), exist_ok=True)
                     with open(exportPath, "w", encoding='utf8') as f:
                         f.write(content[path])
+
+                # RUN COMMANDS
+                # Searches for something like `@noteflow: run "cmd"`
+                # and if found runs cmd.
+
+                for m in re.finditer(r'@noteflow:\s*run\s*("(.+)"|[^\s]+)',
+                                     content[path], re.I):
+                    cmd = m.group(1)
+                    if cmd[0] == cmd[-1] == '"':
+                        cmd = cmd[1:-1]
+                    print("+ running cmd:", cmd)
+                    proc = QProcess(self)
+                    from noteflow import MW
+                    MW.message("Running command: " + cmd,
+                               overwrite="bookCommand")
+                    proc.finished.connect(MW.processFinished)
+                    proc.start(cmd)
+                    t = QTimer()
+                    t.setSingleShot(True)
+                    t.setInterval(10000)
+                    t.proc = proc
+                    t.timeout.connect(self.killProc)
+                    t.start()
+                    self._cmdTimers.append(t)
 
         # Removing old content
         for path in oldContent:
@@ -196,6 +224,24 @@ class Notebook(QObject):
 
         self._content = content
         return changed
+
+    def killProc(self):
+        """
+        Used to set a timeout for the run command maccro.
+        """
+        proc = self.sender().proc
+        if not proc.state() == QProcess.Running:
+            return
+        proc.kill()
+        try:
+            print("> Output:")
+            print(str(proc.readAllStandardOutput(), encoding="utf-8"))
+            print("-------")
+            print("> Error:")
+            print(str(proc.readAllStandardError(), encoding="utf-8"))
+        except UnicodeDecodeError:
+            print(">> Error: can't decode error output.")
+        self._cmdTimers.remove(self.sender())
 
     def saveTags(self):
         from noteflow import MW

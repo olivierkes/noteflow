@@ -205,6 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.html.anchorClicked.connect(self.previewNavigateLink)
         #self.web.linkClicked.connect(self.previewNavigateLink)
         self.html.setOpenLinks(False)
+        self._statusMessages = [] # see self.message
 
         # NOTEBOOKS AND NOTES
         self.notebooks = []
@@ -251,10 +252,70 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Debug
         self.text.cursorPositionChanged.connect(lambda: self.message(
-            "Block state: {}".format(self.text.textCursor().block().userState())))
+            "Block state: {}".format(self.text.textCursor().block().userState()),
+            overwrite="BlockState"))
 
-    def message(self, message, t=2000):
-        self.statusBar().showMessage(message, t)
+    def message(self, message=None, t=10000, overwrite=None):
+        """
+        Display messages in the status bar.
+        Can be call multiple time, will display all messages and removes them
+        at appropriate time.
+
+        If overwrite is not None, it must be a keyword to describe a certain
+        type of message. When a new message with the same overwrite keyword
+        arrives, it replaces the old.
+        """
+        # Adding message to the stack
+        if message:
+            if overwrite:
+                for m in self._statusMessages:
+                    if m[3] == overwrite:
+                        self._statusMessages.remove(m)
+            self._statusMessages.append((message, t, QTime.currentTime(), overwrite))
+
+        # Processing stack
+        msg = []
+        closest = None
+        for (m, timeout, t, overwrite) in self._statusMessages:
+            # Removing past messages
+            if t.elapsed() > timeout:
+                self._statusMessages.remove((m, timeout, t, overwrite))
+            else:
+                msg.append(m)
+                if closest is None or (timeout - t.elapsed()) < closest:
+                    closest = timeout - t.elapsed()
+        if msg:
+            self.statusBar().showMessage(" // ".join(msg))
+            QTimer.singleShot(closest, self.message)
+        else:
+            self.statusBar().showMessage("")
+
+    def processFinished(self, code, status):
+        """
+        Called when a command call from noteflow maccro has finished running.
+        The run starts in notebook.save.
+        """
+        proc = self.sender()
+        stat = {
+            0: "Success",
+            1: "Error",
+            9: "Killed because of timeout",
+        }
+        msg = "  command '{} {}' finished running with code {} ({}).".format(
+                proc.program(),
+                "".join(proc.arguments()),
+                str(code),
+                stat.get(code, "Unknown")
+                )
+        self.message(msg, overwrite="noteCommand")
+        print(msg)
+        if code == 1:
+            # print(proc.readAllStandardOutput())
+            print("  error message:")
+            try:
+                print(str(proc.readAllStandardError(), encoding="utf-8"))
+            except UnicodeDecodeError:
+                print("  Error: can't decode error output.")
 
     def updateUI(self):
         # Tab bar
@@ -527,7 +588,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         i = 0
         for nb in self.notebooks:
             i += nb.save()
-        self.message("Notebooks saved ({} item changed).".format(i))
+        self.message("Notebooks saved ({} item changed).".format(i),
+                     overwrite="notebookSaved")
 
     def openNotebookDialog(self):
         #QFileDialog.getExistingDirectory(options=QFileDialog.DontUseNativeDialog)
@@ -902,7 +964,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.notes = notes
         self.message("{}/{} notes displayed.".format(
             len(notes),
-            len(self.allNotes())))
+            len(self.allNotes())), overwrite="notesDisplayed")
 
         self.updateFiltersUI()
 
