@@ -848,11 +848,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tblList.setupNotes(notes)
         self.tblList.blockSignals(False)
 
-        # Scrolling to the closest of today
-        if self.tblList.todaysNoteItem:
-            self.tblList.scrollToItem(self.tblList.todaysNoteItem,
-                                      self.tblList.PositionAtTop)
-
     def noteAdded(self, UID):
         note = self.noteFromUID(UID)
         self.tblList.addNote(note)
@@ -1026,6 +1021,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tblList.showRow(i)
             else:
                 self.tblList.hideRow(i)
+
+        # Scrolling to the closest of today
+        if self.tblList.getNoteClosestToToday():
+            self.tblList.scrollToItem(self.tblList.todaysNoteItem,
+                                      self.tblList.PositionAtCenter)
 
     def updateCalendar(self):
         # clear all

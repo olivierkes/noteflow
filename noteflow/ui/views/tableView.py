@@ -32,25 +32,32 @@ class tableView(QTableWidget):
         self.clearContents()
         self.setRowCount(len(notes))
         y = 0
-        deltaToday = None
-        todaysNoteItem = None
         self.setSortingEnabled(False)
 
         for n in notes:
             i = self.addTblItem(n, y)
             y += 1
-            # Finding note closes to today
-            d = abs(QDate.currentDate().daysTo(F.strToDate(n.date)))
-            if deltaToday is None or deltaToday > d:
-                deltaToday = d
-                todaysNoteItem = i
 
         self.setSortingEnabled(True)
         self.sortItems(0)
 
+    def getNoteClosestToToday(self):
+        deltaToday = None
+        todaysNoteItem = None
+
+        for n in self.notes:
+            # Finding note closes to today
+            d = abs(QDate.currentDate().daysTo(F.strToDate(n.date)))
+            if deltaToday is None or deltaToday > d:
+                i = self.findItems(str(n.UID), Qt.MatchExactly)
+                if i and not self.isRowHidden(i[0].row()):
+                    deltaToday = d
+                    i = i[0]
+                    todaysNoteItem = self.item(i.row(), 1)
+
         # Storing date closest of today
         self.todaysNoteItem = todaysNoteItem
-
+        return self.todaysNoteItem
 
     def addTblItem(self, note, y=None):
         f = qApp.font()
@@ -92,30 +99,36 @@ class customDelegate(QStyledItemDelegate):
         note = [n for n in self.parent.notes if n.UID == UID][0]
 
         # Mark today with a red line
-        # Get the previous note
-        from noteflow import MW
-        try:
-            k = 1
-            note2 = False
-            while note2 not in MW.notes:
-                UID2 = index.sibling(index.row()+k, 0).data(Qt.UserRole)
-                note2 = [n for n in self.parent.notes if n.UID == UID2][0]
-                k += 1
-        except:
-            note2 = False
-
-        # Draw a red line
-        if note2 and \
-               F.strToDate(note.date) < QDate.currentDate() and \
-               F.strToDate(note2.date) >= QDate.currentDate() or \
-           note2 and \
-               F.strToDate(note.date) == QDate.currentDate() and \
-               F.strToDate(note2.date) > QDate.currentDate():
+        if self.parent.itemFromIndex(index) == self.parent.todaysNoteItem:
             painter.save()
             painter.setPen(Qt.red)
             r = option.rect
             painter.drawLine(r.bottomLeft(), r.bottomRight())
             painter.restore()
+        # # Get the previous note
+        # from noteflow import MW
+        # try:
+        #     k = 1
+        #     note2 = False
+        #     while note2 not in MW.notes:
+        #         UID2 = index.sibling(index.row()+k, 0).data(Qt.UserRole)
+        #         note2 = [n for n in self.parent.notes if n.UID == UID2][0]
+        #         k += 1
+        # except:
+        #     note2 = False
+        #
+        # # Draw a red line
+        # if note2 and \
+        #        F.strToDate(note.date) < QDate.currentDate() and \
+        #        F.strToDate(note2.date) >= QDate.currentDate() or \
+        #    note2 and \
+        #        F.strToDate(note.date) == QDate.currentDate() and \
+        #        F.strToDate(note2.date) > QDate.currentDate():
+        #     painter.save()
+        #     painter.setPen(Qt.red)
+        #     r = option.rect
+        #     painter.drawLine(r.bottomLeft(), r.bottomRight())
+        #     painter.restore()
 
         # List tags
         tags = []
