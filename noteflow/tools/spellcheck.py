@@ -6,6 +6,9 @@ import sys, os
 sys.path.insert(0, os.path.join(os.getcwd(), "libs/grammalecte"))
 
 import json
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 
 import noteflow.functions as F
 import libs.grammalecte.grammalecte
@@ -21,44 +24,86 @@ oTextFormatter = GC.getTextFormatter()
 
 CONCAT_LINES = True  # concatenate lines not separated by an empty paragraph
 
+class spellcheckThreadManager(QObject):
 
-def spellcheckFromFileToJSON(text):
-    """
-    Spellchecks from file and returns a json object.
-    """
+    _threads = {}
 
-    content = ""
-    # file processing
-    bComma = False
+    @classmethod
+    def getUID(cls):
+        i = 0
+        while i in cls._threads:
+            i += 1
+        return i
 
-    content += """{{
-                    "grammalecte": "{version}",
-                    "lang": "{lang}",
-                    "data" : [
-             """.format(
-                 version=GC.gce.version,
-                 lang=GC.gce.lang,
-                 )
+    @classmethod
+    def spellcheckBlockToJSON(cls, block):
+        """
+        Spellchecks from file and returns a json object.
+        """
+        uid = cls.getUID()
+        sct = spellcheckThread(block, uid, False)
+        sct.spellchecked.connect(cls.spellcheckFinished)
+        cls._threads[uid] = sct
 
-    for i, txt, lLineSet in generateParagraphFromFile(text, False): #bConcatLines
+        sct.start()
 
-        txt = GC.generateParagraphAsJSON(
-                    i, txt,
-                    bContext=True,
-                    bEmptyIfNoErrors=True,
-                    bSpellSugg=True,
-                    bReturnText=False,
-                    lLineSet=lLineSet)
+    @classmethod
+    def spellcheckFinished(cls, uid, JSONData):
+        """
+        JSONData is a json object
+        """
+        thread = cls._threads[uid]
 
-        if txt:
-            if bComma:
-                content += ",\n"
-            content += txt
-            bComma = True
+        JSONData = """{{
+                        "grammalecte": "{version}",
+                        "lang": "{lang}",
+                        "data" : [{data}]
+                       }}""".format(
+                                 version=GC.gce.version,
+                                 lang=GC.gce.lang,
+                                 data=JSONData,
+                                 )
 
-    content += "\n]}\n"
+        cls._threads.pop(thread.uid)
 
-    return json.loads(content)
+        from noteflow import MW
+        MW.text.spellcheckBlockFromJSON(thread.block, json.loads(JSONData), thread.text)
+
+class spellcheckThread(QThread):
+
+    # dict is a json object
+    spellchecked = pyqtSignal(int, str)
+
+    def __init__(self, block, uid, concatLines=False):
+        QThread.__init__(self)
+        self.block = block
+        self.concatLines = concatLines
+        self.uid = uid
+        self.text = block.text()
+
+    def run(self):
+
+        text = self.block.text()
+        bComma = False
+        data = ""
+
+        for i, txt, lLineSet in generateParagraphFromFile(text, self.concatLines): #bConcatLines
+
+            txt = GC.generateParagraphAsJSON(
+                        i, txt,
+                        bContext=True,
+                        bEmptyIfNoErrors=True,
+                        bSpellSugg=True,
+                        bReturnText=False,
+                        lLineSet=lLineSet)
+
+            if txt:
+                if bComma:
+                    data += ",\n"
+                data += txt
+                bComma = True
+
+        self.spellchecked.emit(self.uid, data)
 
 ###############################################################################
 # From grammalecte-cli.py.

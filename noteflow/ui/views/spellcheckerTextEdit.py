@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 import re
 import json
 from noteflow import functions as F
-from noteflow.tools import spellcheck as SC
+from noteflow.tools.spellcheck import spellcheckThreadManager as SC
 
 class spellcheckerNoteEdit(QPlainTextEdit):
 
@@ -45,31 +45,46 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         """
         Runs spellcheck.
         """
-        if self.note:
+        if self.note and False:
             b = self.document().begin()
             while b.isValid():
                 self.spellcheckBlock(b)
                 b = b.next()
+
+        elif self.note:
+            self.spellcheckBlock()
+
+    def removeExtraSelectionsFromBlock(self, block):
+        selections = []
+        for es in self.extraSelections():
+            if not block.contains(es.cursor.position()):
+                selections.append(es)
+            else:
+                self.spellRects = [r for r in self.spellRects
+                                   if r.extraSelection.cursor != es.cursor]
+        self.setExtraSelections(selections)
 
     def spellcheckBlock(self, block=None):
 
         if block is None:
             block = self.textCursor().block()
 
+        j = SC.spellcheckBlockToJSON(block)
+
+    def spellcheckBlockFromJSON(self, block, JSONData, text=None):
+        """
+        Text is a security, to see whether block content has changed.
+        """
+        # print(json.dumps(JSONData, indent=4))
+
         text = block.text()
         blockStart = block.position()
         blockEnd = blockStart + len(text)
 
-        # text = self.note.text[:200]
-        j = SC.spellcheckFromFileToJSON(text)
-        print(json.dumps(j, indent=4))
+        # Keep only extraSelections from other blocks
+        self.removeExtraSelectionsFromBlock(block)
 
-        # TODO: remove all extraSelections from that block
-        # es2 = []
-        # for es in self.extraSelections():
-        #     if es.cursor.position()
-
-        if not j["data"]:
+        if not JSONData["data"]:
             return
 
         # Variables
@@ -84,8 +99,7 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         for _type, fmt in [("lGrammarErrors", fmtGrammar),
                            ("lSpellingErrors", fmtOrth)]:
 
-            for i in j["data"][0][_type]:
-                print(i)
+            for i in JSONData["data"][0][_type]:
 
                 cursor = self.textCursor()
                 cursor.setPosition(blockStart + i["nStart"])
@@ -194,14 +208,14 @@ class spellcheckerNoteEdit(QPlainTextEdit):
 
         lbl.show()
 
-    def paintEvent(self, event):
-        QPlainTextEdit.paintEvent(self, event)
-
-        # Debug: paint rects
-        painter = QPainter(self.viewport())
-        painter.setPen(Qt.gray)
-        for r in self.spellRects:
-            painter.drawRect(r.rect)
+    # def paintEvent(self, event):
+    #     QPlainTextEdit.paintEvent(self, event)
+    #
+    #     # Debug: paint rects
+    #     painter = QPainter(self.viewport())
+    #     painter.setPen(Qt.gray)
+    #     for r in self.spellRects:
+    #         painter.drawRect(r.rect)
 
 class SpellCheckThing:
     def __init__(self, rect, extraSelection, message="", suggestions=[], _type=""):
