@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>844</width>
-    <height>780</height>
+    <width>1072</width>
+    <height>659</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -606,8 +606,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>844</width>
-     <height>30</height>
+     <width>1072</width>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -627,7 +627,7 @@
    </widget>
    <widget class="QMenu" name="menuNote">
     <property name="title">
-     <string>Note</string>
+     <string>Not&amp;e</string>
     </property>
     <addaction name="actNotePrevious"/>
     <addaction name="actNoteNext"/>
@@ -654,6 +654,8 @@
     <addaction name="actToggleWords"/>
     <addaction name="actToggleList"/>
     <addaction name="separator"/>
+    <addaction name="actSpellcheck"/>
+    <addaction name="actAutoSpellcheck"/>
    </widget>
    <widget class="QMenu" name="menuFormat">
     <property name="title">
@@ -711,6 +713,8 @@
    <addaction name="actCloseCurrent"/>
    <addaction name="separator"/>
    <addaction name="actPreferences"/>
+   <addaction name="actSpellcheck"/>
+   <addaction name="actAutoSpellcheck"/>
    <addaction name="separator"/>
    <addaction name="actNoteNew"/>
    <addaction name="actNoteDelete"/>
@@ -1135,6 +1139,31 @@
    </property>
    <property name="shortcut">
     <string>F4</string>
+   </property>
+  </action>
+  <action name="actSpellcheck">
+   <property name="icon">
+    <iconset theme="tools-check-spelling"/>
+   </property>
+   <property name="text">
+    <string>Spellcheck</string>
+   </property>
+   <property name="shortcut">
+    <string>F8</string>
+   </property>
+  </action>
+  <action name="actAutoSpellcheck">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="tools-check-spelling"/>
+   </property>
+   <property name="text">
+    <string>Auto spellcheck</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F8</string>
    </property>
   </action>
  </widget>

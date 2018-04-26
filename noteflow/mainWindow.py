@@ -71,6 +71,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text.noteChanged.connect(self.structure.setNote)
         self.structure.navigateToPosition.connect(self.text.setCursorPosition)
         self.structure.navigateToPosition.connect(self.text.setFocus)
+        self.actAutoSpellcheck.toggled.connect(self.text.setAutoSpellcheck)
+        self.actSpellcheck.triggered.connect(self.text.spellcheck)
+
         ## Buttons widget in status bar...
         #w = QWidget()
         #l = QHBoxLayout(w)

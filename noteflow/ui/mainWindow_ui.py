@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'noteflow/ui/mainWindow_ui.ui'
 #
-# Created by: PyQt5 UI code generator 5.9
+# Created by: PyQt5 UI code generator 5.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -175,7 +175,6 @@ class Ui_MainWindow(object):
         self.wdgSearchOptions = QtWidgets.QWidget(self.wdgSearch)
         self.wdgSearchOptions.setObjectName("wdgSearchOptions")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.wdgSearchOptions)
-        self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setSpacing(2)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.chkSearchSelection = QtWidgets.QCheckBox(self.wdgSearchOptions)
@@ -267,7 +266,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 844, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1072, 28))
         self.menubar.setObjectName("menubar")
         self.menu_File = QtWidgets.QMenu(self.menubar)
         self.menu_File.setObjectName("menu_File")
@@ -425,6 +424,15 @@ class Ui_MainWindow(object):
         self.actViewStructure = QtWidgets.QAction(MainWindow)
         self.actViewStructure.setCheckable(True)
         self.actViewStructure.setObjectName("actViewStructure")
+        self.actSpellcheck = QtWidgets.QAction(MainWindow)
+        icon = QtGui.QIcon.fromTheme("tools-check-spelling")
+        self.actSpellcheck.setIcon(icon)
+        self.actSpellcheck.setObjectName("actSpellcheck")
+        self.actAutoSpellcheck = QtWidgets.QAction(MainWindow)
+        self.actAutoSpellcheck.setCheckable(True)
+        icon = QtGui.QIcon.fromTheme("tools-check-spelling")
+        self.actAutoSpellcheck.setIcon(icon)
+        self.actAutoSpellcheck.setObjectName("actAutoSpellcheck")
         self.menu_File.addAction(self.actNewNotebook)
         self.menu_File.addSeparator()
         self.menu_File.addAction(self.actOpenNotebook)
@@ -455,6 +463,8 @@ class Ui_MainWindow(object):
         self.menuView.addAction(self.actToggleWords)
         self.menuView.addAction(self.actToggleList)
         self.menuView.addSeparator()
+        self.menuView.addAction(self.actSpellcheck)
+        self.menuView.addAction(self.actAutoSpellcheck)
         self.menuHeader.addAction(self.actFormatHeaderSetext1)
         self.menuHeader.addAction(self.actFormatHeaderSetext2)
         self.menuHeader.addSeparator()
@@ -486,6 +496,8 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actCloseCurrent)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actPreferences)
+        self.toolBar.addAction(self.actSpellcheck)
+        self.toolBar.addAction(self.actAutoSpellcheck)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.actNoteNew)
         self.toolBar.addAction(self.actNoteDelete)
@@ -535,7 +547,7 @@ class Ui_MainWindow(object):
         self.txtSearchReplace.setPlaceholderText(_translate("MainWindow", "Replace"))
         self.btnSearchReplaceAll.setText(_translate("MainWindow", "Replace all"))
         self.menu_File.setTitle(_translate("MainWindow", "&Notebook"))
-        self.menuNote.setTitle(_translate("MainWindow", "Note"))
+        self.menuNote.setTitle(_translate("MainWindow", "Not&e"))
         self.menuView.setTitle(_translate("MainWindow", "V&iew"))
         self.menuFormat.setTitle(_translate("MainWindow", "&Format"))
         self.menuHeader.setTitle(_translate("MainWindow", "&Header"))
@@ -612,6 +624,10 @@ class Ui_MainWindow(object):
         self.actNoteReplace.setShortcut(_translate("MainWindow", "Ctrl+R"))
         self.actViewStructure.setText(_translate("MainWindow", "&Structure"))
         self.actViewStructure.setShortcut(_translate("MainWindow", "F4"))
+        self.actSpellcheck.setText(_translate("MainWindow", "Spellcheck"))
+        self.actSpellcheck.setShortcut(_translate("MainWindow", "F8"))
+        self.actAutoSpellcheck.setText(_translate("MainWindow", "Auto spellcheck"))
+        self.actAutoSpellcheck.setShortcut(_translate("MainWindow", "Shift+F8"))
 
 from PyQt5.QtWidgets import QTabBar
 from noteflow.ui.views.cloudView import cloudView

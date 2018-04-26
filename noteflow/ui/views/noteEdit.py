@@ -5,12 +5,13 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import re
 from noteflow import functions as F
+from noteflow.ui.views.spellcheckerTextEdit import spellcheckerNoteEdit
 from noteflow.ui.views.markdownHighlighter import MarkdownHighlighter
 from noteflow.ui.views.markdownEnums import MarkdownState as MS
 from noteflow.ui.views.markdownTokenizer import MarkdownTokenizer as MT
 from noteflow.ui.views.noteCompleter import noteCompleter
 
-class noteEdit(QPlainTextEdit):
+class noteEdit(spellcheckerNoteEdit):
 
     blockquoteRegex = QRegExp("^ {0,3}(>\\s*)+")
     listRegex = QRegExp("^(\\s*)([+*-]|([0-9a-z])+([.\)]))(\\s+)")
@@ -32,7 +33,7 @@ class noteEdit(QPlainTextEdit):
     # word, chars, chars no spaces, selection
 
     def __init__(self, parent=None, highlighting=True):
-        QPlainTextEdit.__init__(self, parent)
+        spellcheckerNoteEdit.__init__(self, parent)
         self.note = None
         self.setEnabled(False)
 
@@ -40,6 +41,7 @@ class noteEdit(QPlainTextEdit):
         self.setFont(f)
         self.document().setDefaultFont(f)
 
+        # Highlighter
         self.highlighter = None
         if highlighting:
             self.highlighter = MarkdownHighlighter(self)
@@ -158,7 +160,7 @@ class noteEdit(QPlainTextEdit):
         k = event.key()
         m = event.modifiers()
         cursor = self.textCursor()
-        #QPlainTextEdit.keyPressEvent(self, event)
+        #spellcheckerNoteEdit.keyPressEvent(self, event)
 
         if (self.tagCompleter and self.tagCompleter.popup().isVisible()
             or self.noteCompleter.isVisible()):
@@ -189,18 +191,18 @@ class noteEdit(QPlainTextEdit):
                 else:
                     self.handleCarriageReturn()
             else:
-                QPlainTextEdit.keyPressEvent(self, event)
+                spellcheckerNoteEdit.keyPressEvent(self, event)
         elif k == Qt.Key_Tab:
             #self.indentText()
             # FIXME
-            QPlainTextEdit.keyPressEvent(self, event)
+            spellcheckerNoteEdit.keyPressEvent(self, event)
         elif k == Qt.Key_Backtab:
             #self.unindentText()
             # FIXME
-            QPlainTextEdit.keyPressEvent(self, event)
+            spellcheckerNoteEdit.keyPressEvent(self, event)
 
         else:
-            QPlainTextEdit.keyPressEvent(self, event)
+            spellcheckerNoteEdit.keyPressEvent(self, event)
 
         # Text under cursor
         completionPrefix, start = self.tagUnderCursor()
@@ -648,11 +650,11 @@ class noteEdit(QPlainTextEdit):
 # ==============================================================================
 
     def resizeEvent(self, event):
-        QPlainTextEdit.resizeEvent(self, event)
+        spellcheckerNoteEdit.resizeEvent(self, event)
         self.getClickRects()
 
     def scrollContentsBy(self, dx, dy):
-        QPlainTextEdit.scrollContentsBy(self, dx, dy)
+        spellcheckerNoteEdit.scrollContentsBy(self, dx, dy)
         self.getClickRects()
 
     def getClickRects(self):
@@ -662,6 +664,7 @@ class noteEdit(QPlainTextEdit):
         # f.setWeight(QFont.DemiBold)
         fm = QFontMetrics(f)
         refs = []
+
         text = self.toPlainText()
         for rx in [
                 self.imageRegex,
@@ -699,7 +702,11 @@ class noteEdit(QPlainTextEdit):
         self.clickRects = refs
 
     def mouseMoveEvent(self, event):
-        QPlainTextEdit.mouseMoveEvent(self, event)
+        """
+        Detects and acts on images and links.
+        """
+        spellcheckerNoteEdit.mouseMoveEvent(self, event)
+
         self._lastMousePos = event.pos()
 
         onRect = [r for r in self.clickRects if r.rect.contains(event.pos())]
@@ -753,7 +760,7 @@ class noteEdit(QPlainTextEdit):
             QToolTip.showText(self.mapToGlobal(pos), tt)
 
     def mouseReleaseEvent(self, event):
-        QPlainTextEdit.mouseReleaseEvent(self, event)
+        spellcheckerNoteEdit.mouseReleaseEvent(self, event)
         onRect = [r for r in self.clickRects if r.rect.contains(event.pos())]
         if onRect and event.modifiers() & Qt.ControlModifier:
             ct = onRect[0]
@@ -776,7 +783,7 @@ class noteEdit(QPlainTextEdit):
                 qApp.restoreOverrideCursor()
 
     # def paintEvent(self, event):
-    #     QPlainTextEdit.paintEvent(self, event)
+    #     spellcheckerNoteEdit.paintEvent(self, event)
     #
     #     # Debug: paint rects
     #     painter = QPainter(self.viewport())

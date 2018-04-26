@@ -11,6 +11,8 @@ from noteflow.ui.views.markdownEnums import MarkdownState as MS
 from noteflow.ui.views.markdownEnums import MarkdownTokenType as MTT
 from noteflow.ui.views.markdownEnums import BlockquoteStyle as BS
 
+from noteflow.tools import spellcheck as SC
+
 GW_FADE_ALPHA = 140
 
 # Highlighter based on GhostWriter (http://wereturtle.github.io/ghostwriter/).
@@ -631,6 +633,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 # ==============================================================================
 
     def spellCheck(self, text):
+        cursorPosition = self.editor.textCursor().position()
+        cursorPosBlock = self.document().findBlock(cursorPosition)
+        cursorPosInBlock = -1
+
+        if self.currentBlock() == cursorPosBlock:
+            cursorPosInBlock = cursorPosition - cursorPosBlock.position()
+
+        # FIXME
+        # SC.spellcheckFromFileToJSON(self.currentBlock().text())
+
+    def spellCheck_old(self, text):
         cursorPosition = self.editor.textCursor().position()
         cursorPosBlock = self.document().findBlock(cursorPosition)
         cursorPosInBlock = -1
