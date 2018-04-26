@@ -26,12 +26,13 @@ CONCAT_LINES = True  # concatenate lines not separated by an empty paragraph
 
 class spellcheckThreadManager(QObject):
 
-    _threads = {}
+    _threads = []
 
     @classmethod
     def getUID(cls):
         i = 0
-        while i in cls._threads:
+        uids = [t.uid for t in cls._threads]
+        while i in uids:
             i += 1
         return i
 
@@ -41,9 +42,9 @@ class spellcheckThreadManager(QObject):
         Spellchecks from file and returns a json object.
         """
         uid = cls.getUID()
-        sct = spellcheckThread(block, uid, False)
+        sct = spellcheckThread(block, uid)
         sct.spellchecked.connect(cls.spellcheckFinished)
-        cls._threads[uid] = sct
+        cls._threads.append(sct)
 
         sct.start()
 
@@ -52,7 +53,13 @@ class spellcheckThreadManager(QObject):
         """
         JSONData is a json object
         """
-        thread = cls._threads[uid]
+        # thread = cls._threads[uid]
+        thread = [t for t in cls._threads if t.uid == uid]
+
+        if thread:
+            thread = thread[0]
+        else:
+            return
 
         JSONData = """{{
                         "grammalecte": "{version}",
@@ -64,20 +71,21 @@ class spellcheckThreadManager(QObject):
                                  data=JSONData,
                                  )
 
-        cls._threads.pop(thread.uid)
+        # cls._threads.pop(thread.uid)
+        cls._threads.remove(thread)
 
         from noteflow import MW
-        MW.text.spellcheckBlockFromJSON(thread.block, json.loads(JSONData), thread.text)
+        MW.text.spellcheckBlockFromJSON(thread.block, json.loads(JSONData))
 
 class spellcheckThread(QThread):
 
     # dict is a json object
     spellchecked = pyqtSignal(int, str)
 
-    def __init__(self, block, uid, concatLines=False):
+    def __init__(self, block, uid):
         QThread.__init__(self)
         self.block = block
-        self.concatLines = concatLines
+        self.concatLines = False
         self.uid = uid
         self.text = block.text()
 
@@ -89,13 +97,18 @@ class spellcheckThread(QThread):
 
         for i, txt, lLineSet in generateParagraphFromFile(text, self.concatLines): #bConcatLines
 
-            txt = GC.generateParagraphAsJSON(
+            try:
+                txt = GC.generateParagraphAsJSON(
                         i, txt,
                         bContext=True,
                         bEmptyIfNoErrors=True,
                         bSpellSugg=True,
                         bReturnText=False,
                         lLineSet=lLineSet)
+            except AttributeError:
+                print("Spellcheck: Attribute error.")
+                txt = ""
+                return
 
             if txt:
                 if bComma:

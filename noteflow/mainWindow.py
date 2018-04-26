@@ -254,9 +254,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.openPreviousNotebooks()
 
         # Debug
-        self.text.cursorPositionChanged.connect(lambda: self.message(
-            "Block state: {}".format(self.text.textCursor().block().userState()),
-            overwrite="BlockState"))
+        # self.text.cursorPositionChanged.connect(lambda: self.message(
+        #     "Block state: {}".format(self.text.textCursor().block().userState()),
+        #     overwrite="BlockState"))
 
     def message(self, message=None, t=10000, overwrite=None):
         """

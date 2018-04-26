@@ -21,13 +21,25 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         lbl.setWordWrap(True)
         lbl.setMaximumWidth(400)
         lbl.hide()
-        self.spellcheckToolTip = lbl
+        self.spellcheckTooltip = lbl
+
+        # Timer
+        tmr = QTimer()
+        tmr.setSingleShot(True)
+        tmr.timeout.connect(self.spellcheckTooltip.hide)
+        tmr.setInterval(50)
+        self.timerHideTooltip = tmr
 
         # Clickable things
         self.spellRects = []
         self.textChanged.connect(self.updateSpellcheckRects)
         self.document().documentLayoutChanged.connect(self.updateSpellcheckRects)
+        self.cursorPositionChanged.connect(self.updateSpellcheckRects)
         self.setMouseTracking(True)
+
+        # Track cursor movements
+        self.cursorPositionChanged.connect(self.cursorIsMoving)
+        self._cursorLastBlock = None
 
 # ==============================================================================
 #   SPELLCHECK
@@ -39,7 +51,9 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         """
         if self._autoSpellCheck != value:
             self._autoSpellCheck = value
-            self.highlighter.setSpellCheckEnabled(value)
+            # self.highlighter.setSpellCheckEnabled(value)
+            if not self._autoSpellCheck:
+                self.clearSpellcheck()
 
     def spellcheck(self):
         """
@@ -54,15 +68,22 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         elif self.note:
             self.spellcheckBlock()
 
+    def clearSpellcheck(self):
+        self.spellRects = []
+        self.setExtraSelections([])
+
     def removeExtraSelectionsFromBlock(self, block):
         selections = []
+        oldSel = self.extraSelections()
         for es in self.extraSelections():
             if not block.contains(es.cursor.position()):
                 selections.append(es)
             else:
                 self.spellRects = [r for r in self.spellRects
                                    if r.extraSelection.cursor != es.cursor]
-        self.setExtraSelections(selections)
+
+        if oldSel != selections:
+            self.setExtraSelections(selections)
 
     def spellcheckBlock(self, block=None):
 
@@ -71,15 +92,13 @@ class spellcheckerNoteEdit(QPlainTextEdit):
 
         j = SC.spellcheckBlockToJSON(block)
 
-    def spellcheckBlockFromJSON(self, block, JSONData, text=None):
+    def spellcheckBlockFromJSON(self, block, JSONData):
         """
-        Text is a security, to see whether block content has changed.
         """
         # print(json.dumps(JSONData, indent=4))
 
         text = block.text()
         blockStart = block.position()
-        blockEnd = blockStart + len(text)
 
         # Keep only extraSelections from other blocks
         self.removeExtraSelectionsFromBlock(block)
@@ -172,6 +191,7 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         onRect = [r for r in self.spellRects if r.rect.contains(event.pos())]
 
         if not onRect:
+            self.timerHideTooltip.start()
             return
 
         tooltip = ""
@@ -185,16 +205,30 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         if tooltip:
             self.showToolTip(event.pos(), tooltip, sct._type)
 
+    def cursorIsMoving(self):
+        cursor = self.textCursor()
+        bn = cursor.blockNumber()
+
+        if (self._cursorLastBlock
+             and self._autoSpellCheck
+             and bn != self._cursorLastBlock):
+
+            self.spellcheckBlock(self.document().findBlockByNumber(self._cursorLastBlock))
+
+        self._cursorLastBlock = bn
+
 # ==============================================================================
 #   TOOLTIPS
 # ==============================================================================
 
     def showToolTip(self, pos, msg, _type):
-        lbl = self.spellcheckToolTip
+        lbl = self.spellcheckTooltip
         lbl.setText(msg)
         lbl.adjustSize()
         r = lbl.geometry()
         r.moveTopLeft(pos + QPoint(0, 20))
+        if r.right() > self.viewport().geometry().right():
+            r.moveRight(self.viewport().geometry().right())
         lbl.setGeometry(r)
 
         lbl.setStyleSheet("""
@@ -205,17 +239,17 @@ class spellcheckerNoteEdit(QPlainTextEdit):
                  color="#CCCCFF" if _type == "G" else "#FFCCCC"
               ))
 
-
         lbl.show()
+        self.timerHideTooltip.stop()
 
-    # def paintEvent(self, event):
-    #     QPlainTextEdit.paintEvent(self, event)
-    #
-    #     # Debug: paint rects
-    #     painter = QPainter(self.viewport())
-    #     painter.setPen(Qt.gray)
-    #     for r in self.spellRects:
-    #         painter.drawRect(r.rect)
+    def paintEvent(self, event):
+        QPlainTextEdit.paintEvent(self, event)
+
+        # Debug: paint rects
+        painter = QPainter(self.viewport())
+        painter.setPen(Qt.gray)
+        for r in self.spellRects:
+            painter.drawRect(r.rect)
 
 class SpellCheckThing:
     def __init__(self, rect, extraSelection, message="", suggestions=[], _type=""):
