@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 import re
 import json
 from noteflow import functions as F
-from noteflow.tools.spellcheck import spellcheckThreadManager as SC
+from noteflow.tools.spellcheck import STM as SC
 
 class spellcheckerNoteEdit(QPlainTextEdit):
 
@@ -57,16 +57,13 @@ class spellcheckerNoteEdit(QPlainTextEdit):
 
     def spellcheck(self):
         """
-        Runs spellcheck.
+        Runs spellcheck on the whole document.
         """
-        if self.note and False:
+        if self.note:
             b = self.document().begin()
             while b.isValid():
                 self.spellcheckBlock(b)
                 b = b.next()
-
-        elif self.note:
-            self.spellcheckBlock()
 
     def clearSpellcheck(self):
         self.spellRects = []
@@ -242,14 +239,14 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         lbl.show()
         self.timerHideTooltip.stop()
 
-    def paintEvent(self, event):
-        QPlainTextEdit.paintEvent(self, event)
-
-        # Debug: paint rects
-        painter = QPainter(self.viewport())
-        painter.setPen(Qt.gray)
-        for r in self.spellRects:
-            painter.drawRect(r.rect)
+    # def paintEvent(self, event):
+    #     QPlainTextEdit.paintEvent(self, event)
+    #
+    #     # Debug: paint rects
+    #     painter = QPainter(self.viewport())
+    #     painter.setPen(Qt.gray)
+    #     for r in self.spellRects:
+    #         painter.drawRect(r.rect)
 
 class SpellCheckThing:
     def __init__(self, rect, extraSelection, message="", suggestions=[], _type=""):

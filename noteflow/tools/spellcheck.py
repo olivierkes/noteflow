@@ -26,40 +26,52 @@ CONCAT_LINES = True  # concatenate lines not separated by an empty paragraph
 
 class spellcheckThreadManager(QObject):
 
+    THREAD_NUMBER = 3
     _threads = []
+    _stack = []
 
-    @classmethod
-    def getUID(cls):
-        i = 0
-        uids = [t.uid for t in cls._threads]
-        while i in uids:
-            i += 1
-        return i
+    def __init__(self):
+        # Initiate threads
+        while len(self._threads) < self.THREAD_NUMBER:
+            sct = spellcheckThread(parent=self)
+            self._threads.append(sct)
 
-    @classmethod
-    def spellcheckBlockToJSON(cls, block):
+    def spellcheckBlockToJSON(self, block):
         """
         Spellchecks from file and returns a json object.
         """
-        uid = cls.getUID()
-        sct = spellcheckThread(block, uid)
-        sct.spellchecked.connect(cls.spellcheckFinished)
-        cls._threads.append(sct)
 
-        sct.start()
+        # Add to stack
+        self._stack.append(block)
 
-    @classmethod
-    def spellcheckFinished(cls, uid, JSONData):
+        # Run stack
+        self.runStack()
+
+    def getSleepingThread(self):
+        """
+        Returns the first non active thread.
+        """
+        t = [t for t in self._threads if not t.isRunning()]
+
+        if t:
+            return t[0]
+        else:
+            return None
+
+    def runStack(self):
+
+        # Start threads
+        t = self.getSleepingThread()
+        while t and self._stack:
+            b = self._stack.pop()
+            t.setBlock(b)
+            t.start()
+            t = self.getSleepingThread()
+
+    def spellcheckFinished(self, JSONData, block):
         """
         JSONData is a json object
         """
-        # thread = cls._threads[uid]
-        thread = [t for t in cls._threads if t.uid == uid]
-
-        if thread:
-            thread = thread[0]
-        else:
-            return
 
         JSONData = """{{
                         "grammalecte": "{version}",
@@ -71,23 +83,25 @@ class spellcheckThreadManager(QObject):
                                  data=JSONData,
                                  )
 
-        # cls._threads.pop(thread.uid)
-        cls._threads.remove(thread)
-
         from noteflow import MW
-        MW.text.spellcheckBlockFromJSON(thread.block, json.loads(JSONData))
+        MW.text.spellcheckBlockFromJSON(block, json.loads(JSONData))
+
+        # Continue to spellcheck stack
+        self.runStack()
 
 class spellcheckThread(QThread):
 
     # dict is a json object
-    spellchecked = pyqtSignal(int, str)
+    spellchecked = pyqtSignal(str)
 
-    def __init__(self, block, uid):
+    def __init__(self, block=None, parent=None):
         QThread.__init__(self)
         self.block = block
         self.concatLines = False
-        self.uid = uid
-        self.text = block.text()
+        self.parent = parent
+
+    def setBlock(self, block):
+        self.block = block
 
     def run(self):
 
@@ -105,6 +119,7 @@ class spellcheckThread(QThread):
                         bSpellSugg=True,
                         bReturnText=False,
                         lLineSet=lLineSet)
+
             except AttributeError:
                 print("Spellcheck: Attribute error.")
                 txt = ""
@@ -116,7 +131,12 @@ class spellcheckThread(QThread):
                 data += txt
                 bComma = True
 
-        self.spellchecked.emit(self.uid, data)
+        # self.spellchecked.emit(data)
+        if self.parent:
+            self.parent.spellcheckFinished(data, self.block)
+
+
+STM = spellcheckThreadManager()
 
 ###############################################################################
 # From grammalecte-cli.py.

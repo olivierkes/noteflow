@@ -64,6 +64,7 @@ class noteEdit(spellcheckerNoteEdit):
         self.tagCompleter.setCaseSensitivity(Qt.CaseInsensitive)
         self.tagCompleter.setFilterMode(Qt.MatchContains)
         self.tagCompleter.activated.connect(self.insertTagCompletion)
+        self._tagCompleterPopupVisible = False # caching that, for perf issue
 
         # Note Completer
         self.noteCompleter = noteCompleter(self)
@@ -162,7 +163,7 @@ class noteEdit(spellcheckerNoteEdit):
         cursor = self.textCursor()
         #spellcheckerNoteEdit.keyPressEvent(self, event)
 
-        if (self.tagCompleter and self.tagCompleter.popup().isVisible()
+        if (self.tagCompleter and self._tagCompleterPopupVisible #self.tagCompleter.popup().isVisible()
             or self.noteCompleter.isVisible()):
             # The following keys are forwarded by the completer to the widget
             if event.key() in [Qt.Key_Enter, Qt.Key_Return,
@@ -222,9 +223,11 @@ class noteEdit(spellcheckerNoteEdit):
             cr.setWidth(self.tagCompleter.popup().sizeHintForColumn(0)
                         + self.tagCompleter.popup().verticalScrollBar().sizeHint().width())
             self.tagCompleter.complete(cr)
+            self._tagCompleterPopupVisible = True
 
-        else:
+        elif self._tagCompleterPopupVisible:
             self.tagCompleter.popup().hide()
+            self._tagCompleterPopupVisible = False
 
     # Again, thanks to GhostWriter, mainly
     def handleCarriageReturn(self):
@@ -603,6 +606,9 @@ class noteEdit(spellcheckerNoteEdit):
             self.note = None
             self.setEnabled(False)
             self.setPlainText("")
+
+        # Clear spellcheck stuff
+        self.clearSpellcheck()
 
         # Restores the position of the scrollbar
         # FIXME: does not restore the proper position exactly
