@@ -24,6 +24,49 @@ oTextFormatter = GC.getTextFormatter()
 
 CONCAT_LINES = True  # concatenate lines not separated by an empty paragraph
 
+# SETTING OPTIONS
+
+# Uncomment to list options
+# print(GC.gce.displayOptions("fr"))
+
+options = {
+    "apos":   False,   # Apostrophe typographique
+    "bs":     True,    # Populaire
+    "chim":   False,   # Chimie [!]
+    "conf":   True,    # Confusions et faux-amis
+    "conj":   True,    # Conjugaisons
+    "date":   True,    # Validité des dates
+    "esp":    False,   # Espaces surnuméraires
+    "gn":     True,    # Accords (genre et nombre)
+    "html":   False,   # ?
+    "idrule": False,   # Identifiant des règles de contrôle [!]
+    "imp":    True,    # Impératif
+    "infi":   True,    # Infinitif
+    "inte":   True,    # Interrogatif
+    "latex":  False,   # ?
+    "liga":   True,   # Signaler ligatures typographiques
+    "maj":    True,    # Majuscules
+    "mapos":  False,   # Apostrophe manquante après lettres isolées [!]
+    "mc":     True,   # Mots composés [!]
+    "nbsp":   False,    # Espaces insécables
+    "neg":    False,   # Adverbe de négation [!]
+    "nf":     True,    # Normes françaises
+    "num":    True,    # Nombres
+    "ocr":    False,   # Erreurs de numérisation (OCR) [!]
+    "pleo":   True,    # Pléonasmes
+    "ppas":   True,    # Participes passés, adjectifs
+    "redon1": False,   # Répétitions dans le paragraphe [!]
+    "redon2": True,   # Répétitions dans la phrase [!]
+    "sgpl":   True,    # Pluriels (locutions)
+    "tab":    False,   # Tabulations surnuméraires
+    "tu":     True,    # Traits d’union
+    "typo":   False,    # Signes typographiques
+    "unit":   True,    # Espaces insécables avant unités de mesure
+    "virg":   True,    # Virgules
+    "vmode":  True,    # Modes verbaux
+}
+GC.gce.setOptions(options)
+
 class spellcheckThreadManager(QObject):
 
     THREAD_NUMBER = 3
@@ -42,7 +85,8 @@ class spellcheckThreadManager(QObject):
         """
 
         # Add to stack
-        self._stack.append(block)
+        if not block in self._stack:
+            self._stack.append(block)
 
         # Run stack
         self.runStack()

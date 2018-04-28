@@ -100,9 +100,6 @@ class spellcheckerNoteEdit(QPlainTextEdit):
         # Keep only extraSelections from other blocks
         self.removeExtraSelectionsFromBlock(block)
 
-        if not JSONData["data"]:
-            return
-
         # Variables
         fmtGrammar = QTextCharFormat()
         fmtGrammar.setBackground(QBrush(QColor(220,220,250)))
@@ -111,6 +108,22 @@ class spellcheckerNoteEdit(QPlainTextEdit):
 
         selections = self.extraSelections()
         objects = []
+
+        # # Underline block to show that it has been spellchecked
+        # s = QTextEdit.ExtraSelection()
+        # s.cursor = self.textCursor()
+        # s.cursor.setPosition(blockStart)
+        # s.cursor.select(s.cursor.BlockUnderCursor)
+        # # s.format.setBackground(QBrush(QColor(240,255,240)))
+        # s.format.setUnderlineStyle(s.format.DotLine)
+        # s.format.setUnderlineColor(QColor(100,255,100))
+        # # s.format.setProperty(QTextFormat.FullWidthSelection, True)
+        # # s.cursor.clearSelection()
+        # selections.append(s)
+
+        if not JSONData["data"]:
+            self.setExtraSelections(selections)
+            return
 
         for _type, fmt in [("lGrammarErrors", fmtGrammar),
                            ("lSpellingErrors", fmtOrth)]:
