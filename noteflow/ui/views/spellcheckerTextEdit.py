@@ -139,6 +139,81 @@ class spellcheckerNoteEdit(QPlainTextEdit):
 
         self.setExtraSelections(selections)
 
+# ==============================================================================
+#   Context menu
+# ==============================================================================
+
+
+    class SpellAction(QAction):
+        """A special QAction that returns the text in a signal.
+        Used for spellckech."""
+
+        correct = pyqtSignal(str)
+
+        def __init__(self, *args):
+            QAction.__init__(self, *args)
+
+            self.triggered.connect(lambda x: self.correct.emit(
+                    str(self.data())))
+
+    def contextMenuEvent(self, event):
+        popup_menu = self.createStandardContextMenu(event.pos())
+        popup_menu.exec_(event.globalPos())
+
+    def createStandardContextMenu(self, position):
+        popup_menu = QPlainTextEdit.createStandardContextMenu(self)
+
+        # Get Spell
+        onRect = [r for r in self.spellRects if r.rect.contains(position)]
+
+        if not onRect:
+            return popup_menu
+
+        for r in onRect:
+            title = "Grammar" if r._type == "G" else "Spelling"
+            spell_menu = QMenu(title, self)
+
+            # Select Word
+            self.setTextCursor(r.extraSelection.cursor)
+
+            # Message
+            if r.message:
+                action = self.SpellAction(r.message, spell_menu)
+                action.setEnabled(False)
+                spell_menu.addAction(action)
+
+            # Suggestions
+            if r.suggestions:
+                for word in r.suggestions:
+                    action = self.SpellAction(word, spell_menu)
+                    action.setData(word)
+                    action.correct.connect(self.correctWord)
+                    spell_menu.addAction(action)
+
+            # Only add the spelling suggests to the menu if not empty
+            if len(spell_menu.actions()) != 0:
+                popup_menu.insertSeparator(popup_menu.actions()[0])
+                # Adds: suggestions
+                popup_menu.insertMenu(popup_menu.actions()[0], spell_menu)
+
+        return popup_menu
+
+    def correctWord(self, word):
+        """
+        Replaces the selected text with word.
+        """
+        cursor = self.textCursor()
+        cursor.beginEditBlock()
+
+        cursor.removeSelectedText()
+        cursor.insertText(word)
+
+        cursor.endEditBlock()
+
+# ==============================================================================
+#   STUFF
+# ==============================================================================
+
     def getCursorBoundingRect(self, cursor):
         start = cursor.selectionStart()
         end = cursor.selectionEnd()
@@ -254,4 +329,4 @@ class SpellCheckThing:
         self.extraSelection = extraSelection
         self.message = message
         self.suggestions = suggestions
-        self._type = _type
+        self._type = _type  # "G" / "O"
