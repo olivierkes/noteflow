@@ -162,6 +162,18 @@ class Notebook(QObject):
                 # MACRO COMMANDS
                 #---------------
 
+                # STORE VARS
+                vars = {}
+                for m in re.finditer(r'@noteflow:\s*var\s*([^\s]+)\s*=\s*("(.+)"|[^\s]+)',
+                                     content[path], re.I):
+                    value = m.group(2).strip()
+                    if value[0] == value[-1] == '"':
+                         value = value[1:-1]
+                    print("VAR {name} = {value}".format(
+                        name=m.group(1).strip(),
+                        value=value))
+                    vars[m.group(1)] = value
+
                 # EXPORT TO EXTRA LOCATION
                 # Searches for something like `@noteflow: export "path"`
                 # and if found saves a copy at that location.
@@ -171,6 +183,13 @@ class Notebook(QObject):
                     exportPath = m.group(1)
                     if exportPath[0] == exportPath[-1] == '"':
                         exportPath = exportPath[1:-1]
+
+                    # VARS substitution
+                    for var in vars:
+                        exportPath = exportPath.replace(
+                            "${}$".format(var),
+                            vars[var])
+
                     print("+ exporting to:", exportPath)
                     os.makedirs(os.path.dirname(exportPath), exist_ok=True)
                     with open(exportPath, "w", encoding='utf8') as f:
@@ -185,6 +204,13 @@ class Notebook(QObject):
                     cmd = m.group(1)
                     if cmd[0] == cmd[-1] == '"':
                         cmd = cmd[1:-1]
+
+                    # VARS substitution
+                    for var in vars:
+                        cmd = cmd.replace(
+                            "${}$".format(var),
+                            vars[var])
+
                     print("+ running cmd:", cmd)
                     proc = QProcess(self)
                     from noteflow import MW
