@@ -11,11 +11,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 import noteflow.functions as F
-import libs.grammalecte.grammalecte
-
-import libs.grammalecte.grammalecte as G
-import libs.grammalecte.grammalecte.text as txt
-from libs.grammalecte.grammalecte.graphspell.echo import echo
+import grammalecte as G
+import grammalecte.text as txt
+from grammalecte.graphspell.echo import echo
 
 GC = G.GrammarChecker("fr")
 oSpellChecker = GC.getSpellChecker()

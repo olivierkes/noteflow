@@ -6,11 +6,12 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5 import QtWebEngineWidgets
 
 _version = "0.1.0"
 
 import noteflow.functions as F
+# QtWebEngineWidgets must be imported before a QCoreApplication is created.
+import noteflow.ui.views.webView
 
 MW = None
 
