@@ -127,7 +127,11 @@ class Notebook(QObject):
                 if f[-len(EXT):] == EXT:
                     filename = os.path.join(root, f)
                     p = os.path.relpath(filename, path)
-                    content[p] = F.loadTextFile(filename)
+                    noteContent = F.loadTextFile(filename)
+                    if noteContent:
+                        content[p] = noteContent
+                    else:
+                        print("WARNING: file `{}` has no content".format(p))
 
         self._content = content
 
