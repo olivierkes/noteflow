@@ -1,0 +1,11 @@
+#!/bin/bash
+# -*- coding: utf-8 -*-
+
+# Assumes python virtual env in ../virtualenv
+
+cd "$(dirname "$0")"
+
+echo LOADING VENV
+source ../virtualenv/bin/activate
+echo RUNNING NOTEFLOW
+make run

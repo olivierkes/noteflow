@@ -3,6 +3,9 @@
 import os
 import sys
 
+import faulthandler
+faulthandler.enable()
+
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
