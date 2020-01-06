@@ -158,6 +158,7 @@ class noteEdit(spellcheckerNoteEdit):
 # ==============================================================================
 
     def keyPressEvent(self, event):
+        # FIXME: optimization needed.... but elsewhere too.
         k = event.key()
         m = event.modifiers()
         cursor = self.textCursor()
@@ -664,6 +665,8 @@ class noteEdit(spellcheckerNoteEdit):
         self.getClickRects()
 
     def getClickRects(self):
+        # FIXME: often gets QTextCursor::setPosition: Position '201' out of range
+        # Plus, maybe should be throttled or something...
         cursor = self.textCursor()
         f = self.font()
         # f.setFixedPitch(True)

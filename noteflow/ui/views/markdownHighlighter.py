@@ -47,8 +47,8 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.useUndlerlineForEmphasis = False
         self.highlightLineBreaks = True
 
-        #self.editor.typingResumed.connect(self.onTypingResumed)
-        #self.editor.typingPaused.connect(self.onTypingPaused)
+        # self.editor.typingResumed.connect(self.onTypingResumed)
+        # self.editor.typingPaused.connect(self.onTypingPaused)
         self.headingFound.connect(self.editor.headingFound)
         self.headingRemoved.connect(self.editor.headingRemoved)
         self.headingFound.connect(self.editor.structureChanged)
@@ -73,6 +73,13 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.searchExpression = ""
         self.searchExpressionRegExp = False
         self.searchExpressionCase = False
+
+        # Debounce timer
+        self.reHighlightTimer = QTimer()
+        self.reHighlightTimer.setInterval(400)
+        self.reHighlightTimer.setSingleShot(True)
+        self.reHighlightTimer.timeout.connect(self.reHighlightStack)
+        self.reHighlightStackBlocks = [] # Stacks of blocks to rehighlight
 
         self.customRules = [
             ("(°).*?(°)", {"background": Qt.yellow,
@@ -173,7 +180,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
             if self.tokenizer.backtrackRequested():
                 previous = self.currentBlock().previous()
-                self.highlightBlockAtPosition.emit(previous.position())
+                # self.highlightBlockAtPosition.emit(previous.position())
+                self.reHighlightStackBlocks.append(previous)
+                self.reHighlightTimer.start()
 
         if self.spellCheckEnabled:
             self.spellCheck(text)
@@ -264,6 +273,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
            not self.isHeadingBlockState(self.currentBlockState()):
             self.headingRemoved.emit(self.currentBlock().position())
 
+    def reHighlightStack(self):
+        """
+        Debouce the highlighting from backtrack highlighting... Trying to improve perf but not really helping...
+        """
+        highlighted = []
+        for b in self.reHighlightStackBlocks:
+            if b.position() not in highlighted:
+                self.rehighlightBlock(b)
+            highlighted.append(b.position())
+
+        self.reHighlightStackBlocks = []
 
 # ==============================================================================
 #   COLORS & FORMATTING
